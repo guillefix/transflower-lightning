@@ -1,0 +1,3 @@
+lightning_logs/*
+data/scaled_features/*
+data/scaled_features.tar.gz
