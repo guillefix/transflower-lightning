@@ -1,5 +1,6 @@
 lightning_logs/*
 data/scaled_features/*
+data/music/*
 data/scaled_features.tar.gz
 .idea/*
 test_data/*
