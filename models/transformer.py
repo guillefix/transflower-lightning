@@ -95,7 +95,9 @@ class BasicTransformerModel(nn.Module):
         # print(torch.mm(src[:,0,:],src[:,0,:].T))
         if self.use_pos_emb:
             #print(self.pos_emb)
-            src_mask += self.pos_emb
-        output = self.transformer_encoder(src, src_mask)
+            #src_mask += self.pos_emb
+            output = self.transformer_encoder(src, src_mask + self.pos_emb)
+        else:
+            output = self.transformer_encoder(src, src_mask)
         output = self.decoder(output)
         return output

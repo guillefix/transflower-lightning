@@ -3,7 +3,7 @@
                     beta1: 0.5                           
           checkpoints_dir: training/experiments          
            continue_train: True                          	[default: False]
-                 data_dir: ./data/scaled_features        	[default: data/scaled_features]
+                 data_dir: ../multimodal-transformer/data/scaled_features	[default: data/scaled_features]
              dataset_name: multimodal                    
                      dhid: 400                           	[default: 512]
                      dins: 219,103                       	[default: None]
@@ -36,7 +36,8 @@
                     nhead: 10                            	[default: 8]
                   nlayers: 12                            	[default: 6]
                   no_html: False                         
-              num_windows: 10                            	[default: 16]
+        num_train_samples: 0                             
+              num_windows: 1                             	[default: 16]
           output_channels: 1                             
             output_length: 1                             
            output_lengths: 20                            	[default: None]

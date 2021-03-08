@@ -177,6 +177,7 @@ class TransformerModel(BaseModel):
 
     def training_step(self, batch, batch_idx):
         self.set_inputs(batch)
+        #print(self.inputs)
         latents = []
         for i, mod in enumerate(self.input_mods):
             latents.append(self.input_mod_nets[i].forward(self.inputs[i],self.src_masks[i]))
@@ -185,9 +186,40 @@ class TransformerModel(BaseModel):
         loss_mse = 0
         for i, mod in enumerate(self.output_mods):
             output = self.output_mod_nets[i].forward(latent,self.output_masks[i])[:self.output_lengths[i]]
+            #print(output)
             loss_mse += self.criterion(output, self.targets[i])
+            #loss_mse += self.criterion(output, self.targets[i]).detach()
+        #print(loss_mse)
         return loss_mse
+        #return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
+
+    def test_step(self, batch, batch_idx):
+        self.set_inputs(batch)
+        #print(self.inputs)
+        latents = []
+        for i, mod in enumerate(self.input_mods):
+            latents.append(self.input_mod_nets[i].forward(self.inputs[i],self.src_masks[i]))
+
+        latent = torch.cat(latents)
+        loss_mse = 0
+        for i, mod in enumerate(self.output_mods):
+            output = self.output_mod_nets[i].forward(latent,self.output_masks[i])[:self.output_lengths[i]]
+            #print(output)
+            loss_mse += self.criterion(output, self.targets[i])
+            #loss_mse += self.criterion(output, self.targets[i]).detach()
+        print(loss_mse)
+        #return loss_mse
+        return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
 
     def configure_optimizers(self):
+        print("HIIIIIIIIIIIIIIIIII")
         optimizer = torch.optim.Adam(self.parameters(), lr=self.opt.learning_rate)
+        #print([p[0] for p in self.named_parameters()])
+        #optimizer = torch.optim.Adam(self.parameters(), lr=0.0)
+        #optimizer = torch.optim.SGD(self.parameters(), lr=0.0)
+        #optimizer = torch.optim.SGD(self.parameters(), lr=self.opt.learning_rate)
         return optimizer
+
+    #def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx,
+    #                           optimizer_closure, on_tpu, using_native_amp, using_lbfgs):
+    #    optimizer.zero_grad()

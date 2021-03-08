@@ -1,3 +1,6 @@
 lightning_logs/*
 data/scaled_features/*
 data/scaled_features.tar.gz
+training/experiments/aistpp/lightning_logs/*
+training/experiments/*
+**/*.pyc

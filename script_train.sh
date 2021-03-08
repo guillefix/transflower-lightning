@@ -7,9 +7,9 @@ py=python
 dataset=multimodal
 model=transformer
 #exp=aistpp_big
-exp=aistpp
+exp=aistpp_fix
 
-$py training/train.py --data_dir=./data/scaled_features --dataset_name=$dataset --model=$model --batch_size=1 --num_windows=10 --nepoch=5000 --nepoch_decay=5000 \
+$py training/train.py --data_dir=../multimodal-transformer/data/scaled_features --dataset_name=$dataset --model=$model --batch_size=80 --num_windows=1 --nepoch=5000 --nepoch_decay=5000 \
     --print_freq=1 --experiment_name=$exp --save_latest_freq=5000\
     --fix_lengths \
     --weight_decay=0 \
@@ -27,11 +27,6 @@ $py training/train.py --data_dir=./data/scaled_features --dataset_name=$dataset 
     --dhid=400 \
     --val_epoch_freq=0 \
     --dropout=0 \
-    --continue_train \
     --workers=4 \
     --gpu_ids=0 \
-    #--load_epoch 150 \
-    #--load_iter=50000 \
-    #--dins="219,102" \
-    #--input_modalities="pkl_joint_angles_mats,mp3_mel_ddcpca" \
-    #--output_modalities="pkl_joint_angles_mats" \
+    --continue_train \
