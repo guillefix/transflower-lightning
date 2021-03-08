@@ -218,7 +218,8 @@ class TransformerModel(BaseModel):
         #optimizer = torch.optim.Adam(self.parameters(), lr=0.0)
         #optimizer = torch.optim.SGD(self.parameters(), lr=0.0)
         #optimizer = torch.optim.SGD(self.parameters(), lr=self.opt.learning_rate)
-        return optimizer
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 500, gamma=0.1)
+        return [optimizer], [scheduler]
 
     #def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx,
     #                           optimizer_closure, on_tpu, using_native_amp, using_lbfgs):
