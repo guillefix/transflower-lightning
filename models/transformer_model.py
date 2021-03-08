@@ -109,10 +109,11 @@ class TransformerModel(BaseModel):
         inputs_ = []
         for i,mod in enumerate(self.input_mods):
             input_ = features["in_"+mod]
-            input_ = torch.from_numpy(input_).float()
+            input_ = torch.from_numpy(input_).float().cuda()
             input_shape = input_.shape
             input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3])).permute(2,0,1).to(self.device)
             inputs_.append(input_)
+
 
         inputs = []
         input_tmp = []
@@ -128,7 +129,7 @@ class TransformerModel(BaseModel):
                 # for t in range(sequence_length-max(self.input_lengths)-1):
                 # for t in range(sequence_length):
                 print(t)
-                inputs = [x.clone() for x in input_tmp]
+                inputs = [x.clone().cuda() for x in input_tmp]
                 outputs = self.forward(inputs)
                 if t == 0:
                     for i, mod in enumerate(self.output_mods):
@@ -150,7 +151,7 @@ class TransformerModel(BaseModel):
                             output = outputs[i]
                             input_tmp[i] = torch.cat([input_tmp[i][1:],output[:1].detach().clone()],0)
                             # input_tmp[i] = torch.cat([input_tmp[i][1:],inputs_[i][t+self.input_time_offsets[i]+self.input_lengths[i]:t+self.input_time_offsets[i]+self.input_lengths[i]+1]],0)
-                            print(torch.mean((inputs_[i][t+self.input_time_offsets[i]+self.input_lengths[i]-self.predicted_inputs[i]+1:t+self.input_time_offsets[i]+self.input_lengths[i]-self.predicted_inputs[i]+1+1]-self.outputs[j][:1].detach().clone())**2))
+                            print(torch.mean((inputs_[i][t+self.input_time_offsets[i]+self.input_lengths[i]-self.predicted_inputs[i]+1:t+self.input_time_offsets[i]+self.input_lengths[i]-self.predicted_inputs[i]+1+1]-outputs[j][:1].detach().clone())**2))
                         else:
                             input_tmp[i] = torch.cat([input_tmp[i][1:],inputs_[i][self.input_time_offsets[i]+self.input_lengths[i]+t:self.input_time_offsets[i]+self.input_lengths[i]+t+1]],0)
 
