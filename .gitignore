@@ -7,3 +7,6 @@ inference/*.npy
 training/experiments/aistpp/lightning_logs/*
 training/experiments/*
 **/*.pyc
+generated/*.npy
+analaysis/aistplusplus_api/SMPL_MALE.pkl
+analaysis/aistplusplus_api/img/*

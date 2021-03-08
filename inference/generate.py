@@ -5,44 +5,52 @@ import pytorch_lightning as pl
 import numpy as np
 import pickle, json
 import sklearn
+import argparse
+import os, glob
 
 if __name__ == '__main__':
     print("Hi")
-    experiment_name="aistpp"
-    opt = json.loads(open("../training/experiments/"+experiment_name+"/opt.json","r").read())
+    parser = argparse.ArgumentParser(description='Generate dance from song')
+    parser.add_argument('--data_dir', type=str)
+    parser.add_argument('--experiment_name', type=str)
+    parser.add_argument('--seq_id', type=str)
+    parser.add_argument('--input_modalities', type=str)
+    parser.add_argument('--output_modalities', type=str)
+    args = parser.parse_args()
+    data_dir = args.data_dir
+    seq_id = args.seq_id
+    input_mods = args.input_modalities.split(",")
+    output_mods = args.output_modalities.split(",")
+
+    opt = json.loads(open("training/experiments/"+args.experiment_name+"/opt.json","r").read())
     class Struct:
         def __init__(self, **entries):
             self.__dict__.update(entries)
     opt = Struct(**opt)
+
+    # Load latest trained checkpoint from experiment
+    default_save_path = opt.checkpoints_dir+"/"+opt.experiment_name
+    logs_path = default_save_path+"/lightning_logs"
+    checkpoint_subdirs = [(d,int(d.split("_")[1])) for d in os.listdir(logs_path) if os.path.isdir(logs_path+"/"+d)]
+    checkpoint_subdirs = sorted(checkpoint_subdirs,key=lambda t: t[1])
+    checkpoint_path=logs_path+"/"+checkpoint_subdirs[-1][0]+"/checkpoints/"
+    list_of_files = glob.glob(checkpoint_path+'/*') # * means all if need specific format then *.csv
+    latest_file = max(list_of_files, key=os.path.getctime)
+    print(latest_file)
     model = create_model(opt)
-    model = model.load_from_checkpoint("../lightning_logs/version_2/checkpoints/epoch=184-step=739.ckpt", opt=opt)
+    model = model.load_from_checkpoint(latest_file, opt=opt)
 
-    # seq_id="gLH_sBM_cAll_d16_mLH1_ch04"
-    # seq_id="gWA_sBM_cAll_d26_mWA1_ch10"
-    # seq_id="gWA_sFM_cAll_d27_mWA2_ch17"
-    # seq_id="gLO_sBM_cAll_d14_mLO4_ch05"
-    seq_id="gHO_sFM_cAll_d19_mHO1_ch02"
-    # seq_id="mambo"
-
-    # sf = np.load("data/features/"+seq_id+".mel_ddcpca_scaled.npy")
-    sf = np.load("../test_data/"+seq_id+".mel_ddcpca_scaled.npy")
-    # sf = np.load("test_data/"+seq_id+".mp3_mel_ddcpca.npy")
-    # mf = np.load("data/features/"+seq_id+".joint_angles_scaled.npy")
-    mf = np.load("../test_data/"+seq_id+".joint_angles_scaled.npy")
-
+    # Load input features (sequences must have been processed previously into features)
     features = {}
-    features["in_joint_angles_scaled"] = np.expand_dims(np.expand_dims(mf.transpose(1,0),0),0)
-    features["in_mel_ddcpca_scaled"] = np.expand_dims(np.expand_dims(sf.transpose(1,0),0),0)
-    # features["in_pkl_joint_angles_mats"] = np.expand_dims(np.expand_dims(mf.transpose(1,0),0),0)
-    # features["in_mp3_mel_ddcpca"] = np.expand_dims(np.expand_dims(sf.transpose(1,0),0),0)
+    for mod in input_mods:
+        feature = np.load(data_dir+"/"+seq_id+"."+mod+".npy")
+        features["in_"+mod] = np.expand_dims(np.expand_dims(feature.transpose(1,0),0),0)
 
+    # Generate prediction
     model.cuda()
     predicted_modes = model.generate(features)[0].cpu().numpy()
-
-    # predicted_modes = (predicted_modes[0].cpu().numpy()*mf_std + mf_mean)
-    transform = pickle.load(open("../test_data"+'/'+'pkl_joint_angles_mats'+'_'+'scaler'+'.pkl', "rb"))
+    # At the moment we are hardcoding the output mod. TODO: make more general
+    transform = pickle.load(open(data_dir+"/"+'pkl_joint_angles_mats'+'_'+'scaler'+'.pkl', "rb"))
     predicted_modes = transform.inverse_transform(predicted_modes)
-
     print(predicted_modes)
-
-    np.save(seq_id+".pkl_joint_angles_mats.generated.test.npz",predicted_modes)
+    np.save("generated/"+seq_id+".pkl_joint_angles_mats.generated.test.npz",predicted_modes)
