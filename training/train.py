@@ -22,5 +22,5 @@ if __name__ == '__main__':
     if opt.continue_train:
         model = model.load_from_checkpoint("lightning_logs/version_17/checkpoints/epoch=60-step=243.ckpt", opt=opt)
 
-        trainer = pl.Trainer(num_processes=opt.workers,gpus=opt.gpu_ids)
+    trainer = pl.Trainer(num_processes=opt.workers,gpus=opt.gpu_ids)
     trainer.fit(model, train_dataloader)
