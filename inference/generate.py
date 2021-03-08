@@ -53,4 +53,4 @@ if __name__ == '__main__':
     transform = pickle.load(open(data_dir+"/"+'pkl_joint_angles_mats'+'_'+'scaler'+'.pkl', "rb"))
     predicted_modes = transform.inverse_transform(predicted_modes)
     print(predicted_modes)
-    np.save("generated/"+seq_id+".pkl_joint_angles_mats.generated.test.npz",predicted_modes)
+    np.save("generated/joint_angles_mats/"+seq_id+".pkl_joint_angles_mats.generated",predicted_modes)

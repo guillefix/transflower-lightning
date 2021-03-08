@@ -10,3 +10,4 @@ training/experiments/*
 generated/*.npy
 analaysis/aistplusplus_api/SMPL_MALE.pkl
 analaysis/aistplusplus_api/img/*
+generated/*
