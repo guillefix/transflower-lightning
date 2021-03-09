@@ -11,6 +11,7 @@ exp=aistpp_2
 
 $py training/train.py --data_dir=./data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --nepoch=500 --nepoch_decay=500 \
     --print_freq=1 --experiment_name=$exp --save_latest_freq=5000\
+    --tpu_cores=8 \
     --weight_decay=0 \
     --learning_rate=3e-5 \
     --dins="219,103" \
@@ -26,7 +27,4 @@ $py training/train.py --data_dir=./data/scaled_features --dataset_name=$dataset 
     --dhid=800 \
     --val_epoch_freq=0 \
     --dropout=0 \
-    --workers=4 \
-    --gpu_ids=0 \
     #--continue_train \
-    #--fix_lengths \

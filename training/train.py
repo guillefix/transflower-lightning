@@ -30,8 +30,6 @@ if __name__ == '__main__':
     #                save_weights_only=True)
 
     if opt.continue_train:
-        #model = model.load_from_checkpoint("lightning_logs/version_2/checkpoints/epoch=287-step=1151.ckpt", opt=opt)
-
         logs_path = default_save_path+"/lightning_logs"
         checkpoint_subdirs = [(d,int(d.split("_")[1])) for d in os.listdir(logs_path) if os.path.isdir(logs_path+"/"+d)]
         checkpoint_subdirs = sorted(checkpoint_subdirs,key=lambda t: t[1])
@@ -42,16 +40,17 @@ if __name__ == '__main__':
         #list_of_files = glob.glob(checkpoint_path+'/epoch*') # * means all if need specific format then *.csv
         latest_file = max(list_of_files, key=os.path.getctime)
         print(latest_file)
-        trainer = Trainer(num_processes=opt.workers, gpus=opt.gpu_ids, max_epochs=10000, default_root_dir=default_save_path, resume_from_checkpoint=latest_file)
+        if opt.tpu_cores > 0:
+            trainer = Trainer(tpu_cores=opt.tpu_cores, max_epochs=10000, default_root_dir=default_save_path, resume_from_checkpoint=latest_file)
+        else:
+            trainer = Trainer(num_processes=opt.workers, gpus=opt.gpu_ids, max_epochs=10000, default_root_dir=default_save_path, resume_from_checkpoint=latest_file)
         #model.load_state_dict(torch.load("./checkpoint.pt"))
-        #model = model.load_from_checkpoint(latest_file, opt=opt)
-        #trainer = Trainer(num_processes=opt.workers, gpus=opt.gpu_ids, max_epochs=10000, default_root_dir=default_save_path)
         #trainer = Trainer(num_processes=opt.workers, gpus=opt.gpu_ids, max_epochs=10000, default_root_dir=default_save_path, checkpoint_callback=checkpoint_callback)
-        #trainer = Trainer(num_processes=opt.workers, gpus=opt.gpu_ids, max_epochs=10000, default_root_dir=default_save_path, checkpoint_callback=None)
-        #trainer = Trainer(num_processes=opt.workers, gpus=opt.gpu_ids, max_epochs=10000, default_root_dir=default_save_path)
     else:
-        trainer = Trainer(num_processes=opt.workers, gpus=opt.gpu_ids, max_epochs=10000, default_root_dir=default_save_path)#, checkpoint_callback=checkpoint_callback)
+        if opt.tpu_cores > 0:
+            trainer = Trainer(tpu_cores=opt.tpu_cores, max_epochs=10000, default_root_dir=default_save_path)#, checkpoint_callback=checkpoint_callback)
+        else:
+            trainer = Trainer(num_processes=opt.workers, gpus=opt.gpu_ids, max_epochs=10000, default_root_dir=default_save_path)#, checkpoint_callback=checkpoint_callback)
 
     trainer.fit(model, train_dataloader)
     #print(trainer.test(model, train_dataloader))
-    #torch.save(model.state_dict(), "./checkpoint.pt")

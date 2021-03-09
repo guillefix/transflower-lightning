@@ -91,12 +91,13 @@ class MultimodalDataset(BaseDataset):
 
             for mod in input_mods:
                 feature_file = data_path.joinpath(base_filename+"."+mod+".npy")
-                self.input_features[mod][base_filename] = feature_file
+                features = np.load(feature_file)
+                self.input_features[mod][base_filename] = features
 
             if fix_lengths:
                 shortest_length = 99999999999
                 for mod in input_mods:
-                    length = np.load(self.input_features[mod][base_filename]).shape[0]
+                    length = self.input_features[mod][base_filename].shape[0]
                     if length < shortest_length:
                         shortest_length = length
                 for mod in input_mods:
@@ -110,12 +111,13 @@ class MultimodalDataset(BaseDataset):
 
             for mod in output_mods:
                 feature_file = data_path.joinpath(base_filename+"."+mod+".npy")
-                self.output_features[mod][base_filename] = feature_file
+                features = np.load(feature_file)
+                self.output_features[mod][base_filename] = features
 
             if fix_lengths:
                 shortest_length = 99999999999
                 for mod in output_mods:
-                    length = np.load(self.output_features[mod][base_filename]).shape[0]
+                    length = self.output_features[mod][base_filename].shape[0]
                     if length < shortest_length:
                         shortest_length = length
                 for mod in output_mods:
@@ -172,11 +174,13 @@ class MultimodalDataset(BaseDataset):
         output_features = []
 
         for i, mod in enumerate(input_mods):
-            input_feature = np.load(self.input_features[mod][base_filename])
+            #input_feature = np.load(self.input_features[mod][base_filename])
+            input_feature = self.input_features[mod][base_filename]
             input_features.append(input_feature)
 
         for i, mod in enumerate(output_mods):
-            output_feature = np.load(self.output_features[mod][base_filename])
+            #output_feature = np.load(self.output_features[mod][base_filename])
+            output_feature = self.output_features[mod][base_filename]
             output_features.append(output_feature)
 
         x = [input_feature.transpose(1,0) for input_feature in input_features]

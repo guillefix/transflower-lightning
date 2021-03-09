@@ -78,28 +78,28 @@ class TransformerModel(BaseModel):
         input_lengths = self.input_lengths
         self.src_masks = []
         for i, mod in enumerate(input_mods):
-            mask = torch.zeros(input_lengths[i],input_lengths[i]).cuda()
-            # self.register_buffer('src_mask_'+str(i), mask)
+            mask = torch.zeros(input_lengths[i],input_lengths[i])
+            self.register_buffer('src_mask_'+str(i), mask)
             self.src_masks.append(mask)
 
         self.output_masks = []
         for i, mod in enumerate(output_mods):
-            mask = torch.zeros(sum(input_lengths),sum(input_lengths)).cuda()
-            # self.register_buffer('out_mask_'+str(i), mask)
+            mask = torch.zeros(sum(input_lengths),sum(input_lengths))
+            self.register_buffer('out_mask_'+str(i), mask)
             self.output_masks.append(mask)
 
     def forward(self, data):
         # in lightning, forward defines the prediction/inference actions
         latents = []
         for i, mod in enumerate(self.input_mods):
-            # mask = getattr(self,"src_mask_"+str(i))
-            mask = self.src_masks[i]
+            mask = getattr(self,"src_mask_"+str(i))
+            #mask = self.src_masks[i]
             latents.append(self.input_mod_nets[i].forward(data[i],mask))
         latent = torch.cat(latents)
         outputs = []
         for i, mod in enumerate(self.output_mods):
-            # mask = getattr(self,"out_mask_"+str(i))
-            mask = self.output_masks[i]
+            mask = getattr(self,"out_mask_"+str(i))
+            #mask = self.output_masks[i]
             output = self.output_mod_nets[i].forward(latent,mask)[:self.output_lengths[i]]
             outputs.append(output)
         return outputs
@@ -181,12 +181,14 @@ class TransformerModel(BaseModel):
         #print(self.inputs)
         latents = []
         for i, mod in enumerate(self.input_mods):
-            latents.append(self.input_mod_nets[i].forward(self.inputs[i],self.src_masks[i]))
+            mask = getattr(self,"src_mask_"+str(i))
+            latents.append(self.input_mod_nets[i].forward(self.inputs[i],mask))
 
         latent = torch.cat(latents)
         loss_mse = 0
         for i, mod in enumerate(self.output_mods):
-            output = self.output_mod_nets[i].forward(latent,self.output_masks[i])[:self.output_lengths[i]]
+            mask = getattr(self,"out_mask_"+str(i))
+            output = self.output_mod_nets[i].forward(latent,mask)[:self.output_lengths[i]]
             #print(output)
             loss_mse += self.criterion(output, self.targets[i])
             #loss_mse += self.criterion(output, self.targets[i]).detach()
@@ -219,8 +221,9 @@ class TransformerModel(BaseModel):
         #optimizer = torch.optim.Adam(self.parameters(), lr=0.0)
         #optimizer = torch.optim.SGD(self.parameters(), lr=0.0)
         #optimizer = torch.optim.SGD(self.parameters(), lr=self.opt.learning_rate)
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 500, gamma=0.1)
-        return [optimizer], [scheduler]
+        #scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1000, gamma=0.1)
+        #return [optimizer], [scheduler]
+        return [optimizer]
 
     #def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx,
     #                           optimizer_closure, on_tpu, using_native_amp, using_lbfgs):
