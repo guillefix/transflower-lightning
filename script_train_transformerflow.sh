@@ -5,7 +5,7 @@
 #py=python3
 py=python
 dataset=multimodal
-model=transformer
+model=transformerflow
 #exp=aistpp_big
 exp=aistpp_flow
 
@@ -18,12 +18,14 @@ $py training/train.py --data_dir=./data/scaled_features --dataset_name=$dataset 
     --input_modalities="joint_angles_scaled,mel_ddcpca_scaled" \
     --output_modalities="joint_angles_scaled" \
     --input_lengths="120,240" \
-    --output_lengths="20" \
+    --output_lengths="50" \
+    --num_glow_coupling_blocks=5 \
+    --scales="[[4,0],[4,0]]"
     --output_time_offset="121" \
     --predicted_inputs="0,0" \
     --nlayers=12 \
     --nhead=10 \
-    --dhid=800 \
+    --dhid=100 \
     --val_epoch_freq=0 \
     --dropout=0 \
     --workers=4 \

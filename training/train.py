@@ -1,15 +1,21 @@
-import time
+import sys
 import os
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
+sys.path.append(ROOT_DIR)
 import glob
+# import numpy as np; import scipy.linalg
+# # LUL
+# w_shape = [219,219]
+# w_init = np.linalg.qr(np.random.randn(*w_shape))[0].astype(np.float32)
+# np_p, np_l, np_u = scipy.linalg.lu(w_init)
+
 from training.datasets import create_dataset, create_dataloader
 from models import create_model
-import random
 from training.options.train_options import TrainOptions
-import pytorch_lightning as pl
 from pytorch_lightning import Trainer
-import torch
 #from test_tube import Experiment
-from pytorch_lightning.callbacks import ModelCheckpoint
+# from pytorch_lightning.callbacks import ModelCheckpoint
 
 if __name__ == '__main__':
     opt = TrainOptions().parse()
