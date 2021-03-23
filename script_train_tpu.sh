@@ -2,16 +2,20 @@
 
 # export PYTHONPATH="/home_directory/.local/lib/python3.5/site-packages/"
 
-#py=python3
-py=python
+export TPU_NAME=tpu-quickstart
+
+py=python3
+#py=python
+#py='python3 -m torch_xla.distributed.xla_dist --tpu='${TPU_NAME}' --conda-env=torch-xla-nightly -- python'
 dataset=multimodal
 model=transformer
 #exp=aistpp_big
-exp=aistpp_2
+exp=aistpp_test
 
-$py training/train.py --data_dir=./data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --nepoch=500 --nepoch_decay=500 \
+$py /home/guillefix/mt-lightning/training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --nepoch=500 --nepoch_decay=500 \
     --print_freq=1 --experiment_name=$exp --save_latest_freq=5000\
     --tpu_cores=8 \
+    --fix_lengths \
     --weight_decay=0 \
     --learning_rate=3e-5 \
     --dins="219,103" \
@@ -23,6 +27,7 @@ $py training/train.py --data_dir=./data/scaled_features --dataset_name=$dataset 
     --output_time_offset="121" \
     --predicted_inputs="0,0" \
     --nlayers=12 \
+    --workers=2 \
     --nhead=10 \
     --dhid=800 \
     --val_epoch_freq=0 \
