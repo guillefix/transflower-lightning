@@ -1,4 +1,11 @@
+import numpy as np; import scipy.linalg
+# LUL
+w_shape = [219,219]
+w_init = np.linalg.qr(np.random.randn(*w_shape))[0].astype(np.float32)
+np_p, np_l, np_u = scipy.linalg.lu(w_init)
+
 from training.datasets import create_dataset, create_dataloader
+
 from models import create_model
 from training.options.train_options import TrainOptions
 import pytorch_lightning as pl
@@ -26,6 +33,7 @@ if __name__ == '__main__':
     class Struct:
         def __init__(self, **entries):
             self.__dict__.update(entries)
+    print(opt)
     opt = Struct(**opt)
 
     # Load latest trained checkpoint from experiment
@@ -53,4 +61,4 @@ if __name__ == '__main__':
     transform = pickle.load(open(data_dir+"/"+'pkl_joint_angles_mats'+'_'+'scaler'+'.pkl', "rb"))
     predicted_modes = transform.inverse_transform(predicted_modes)
     print(predicted_modes)
-    np.save("generated/joint_angles_mats/"+seq_id+".pkl_joint_angles_mats.generated",predicted_modes)
+    np.save("inference/generated/"+args.experiment_name+"/joint_angles_mats/"+seq_id+".pkl_joint_angles_mats.generated",predicted_modes)

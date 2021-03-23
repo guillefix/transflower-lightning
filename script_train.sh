@@ -7,7 +7,7 @@ py=python
 dataset=multimodal
 model=transformer
 #exp=aistpp_big
-exp=aistpp_flow
+exp=aistpp_test
 
 $py training/train.py --data_dir=./data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --nepoch=500 --nepoch_decay=500 \
     --print_freq=1 --experiment_name=$exp --save_latest_freq=5000\

@@ -89,7 +89,7 @@ class TransformerFlowModel(BaseModel):
         parser.add_argument('--nlayers', type=int, default=6)
         parser.add_argument('--nhead', type=int, default=8)
         parser.add_argument('--dropout', type=float, default=0.1)
-        parser.add_argument('--scales', type=str, default="[[4,0],[4,0],[4,0],[4,0]]")
+        parser.add_argument('--scales', type=str, default="[[10,0]]")
         parser.add_argument('--num_glow_coupling_blocks', type=int, default=10)
         parser.add_argument('--num_mixture_components', type=int, default=0)
         parser.add_argument('--glow_use_attn', action='store_true', help="whether to use the internal attention for the FlowPlusPLus model")
@@ -123,8 +123,13 @@ class TransformerFlowModel(BaseModel):
         for i, mod in enumerate(self.output_mods):
             mask = getattr(self,"out_mask_"+str(i))
             #mask = self.output_masks[i]
-            output = self.output_mod_nets[i].forward(latent,mask)[:self.output_lengths[i]]
-            outputs.append(output)
+            trans_output = self.output_mod_nets[i].forward(latent,mask)[:self.output_lengths[i]]
+            output, _ = self.output_mod_glows[i](x=None, cond=trans_output.permute(1,0,2), reverse=True)
+            outputs.append(output.permute(1,0,2))
+
+        # import pdb;pdb.set_trace()
+        #shape
+
         return outputs
 
     def generate(self,features):

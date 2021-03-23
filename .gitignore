@@ -5,10 +5,8 @@ data/scaled_features.tar.gz
 .idea/*
 test_data/*
 inference/*.npy
-training/experiments/aistpp/lightning_logs/*
 training/experiments/*
 **/*.pyc
-generated/*.npy
 analaysis/aistplusplus_api/SMPL_MALE.pkl
 analaysis/aistplusplus_api/img/*
-generated/*
+inference/generated/*

@@ -10,6 +10,7 @@ from pytorch_lightning import LightningModule
 class BaseModel(LightningModule):
     def __init__(self, opt):
         super().__init__()
+        self.save_hyperparameters(vars(opt))
         self.opt = opt
 
     def name(self):

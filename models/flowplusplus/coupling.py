@@ -4,6 +4,7 @@ import torch.nn as nn
 
 from models.flowplusplus import log_dist as logistic
 from models.flowplusplus.nn import NN
+from models.flowplusplus.transformer_nn import TransformerNN
 
 
 class Coupling(nn.Module):
@@ -19,10 +20,13 @@ class Coupling(nn.Module):
         aux_channels (int): Number of channels in optional auxiliary input.
     """
     def __init__(self, in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob,
-                 use_attn=True, use_logmix=True, aux_channels=None):
+                 use_attn=True, use_logmix=True, use_transformer_nn=False, aux_channels=None):
         super(Coupling, self).__init__()
-        
-        self.nn = NN(in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob, use_attn, aux_channels)
+
+        if use_transformer_nn:
+            self.nn = TransformerNN(in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob, use_attn, aux_channels)
+        else:
+            self.nn = NN(in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob, use_attn, aux_channels)
         self.use_logmix = use_logmix
         self.offset = 2.0
         self.sigmoid_offset = 1 - 1 / (1 + math.exp(-self.offset))
@@ -32,7 +36,9 @@ class Coupling(nn.Module):
         #import pdb;pdb.set_trace()
 
         x_id_cond = torch.cat((x_id, cond), dim=1)
+        # import pdb;pdb.set_trace()
         a, b, pi, mu, s = self.nn(x_id_cond, aux)
+        # import pdb;pdb.set_trace()
         scale = (torch.sigmoid(a+self.offset)+self.sigmoid_offset)
 
         if reverse:

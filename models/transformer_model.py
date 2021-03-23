@@ -102,6 +102,8 @@ class TransformerModel(BaseModel):
             #mask = self.output_masks[i]
             output = self.output_mod_nets[i].forward(latent,mask)[:self.output_lengths[i]]
             outputs.append(output)
+
+        # import pdb;pdb.set_trace()
         return outputs
 
     def generate(self,features):

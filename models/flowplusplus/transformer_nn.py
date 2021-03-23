@@ -4,10 +4,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from torch.nn.utils import weight_norm
-from models.util import concat_elu, WNConv2d
+from models.util import concat_elu #,WNConv2d
 
 
-class NN(nn.Module):
+class TransformerNN(nn.Module):
     """Neural network used to parametrize the transformations of an MLCoupling.
 
     An `NN` is a stack of blocks, where each block consists of the following
@@ -32,9 +32,9 @@ class NN(nn.Module):
     """
     def __init__(self, in_channels, out_channels, num_channels, num_blocks, num_components, drop_prob, use_attn=True, aux_channels=None):
         #import pdb;pdb.set_trace()
-        super(NN, self).__init__()
+        super(TransformerNN, self).__init__()
         self.k = num_components  # k = number of mixture components
-        self.in_conv = WNConv2d(in_channels, num_channels, kernel_size=3, padding=1)
+        self.in_conv = nn.Conv2d(in_channels, num_channels, kernel_size=1)
         self.share_attn_params = False
         if self.share_attn_params:
             self.mid_conv = ConvAttnBlock(num_channels, drop_prob, use_attn, aux_channels)
@@ -42,8 +42,8 @@ class NN(nn.Module):
         else:
             self.mid_convs = nn.ModuleList([ConvAttnBlock(num_channels, drop_prob, use_attn, aux_channels)
                                             for _ in range(num_blocks)])
-        self.out_conv = WNConv2d(num_channels, out_channels * (2 + 3 * self.k),
-                                 kernel_size=3, padding=1)
+        self.out_conv = nn.Conv2d(num_channels, out_channels * (2 + 3 * self.k),
+                                 kernel_size=1)
         self.rescale = weight_norm(Rescale(out_channels))
         self.out_channels = out_channels
 
@@ -73,7 +73,8 @@ class NN(nn.Module):
 class ConvAttnBlock(nn.Module):
     def __init__(self, num_channels, drop_prob, use_attn, aux_channels):
         super(ConvAttnBlock, self).__init__()
-        self.conv = GatedConv(num_channels, drop_prob, aux_channels)
+        # self.conv = GatedConv(num_channels, drop_prob, aux_channels)
+        self.conv = nn.Conv2d(num_channels, num_channels, kernel_size=1)
         self.norm_1 = nn.LayerNorm(num_channels)
         if use_attn:
             self.attn = GatedAttn(num_channels, drop_prob=drop_prob)
@@ -229,11 +230,11 @@ class GatedConv(nn.Module):
     def __init__(self, num_channels, drop_prob=0., aux_channels=None):
         super(GatedConv, self).__init__()
         self.nlin = concat_elu
-        self.conv = WNConv2d(2 * num_channels, num_channels, kernel_size=3, padding=1)
+        self.conv = nn.Conv2d(2 * num_channels, num_channels, kernel_size=1)
         self.drop = nn.Dropout2d(drop_prob)
-        self.gate = WNConv2d(2 * num_channels, 2 * num_channels, kernel_size=1, padding=0)
+        self.gate = nn.Conv2d(2 * num_channels, 2 * num_channels, kernel_size=1)
         if aux_channels is not None:
-            self.aux_conv = WNConv2d(2 * aux_channels, num_channels, kernel_size=1, padding=0)
+            self.aux_conv = nn.Conv2d(2 * aux_channels, num_channels, kernel_size=1)
         else:
             self.aux_conv = None
 
