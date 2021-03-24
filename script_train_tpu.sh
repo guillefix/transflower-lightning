@@ -15,7 +15,6 @@ exp=aistpp_test
 $py /home/guillefix/mt-lightning/training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --nepoch=500 --nepoch_decay=500 \
     --print_freq=1 --experiment_name=$exp --save_latest_freq=5000\
     --tpu_cores=8 \
-    --fix_lengths \
     --weight_decay=0 \
     --learning_rate=3e-5 \
     --dins="219,103" \
@@ -27,7 +26,7 @@ $py /home/guillefix/mt-lightning/training/train.py --data_dir=data/scaled_featur
     --output_time_offset="121" \
     --predicted_inputs="0,0" \
     --nlayers=12 \
-    --workers=2 \
+    --workers=$(nproc) \
     --nhead=10 \
     --dhid=800 \
     --val_epoch_freq=0 \
