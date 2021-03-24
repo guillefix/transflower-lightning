@@ -1,0 +1,10 @@
+
+in /home/guillefix/.local/lib/python3.7/site-packages/torch/nn/functional.py, add 
+
+np.save("analysis/weight_mats/"+str(uuid.uuid4())+".np",attn_output_weights.cpu().numpy())
+
+before the line attn_output_weights = softmax(attn_output_weights, dim=-1)
+
+and import numpy as np, and import uuid
+
+

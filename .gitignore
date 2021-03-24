@@ -10,3 +10,4 @@ training/experiments/*
 analaysis/aistplusplus_api/SMPL_MALE.pkl
 analaysis/aistplusplus_api/img/*
 inference/generated/*
+analysis/weight_mats/*
