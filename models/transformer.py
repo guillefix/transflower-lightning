@@ -86,7 +86,7 @@ class BasicTransformerModel(nn.Module):
         self.decoder.bias.data.zero_()
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
-    def forward(self, src, src_mask):
+    def forward(self, src, src_mask=None):
         src = self.encoder1(src)
         #src *= math.sqrt(self.dhid)
         #src = self.pos_encoder(src)
@@ -96,8 +96,14 @@ class BasicTransformerModel(nn.Module):
         if self.use_pos_emb:
             #print(self.pos_emb)
             #src_mask += self.pos_emb
-            output = self.transformer_encoder(src, src_mask + self.pos_emb)
+            if src_mask is not None:
+                output = self.transformer_encoder(src, src_mask + self.pos_emb)
+            else:
+                output = self.transformer_encoder(src, self.pos_emb)
         else:
-            output = self.transformer_encoder(src, src_mask)
+            if src_mask is not None:
+                output = self.transformer_encoder(src, src_mask)
+            else:
+                output = self.transformer_encoder(src)
         output = self.decoder(output)
         return output
