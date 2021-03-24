@@ -18,30 +18,19 @@ class BaseOptions:
         parser.add_argument('-d', '--data_dir', type=str, default='data/scaled_features')
         parser.add_argument('--dataset_name', type=str, default="multimodal")
         parser.add_argument('--batch_size', default=1, type=int)
+        parser.add_argument('--val_batch_size', default=1, type=int, help='batch size for validation data loader')
         parser.add_argument('--num_windows', default=16, type=int)
-        # parser.add_argument('--pad_batches', action='store_true', help='whether to pad batches sequences to the length of the longest in the minibatch')
         # parser.add_argument('--augment', type=int, default=0)
         parser.add_argument('--model', type=str, default="transformer", help="The network model used for beatsaberification")
         # parser.add_argument('--init_type', type=str, default="normal")
-        # parser.add_argument('--init_gain', default=0.02, type=float)
-        parser.add_argument('--eval', action='store_true', help='use eval mode during validation / test time.')
-        parser.add_argument('--do_validation', action='store_true', help='use eval mode during validation / test time.')
-        parser.add_argument('-lr', '--learning_rate', default=1e-4, type=float)
-        # parser.add_argument('--learning_rate_patience', default=50, type=int)
-        parser.add_argument('--weight_decay', default=5e-4, type=float)
-        parser.add_argument('--loss_weight', default=None)
-        parser.add_argument('--gpu_ids', default='-1', type=str, help='gpu ids (comma separated numbers - e.g. 1,2,3), =-1 for cpu use')
-        parser.add_argument('--tpu_cores', default=0, type=int, help='the number of tpu cores to use. If 0, then tpus are not used')
-        # parser.add_argument('--tpu_ids', default='-1', type=str, help='tpu ids (comma separated numbers - e.g. 1,2,3), =-1 for gpu/cpu use')
-        parser.add_argument('--workers', default=4, type=int, help='the number of workers to load the data')
+        # parser.add_argument('--eval', action='store_true', help='use eval mode during validation / test time.')
         parser.add_argument('--experiment_name', default="experiment_name", type=str)
         parser.add_argument('--checkpoints_dir', default="training/experiments", type=str, help='checkpoint folder')
-        parser.add_argument('--load', action='store_true', help='whether to load model or not.')
-        parser.add_argument('--load_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
-        parser.add_argument('--load_iter', type=int, default=0, help='which iteration to load? if load_iter > 0, whether load models by iteration')
-        # parser.add_argument('-ad', '--augment_dir', type=str, default='')
+        parser.add_argument('--do_validation', action='store_true', help='whether to do validation steps during training')
         parser.add_argument('--verbose', action='store_true', help='if specified, print more debugging information')
-        parser.add_argument('--fork_processes', action='store_true', help="Set method to create dataloader child processes to fork instead of spawn (could take up more memory)")
+        parser.add_argument('--load_weights_only', action='store_true', help='if specified, we load the model weights from the last checkpoint for the specified experiment, WITHOUT loading the optimizer parameters! (allows to continue traning while changing the optimizer)')
+        # parser.add_argument('--override_optimizers', action='store_true', help='if specified, we will use the optimizer parameters set by the hparams, even if we are continuing from checkpoint')
+        # maybe could override optimizer using this? https://github.com/PyTorchLightning/pytorch-lightning/issues/3095 but need to know the epoch at which to change it
 
         self.parser = parser
         self.is_train = None
@@ -102,13 +91,13 @@ class BaseOptions:
         opt.is_train = self.is_train   # train or test
 
         # check options:
-        if opt.loss_weight:
-            opt.loss_weight = [float(w) for w in opt.loss_weight.split(',')]
-            if len(opt.loss_weight) != opt.num_class:
-                raise ValueError("Given {} weights, when {} classes are expected".format(
-                    len(opt.loss_weight), opt.num_class))
-            else:
-                opt.loss_weight = torch.tensor(opt.loss_weight)
+        # if opt.loss_weight:
+        #     opt.loss_weight = [float(w) for w in opt.loss_weight.split(',')]
+        #     if len(opt.loss_weight) != opt.num_class:
+        #         raise ValueError("Given {} weights, when {} classes are expected".format(
+        #             len(opt.loss_weight), opt.num_class))
+        #     else:
+        #         opt.loss_weight = torch.tensor(opt.loss_weight)
 
         self.print_options(opt)
         # set gpu ids
@@ -122,8 +111,8 @@ class BaseOptions:
         #     torch.cuda.set_device(opt.gpu_ids[0])
         #
         # set multiprocessing
-        if opt.workers > 0 and not opt.fork_processes:
-            mp.set_start_method('spawn', force=True)
+        # if opt.workers > 0 and not opt.fork_processes:
+        #     mp.set_start_method('spawn', force=True)
 
         self.opt = opt
         return self.opt
