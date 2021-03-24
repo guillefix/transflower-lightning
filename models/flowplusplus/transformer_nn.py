@@ -83,7 +83,8 @@ class ConvAttnBlock(nn.Module):
             self.attn = None
 
     def forward(self, x, aux=None):
-        x = self.conv(x, aux) + x
+        #x = self.conv(x, aux) + x
+        x = self.conv(x) + x
         x = x.permute(0, 2, 3, 1)  # (b, h, w, c)
         x = self.norm_1(x)
 
