@@ -134,7 +134,7 @@ class GatedAttn(nn.Module):
 
         # Compute attention and reshape
         key_depth_per_head = self.d_model // self.num_heads
-        q *= key_depth_per_head ** -0.5
+        q = q * key_depth_per_head ** -0.5
         x = self.dot_product_attention(q, k, v)
         x = self.combine_last_two_dim(x.permute(0, 2, 1, 3))
         x = x.transpose(1, 2).view(b, c, h, w).permute(0, 2, 3, 1)  # (b, h, w, c)
