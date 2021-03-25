@@ -66,7 +66,9 @@ class TransflowerModel(BaseModel):
                                      use_attn=opt.glow_use_attn,
                                      use_logmix=opt.num_mixture_components>0,
                                      drop_prob=opt.dropout,
-                                     use_transformer_nn=opt.use_transformer_nn
+                                     num_heads=opt.num_heads_flow,
+                                     use_transformer_nn=opt.use_transformer_nn,
+                                     use_pos_emb=opt.use_pos_emb_coupling
                                      )
             name = "_output_glow_"+mod
             setattr(self, "net"+name, glow)
@@ -89,6 +91,7 @@ class TransflowerModel(BaseModel):
         parser.add_argument('--predicted_inputs', default="0")
         parser.add_argument('--nlayers', type=int, default=6)
         parser.add_argument('--nhead', type=int, default=8)
+        parser.add_argument('--num_heads_flow', type=int, default=10)
         parser.add_argument('--dropout', type=float, default=0.1)
         parser.add_argument('--scales', type=str, default="[[10,0]]")
         parser.add_argument('--num_glow_coupling_blocks', type=int, default=10)
@@ -96,6 +99,7 @@ class TransflowerModel(BaseModel):
         parser.add_argument('--glow_use_attn', action='store_true', help="whether to use the internal attention for the FlowPlusPLus model")
         parser.add_argument('--use_transformer_nn', action='store_true', help="whether to use the internal attention for the FlowPlusPLus model")
         parser.add_argument('--use_pos_emb_output', action='store_true', help="whether to use positional embeddings for output modality transformers")
+        parser.add_argument('--use_pos_emb_coupling', action='store_true', help="whether to use positional embeddings for the coupling layer transformers")
         return parser
 
     def generate_full_masks(self):
@@ -223,6 +227,7 @@ class TransflowerModel(BaseModel):
             # import pdb;pdb.set_trace()
             z, sldj = glow(x=self.targets[i].permute(1,0,2), cond=output.permute(1,0,2)) #time, batch, features -> batch, time, features
             loss += glow.loss_generative(z, sldj)
+        self.log('nll_loss', loss)
         return loss
 
     def test_step(self, batch, batch_idx):
@@ -242,16 +247,6 @@ class TransflowerModel(BaseModel):
         #return loss_mse
         return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
 
-    def configure_optimizers(self):
-        print("HIIIIIIIIIIIIIIIIII")
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.opt.learning_rate)
-        #print([p[0] for p in self.named_parameters()])
-        #optimizer = torch.optim.Adam(self.parameters(), lr=0.0)
-        #optimizer = torch.optim.SGD(self.parameters(), lr=0.0)
-        #optimizer = torch.optim.SGD(self.parameters(), lr=self.opt.learning_rate)
-        #scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1000, gamma=0.1)
-        #return [optimizer], [scheduler]
-        return [optimizer]
 
     #def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx,
     #                           optimizer_closure, on_tpu, using_native_amp, using_lbfgs):

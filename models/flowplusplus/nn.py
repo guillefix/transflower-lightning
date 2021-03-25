@@ -6,7 +6,6 @@ import torch.nn.functional as F
 from torch.nn.utils import weight_norm
 from models.util import concat_elu, WNConv2d
 
-
 class NN(nn.Module):
     """Neural network used to parametrize the transformations of an MLCoupling.
 

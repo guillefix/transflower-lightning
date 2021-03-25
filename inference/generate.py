@@ -46,6 +46,7 @@ if __name__ == '__main__':
     latest_file = max(list_of_files, key=os.path.getctime)
     print(latest_file)
     model = create_model(opt)
+    model.setup(is_train=True)
     model = model.load_from_checkpoint(latest_file, opt=opt)
 
     # Load input features (sequences must have been processed previously into features)

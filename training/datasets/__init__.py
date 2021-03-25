@@ -40,12 +40,11 @@ def get_option_setter(dataset_name, task_name):
     return dataset_class.modify_commandline_options
 
 
-def create_dataset(opt, validation_phase=False,*args,**kwargs):
+def create_dataset(opt, phase="train", *args, **kwargs):
     dataset = find_dataset_using_name(opt.dataset_name, opt.task)
-    if validation_phase:
-        opt.phase = "val"
+    opt.phase = phase
     instance = dataset(opt,*args,**kwargs)
-    print('dataset [{}] was created {}'.format(instance.name(), "(val)" if validation_phase else ''))
+    print('dataset [{}] was created {}'.format(instance.name(), "(val)" if opt.phase=="val" else ''))
     return instance
 
 def paired_collate_fn(insts,tgt_dim=2):
@@ -97,4 +96,5 @@ def create_dataloader(dataset):
                       shuffle=not is_val,
                       # collate_fn=meta_collate_fn(dataset.opt.pad_batches,dataset.opt.model),
                       collate_fn=None,
+                      pin_memory=True,
                       num_workers=dataset.opt.workers)

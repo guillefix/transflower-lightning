@@ -195,6 +195,7 @@ class TransformerModel(BaseModel):
             loss_mse += self.criterion(output, self.targets[i])
             #loss_mse += self.criterion(output, self.targets[i]).detach()
         #print(loss_mse)
+        self.log('mse_loss', loss_mse)
         return loss_mse
         #return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
 
@@ -212,20 +213,9 @@ class TransformerModel(BaseModel):
             #print(output)
             loss_mse += self.criterion(output, self.targets[i])
             #loss_mse += self.criterion(output, self.targets[i]).detach()
-        print(loss_mse)
-        #return loss_mse
-        return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
-
-    def configure_optimizers(self):
-        print("HIIIIIIIIIIIIIIIIII")
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.opt.learning_rate)
-        #print([p[0] for p in self.named_parameters()])
-        #optimizer = torch.optim.Adam(self.parameters(), lr=0.0)
-        #optimizer = torch.optim.SGD(self.parameters(), lr=0.0)
-        #optimizer = torch.optim.SGD(self.parameters(), lr=self.opt.learning_rate)
-        #scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1000, gamma=0.1)
-        #return [optimizer], [scheduler]
-        return [optimizer]
+        # print(loss_mse)
+        return loss_mse
+        # return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
 
     #def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx,
     #                           optimizer_closure, on_tpu, using_native_amp, using_lbfgs):

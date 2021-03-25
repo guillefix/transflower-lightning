@@ -40,6 +40,8 @@ class FlowPlusPlus(nn.Module):
                  use_attn=True,
                  use_logmix=True,
                  use_transformer_nn=False,
+                 use_pos_emb=False,
+                 num_heads=10,
                  drop_prob=0.2):
         super(FlowPlusPlus, self).__init__()
         # Register bounds to pre-process images, not learnable
@@ -53,6 +55,8 @@ class FlowPlusPlus(nn.Module):
                                use_attn=use_attn,
                                use_logmix=use_logmix,
                                use_transformer_nn=use_transformer_nn,
+                               use_pos_emb=use_pos_emb,
+                               num_heads=num_heads,
                                drop_prob=drop_prob)
 
     def forward(self, x, cond, reverse=False):
@@ -110,7 +114,7 @@ class _FlowStep(nn.Module):
         use_attn (bool): Use attention in the coupling layers.
         drop_prob (float): Dropout probability.
     """
-    def __init__(self, scales, in_shape, cond_dim, mid_channels, num_blocks, num_components, use_attn, use_logmix, use_transformer_nn, drop_prob):
+    def __init__(self, scales, in_shape, cond_dim, mid_channels, num_blocks, num_components, use_attn, use_logmix, use_transformer_nn, use_pos_emb, num_heads, drop_prob):
         super(_FlowStep, self).__init__()
         in_channels, in_height, in_width = in_shape
         num_channelwise, num_checkerboard = scales[0]
@@ -128,6 +132,8 @@ class _FlowStep(nn.Module):
                                   use_attn=use_attn,
                                   use_logmix=use_logmix,
                                   use_transformer_nn=use_transformer_nn,
+                                  use_pos_emb=use_pos_emb,
+                                  num_heads=num_heads,
                                   drop_prob=drop_prob)]#,
                          #Flip()] Flip currently does not work with odd number of channels. But is it needed when we have channel mixing with 1x1convs? 
 
@@ -142,6 +148,8 @@ class _FlowStep(nn.Module):
                                   use_attn=use_attn,
                                   use_logmix=use_logmix,
                                   use_transformer_nn=use_transformer_nn,
+                                  use_pos_emb=use_pos_emb,
+                                  num_heads=num_heads,
                                   drop_prob=drop_prob)]#,
                          #Flip()]
         self.channels = nn.ModuleList(channels) if channels else None
@@ -160,6 +168,8 @@ class _FlowStep(nn.Module):
                                   use_attn=use_attn,
                                   use_logmix=use_logmix,
                                   use_transformer_nn=use_transformer_nn,
+                                  use_pos_emb=use_pos_emb,
+                                  num_heads=num_heads,
                                   drop_prob=drop_prob)
                                   
         self.z_shape = (in_channels, in_height, in_width)

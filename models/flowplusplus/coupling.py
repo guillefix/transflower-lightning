@@ -6,7 +6,6 @@ from models.flowplusplus import log_dist as logistic
 from models.flowplusplus.nn import NN
 from models.flowplusplus.transformer_nn import TransformerNN
 
-
 class Coupling(nn.Module):
     """Mixture-of-Logistics Coupling layer in Flow++
 
@@ -20,11 +19,11 @@ class Coupling(nn.Module):
         aux_channels (int): Number of channels in optional auxiliary input.
     """
     def __init__(self, in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob,
-                 use_attn=True, use_logmix=True, use_transformer_nn=False, aux_channels=None):
+                 use_attn=True, use_logmix=True, use_transformer_nn=False, use_pos_emb=False, num_heads=10, aux_channels=None):
         super(Coupling, self).__init__()
 
         if use_transformer_nn:
-            self.nn = TransformerNN(in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob, use_attn, aux_channels)
+            self.nn = TransformerNN(in_channels, out_channels, mid_channels, num_blocks, num_heads, num_components, drop_prob=drop_prob, use_pos_emb=use_pos_emb)
         else:
             self.nn = NN(in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob, use_attn, aux_channels)
         self.use_logmix = use_logmix
