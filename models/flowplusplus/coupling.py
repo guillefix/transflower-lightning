@@ -18,8 +18,8 @@ class Coupling(nn.Module):
         use_attn (bool): Use attention in the NN blocks.
         aux_channels (int): Number of channels in optional auxiliary input.
     """
-    def __init__(self, in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob,
-                 use_attn=True, use_logmix=True, use_transformer_nn=False, use_pos_emb=False, seq_length, num_heads=10, aux_channels=None):
+    def __init__(self, in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob, seq_length, 
+                 use_attn=True, use_logmix=True, use_transformer_nn=False, use_pos_emb=False, num_heads=10, aux_channels=None):
         super(Coupling, self).__init__()
 
         if use_transformer_nn:

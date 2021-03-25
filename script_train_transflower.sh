@@ -35,8 +35,8 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --dropout=0 \
     --accelerator=ddp \
     --workers=$(nproc) \
-    --tpu_cores=8 \
-#    --gpus=0 \
+    --gpus=0 \
+#    --tpu_cores=8 \
 #    --continue_train \
 #    --log_every_n_steps=1 \
 #    --flush_logs_every_n_steps=1 \

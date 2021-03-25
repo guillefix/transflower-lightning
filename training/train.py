@@ -13,7 +13,6 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 if __name__ == '__main__':
     opt = TrainOptions().parse()
-    print(opt)
     model = create_model(opt)
     model.setup(is_train=True)
     train_dataset = create_dataset(opt)
