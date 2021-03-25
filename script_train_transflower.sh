@@ -9,7 +9,7 @@ py=python3
 dataset=multimodal
 model=transflower
 #exp=aistpp_big
-exp=aistpp_flower_test
+exp=aistpp_flower_bbb
 
 $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=16 --num_windows=1 --max_epochs=20000\
     --experiment_name=$exp\
@@ -25,7 +25,6 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --output_time_offset="121" \
     --predicted_inputs="0,0" \
     --nlayers=12 \
-    --num_processes=$(nproc) \
     --nhead=10 \
     --num_glow_coupling_blocks=2 \
     --glow_use_attn \
@@ -33,6 +32,9 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --dhid=800 \
     --dropout=0 \
     --gpus=0 \
-    --tpu_cores=0 \
+    --accelerator=ddp \
+    --workers=$(nproc) \
 #    --tpu_cores=8 \
 #    --continue_train \
+#    --log_every_n_steps=1 \
+#    --flush_logs_every_n_steps=1 \

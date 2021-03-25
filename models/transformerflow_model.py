@@ -220,6 +220,7 @@ class TransformerFlowModel(BaseModel):
             # import pdb;pdb.set_trace()
             z, sldj = glow(x=self.targets[i].permute(1,0,2), cond=output.permute(1,0,2)) #time, batch, features -> batch, time, features
             loss += glow.loss_generative(z, sldj)
+        self.log('nll_loss', loss)
         return loss
 
     def test_step(self, batch, batch_idx):

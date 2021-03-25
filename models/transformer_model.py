@@ -195,6 +195,7 @@ class TransformerModel(BaseModel):
             loss_mse += self.criterion(output, self.targets[i])
             #loss_mse += self.criterion(output, self.targets[i]).detach()
         #print(loss_mse)
+        self.log('mse_loss', loss_mse)
         return loss_mse
         #return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
 
@@ -212,9 +213,9 @@ class TransformerModel(BaseModel):
             #print(output)
             loss_mse += self.criterion(output, self.targets[i])
             #loss_mse += self.criterion(output, self.targets[i]).detach()
-        print(loss_mse)
-        #return loss_mse
-        return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
+        # print(loss_mse)
+        return loss_mse
+        # return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
 
     #def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx,
     #                           optimizer_closure, on_tpu, using_native_amp, using_lbfgs):

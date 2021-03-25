@@ -8,6 +8,7 @@ import models
 import training.datasets as data
 import json
 import training.utils as utils
+from argparse import Namespace
 
 
 class BaseOptions:
@@ -24,11 +25,15 @@ class BaseOptions:
         parser.add_argument('--model', type=str, default="transformer", help="The network model used for beatsaberification")
         # parser.add_argument('--init_type', type=str, default="normal")
         # parser.add_argument('--eval', action='store_true', help='use eval mode during validation / test time.')
+        parser.add_argument('--workers', default=0, type=int, help='the number of workers to load the data')
+        # see here for guidelines on setting number of workers: https://discuss.pytorch.org/t/guidelines-for-assigning-num-workers-to-dataloader/813
+        # and here https://pytorch-lightning.readthedocs.io/_/downloads/en/latest/pdf/ (where they recommend to use accelerator=ddp rather than ddp_spawn)
         parser.add_argument('--experiment_name', default="experiment_name", type=str)
         parser.add_argument('--checkpoints_dir', default="training/experiments", type=str, help='checkpoint folder')
         parser.add_argument('--do_validation', action='store_true', help='whether to do validation steps during training')
         parser.add_argument('--verbose', action='store_true', help='if specified, print more debugging information')
         parser.add_argument('--load_weights_only', action='store_true', help='if specified, we load the model weights from the last checkpoint for the specified experiment, WITHOUT loading the optimizer parameters! (allows to continue traning while changing the optimizer)')
+        parser.add_argument('--fork_processes', action='store_true', help="Set method to create dataloader child processes to fork instead of spawn (could take up more memory)")
         # parser.add_argument('--override_optimizers', action='store_true', help='if specified, we will use the optimizer parameters set by the hparams, even if we are continuing from checkpoint')
         # maybe could override optimizer using this? https://github.com/PyTorchLightning/pytorch-lightning/issues/3095 but need to know the epoch at which to change it
 
@@ -98,6 +103,9 @@ class BaseOptions:
         #             len(opt.loss_weight), opt.num_class))
         #     else:
         #         opt.loss_weight = torch.tensor(opt.loss_weight)
+
+        opt = {k:v for (k,v) in vars(opt).items() if not callable(v)}
+        opt = Namespace(**opt)
 
         self.print_options(opt)
         # set gpu ids

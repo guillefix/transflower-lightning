@@ -13,6 +13,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 if __name__ == '__main__':
     opt = TrainOptions().parse()
+    print(opt)
     model = create_model(opt)
     model.setup(is_train=True)
     train_dataset = create_dataset(opt)
@@ -26,7 +27,9 @@ if __name__ == '__main__':
 
     default_save_path = opt.checkpoints_dir+"/"+opt.experiment_name
 
-    logger = TensorBoardLogger(opt.checkpoints_dir+"/tb_logs", name=opt.experiment_name)
+    logger = TensorBoardLogger(opt.checkpoints_dir, name=opt.experiment_name)
+
+    args = Trainer.parse_argparser(opt)
 
     if opt.continue_train:
         logs_path = default_save_path+"/lightning_logs"
@@ -39,11 +42,11 @@ if __name__ == '__main__':
         if opt.load_weights_only:
             state_dict = torch.load(latest_file)
             model.load_state_dict(state_dict['state_dict'])
-            trainer = Trainer(logger=logger, default_root_dir=default_save_path)
+            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path)
         else:
-            trainer = Trainer(logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file)
+            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file)
     else:
-        trainer = Trainer(logger=logger, default_root_dir=default_save_path)
+        trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path)
 
     trainer.fit(model, train_dataloader)
 
