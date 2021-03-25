@@ -60,7 +60,7 @@ class TransflowerModel(BaseModel):
             glow = FlowPlusPlus(scales=ast.literal_eval(opt.scales),
                                      in_shape=(douts[i], output_lengths[i], 1),
                                      cond_dim=opt.dhid,
-                                     mid_channels=opt.dhid,
+                                     mid_channels=opt.dhid_flow,
                                      num_blocks=opt.num_glow_coupling_blocks,
                                      num_components=opt.num_mixture_components,
                                      use_attn=opt.glow_use_attn,
@@ -86,12 +86,13 @@ class TransflowerModel(BaseModel):
     @staticmethod
     def modify_commandline_options(parser, is_train):
         parser.add_argument('--dhid', type=int, default=512)
+        parser.add_argument('--dhid_flow', type=int, default=512)
         parser.add_argument('--dins', default=None)
         parser.add_argument('--douts', default=None)
         parser.add_argument('--predicted_inputs', default="0")
         parser.add_argument('--nlayers', type=int, default=6)
         parser.add_argument('--nhead', type=int, default=8)
-        parser.add_argument('--num_heads_flow', type=int, default=10)
+        parser.add_argument('--num_heads_flow', type=int, default=8)
         parser.add_argument('--dropout', type=float, default=0.1)
         parser.add_argument('--scales', type=str, default="[[10,0]]")
         parser.add_argument('--num_glow_coupling_blocks', type=int, default=10)
