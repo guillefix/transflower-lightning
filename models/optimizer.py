@@ -9,7 +9,7 @@ def get_optimizers(net, opt):
     if opt.optimizer == "adam":
         optimizer = torch.optim.Adam(net.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay)
     elif opt.optimizer == "sgd":
-        optimizer = torch.optim.Adam(net.parameters(), lr=opt.learning_rate, momentum=opt.momentum, weight_decay=opt.weight_decay)
+        optimizer = torch.optim.SGD(net.parameters(), lr=opt.learning_rate, momentum=opt.momentum, weight_decay=opt.weight_decay)
     elif opt.optimizer == "adagrad":
         optimizer = torch.optim.Adagrad(net.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay)
     elif opt.optimizer == "adadelta":
