@@ -100,10 +100,12 @@ class BasicTransformerModel(nn.Module):
                 output = self.transformer_encoder(src, src_mask + self.pos_emb)
             else:
                 output = self.transformer_encoder(src, self.pos_emb)
+            #output = self.transformer_encoder(src, self.pos_emb)
         else:
             if src_mask is not None:
                 output = self.transformer_encoder(src, src_mask)
             else:
                 output = self.transformer_encoder(src)
+            #output = self.transformer_encoder(src)
         output = self.decoder(output)
         return output

@@ -18,7 +18,7 @@ if __name__ == '__main__':
     print("HIII")
     model = create_model(opt)
     print("HIII")
-    model.setup_opt(is_train=True)
+    #model.setup_opt(is_train=True)
     train_dataset = create_dataset(opt)
     train_dataset.setup()
     train_dataloader = create_dataloader(train_dataset)
@@ -50,6 +50,7 @@ if __name__ == '__main__':
             trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file)
     else:
         trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path)
+
 
     trainer.fit(model, train_dataloader)
 

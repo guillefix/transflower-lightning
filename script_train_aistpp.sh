@@ -4,6 +4,7 @@
 
 export TPU_IP_ADDRESS=10.29.7.114;
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
+export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
 #export XRT_WORKERS="localservice:0;grpc://localhost:40934"
 #export XRT_DEVICE_MAP="CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0|GPU:0;/job:localservice/replica:0/task:0/device:XLA_GPU:0"
 
@@ -16,10 +17,10 @@ model=transformer
 #exp=aistpp_big
 exp=aistpp_test
 
-$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=16 --num_windows=1 --max_epochs=500 \
+$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=60 --num_windows=1 --max_epochs=500 \
     --experiment_name=$exp\
-    --optimizer=sgd \
-    --learning_rate=2e-4 \
+    --optimizer=adam \
+    --learning_rate=1e-5 \
     --dins="219,103" \
     --douts="219" \
     --input_modalities="joint_angles_scaled,mel_ddcpca_scaled" \

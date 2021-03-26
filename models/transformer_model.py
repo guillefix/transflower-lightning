@@ -41,13 +41,13 @@ class TransformerModel(BaseModel):
         self.output_mod_nets = []
         self.module_names = []
         for i, mod in enumerate(input_mods):
-            net = BasicTransformerModel(opt.dhid, dins[i], opt.nhead, opt.dhid, 2, opt.dropout, self.device, use_pos_emb=True, input_length=input_lengths[i]).to(self.device)
+            net = BasicTransformerModel(opt.dhid, dins[i], opt.nhead, opt.dhid, 2, opt.dropout, self.device, use_pos_emb=True, input_length=input_lengths[i])
             name = "_input_"+mod
             setattr(self,"net"+name, net)
             self.input_mod_nets.append(net)
             self.module_names.append(name)
         for i, mod in enumerate(output_mods):
-            net = BasicTransformerModel(douts[i], opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths)).to(self.device)
+            net = BasicTransformerModel(douts[i], opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths))
             name = "_output_"+mod
             setattr(self,"net"+name, net)
             self.output_mod_nets.append(net)
@@ -218,6 +218,12 @@ class TransformerModel(BaseModel):
         # print(loss_mse)
         return loss_mse
         # return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
+
+    #def configure_optimizers(self):
+    #    print("HIIIIIIIIIIIIIIIIII")
+    #    optimizer = torch.optim.Adam(self.parameters(), lr=self.opt.learning_rate)
+    #    return [optimizer]
+
 
     #def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx,
     #                           optimizer_closure, on_tpu, using_native_amp, using_lbfgs):
