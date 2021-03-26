@@ -16,9 +16,9 @@ model=transformer
 #exp=aistpp_big
 exp=aistpp_test
 
-$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --max_epochs=500 \
+$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=60 --num_windows=1 --max_epochs=30000 \
     --experiment_name=$exp\
-    --learning_rate=3e-5 \
+    --learning_rate=1e-5 \
     --dins="219,103" \
     --douts="219" \
     --input_modalities="joint_angles_scaled,mel_ddcpca_scaled" \
@@ -34,5 +34,5 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --dropout=0 \
     --gpus=1 \
     --use_pos_emb_output \
-    #--tpu_cores=8 \
     #--continue_train \
+    #--tpu_cores=8 \

@@ -21,13 +21,14 @@ class BaseModel(LightningModule):
     def name(self):
         return 'BaseModel'
 
-    def setup_opt(self, is_train):
-        if is_train:
-            self.optimizers = get_optimizers(self, self.opt)
-            self.schedulers = [get_scheduler(optimizer, self.opt) for optimizer in self.optimizers]
+    #def setup_opt(self, is_train):
+    #    pass
 
     def configure_optimizers(self):
+        self.optimizers = get_optimizers(self, self.opt)
+        self.schedulers = [get_scheduler(optimizer, self.opt) for optimizer in self.optimizers]
         return self.optimizers, self.schedulers
+        #return self.optimizers
 
     # modify parser to add command line options,
     # and also change the default values if needed
