@@ -2,22 +2,24 @@
 
 # export PYTHONPATH="/home_directory/.local/lib/python3.5/site-packages/"
 
-#export TPU_IP_ADDRESS=10.29.7.114;
-#export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
-export XRT_WORKERS="localservice:0;grpc://localhost:40934"
-export XRT_DEVICE_MAP="CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0|GPU:0;/job:localservice/replica:0/task:0/device:XLA_GPU:0"
+export TPU_IP_ADDRESS=10.29.7.114;
+export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
+export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
+#export XRT_WORKERS="localservice:0;grpc://localhost:40934"
+#export XRT_DEVICE_MAP="CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0|GPU:0;/job:localservice/replica:0/task:0/device:XLA_GPU:0"
 
 
-py=python3
-#py=python
+#py=python3
+py=python
 #py='python3 -m torch_xla.distributed.xla_dist --tpu='${TPU_NAME}' --conda-env=torch-xla-nightly -- python'
 dataset=multimodal
 model=transformer
 #exp=aistpp_big
 exp=aistpp_test
 
-$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=60 --num_windows=1 --max_epochs=30000 \
+$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=60 --num_windows=1 --max_epochs=500 \
     --experiment_name=$exp\
+    --optimizer=adam \
     --learning_rate=1e-5 \
     --dins="219,103" \
     --douts="219" \
@@ -32,7 +34,7 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --nhead=10 \
     --dhid=800 \
     --dropout=0 \
-    --gpus=1 \
     --use_pos_emb_output \
+    --gpus=1 \
     #--continue_train \
     #--tpu_cores=8 \

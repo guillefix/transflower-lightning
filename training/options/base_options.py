@@ -119,8 +119,8 @@ class BaseOptions:
         #     torch.cuda.set_device(opt.gpu_ids[0])
         #
         # set multiprocessing
-        # if opt.workers > 0 and not opt.fork_processes:
-        #     mp.set_start_method('spawn', force=True)
+        if opt.workers > 0 and not opt.fork_processes:
+            mp.set_start_method('spawn', force=True)
 
         self.opt = opt
         return self.opt

@@ -52,6 +52,7 @@ if __name__ == '__main__':
     else:
         trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path)
 
+
     trainer.fit(model, train_dataloader)
 
     #for testing..
