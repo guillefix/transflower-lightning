@@ -1,10 +1,11 @@
 #!/bin/bash
 
-export TPU_IP_ADDRESS=10.29.7.114;
-export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
+#export TPU_IP_ADDRESS=10.29.7.114;
+#export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
+export XRT_TPU_CONFIG="tpu_worker;0;"
 
-py=python3
-#py=python
+#py=python3
+py=python
 #py='python3 -m torch_xla.distributed.xla_dist --tpu='${TPU_NAME}' --conda-env=torch-xla-nightly -- python'
 dataset=multimodal
 model=transflower
@@ -33,9 +34,9 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --use_pos_emb_output \
     --dhid=800 \
     --dropout=0 \
-    --accelerator=ddp \
-    --workers=$(nproc) \
-    --gpus=0 \
+    --workers=0 \
+#    --accelerator=ddp \
+#    --gpus=0 \
 #    --tpu_cores=8 \
 #    --continue_train \
 #    --log_every_n_steps=1 \

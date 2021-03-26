@@ -6,15 +6,19 @@ sys.path.append(ROOT_DIR)
 import glob
 import torch
 from training.datasets import create_dataset, create_dataloader
+print("HIII")
 from models import create_model
 from training.options.train_options import TrainOptions
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
+print("HIII")
 
 if __name__ == '__main__':
     opt = TrainOptions().parse()
+    print("HIII")
     model = create_model(opt)
-    model.setup(is_train=True)
+    print("HIII")
+    model.setup_opt(is_train=True)
     train_dataset = create_dataset(opt)
     train_dataset.setup()
     train_dataloader = create_dataloader(train_dataset)

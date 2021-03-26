@@ -1,5 +1,7 @@
+print("HIIIIIIOOO")
 import importlib
 from .base_model import BaseModel
+print("HIIIIIIOOO")
 
 def find_model_using_name(model_name, task_name):
     # Given the option --model [modelname],
@@ -29,6 +31,7 @@ def find_model_using_name(model_name, task_name):
 def get_option_setter(model_name, task_name):
     model_class = find_model_using_name(model_name, task_name)
     return model_class.modify_commandline_options
+
 
 
 def create_model(opt):

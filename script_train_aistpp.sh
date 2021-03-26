@@ -2,7 +2,11 @@
 
 # export PYTHONPATH="/home_directory/.local/lib/python3.5/site-packages/"
 
-export TPU_NAME=tpu-quickstart
+#export TPU_IP_ADDRESS=10.29.7.114;
+#export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
+export XRT_WORKERS="localservice:0;grpc://localhost:40934"
+export XRT_DEVICE_MAP="CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0|GPU:0;/job:localservice/replica:0/task:0/device:XLA_GPU:0"
+
 
 py=python3
 #py=python
@@ -12,9 +16,8 @@ model=transformer
 #exp=aistpp_big
 exp=aistpp_test
 
-$py /home/guillefix/mt-lightning/training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --max_epochs=500 \
+$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --max_epochs=500 \
     --experiment_name=$exp\
-    --tpu_cores=8 \
     --learning_rate=3e-5 \
     --dins="219,103" \
     --douts="219" \
@@ -25,8 +28,11 @@ $py /home/guillefix/mt-lightning/training/train.py --data_dir=data/scaled_featur
     --output_time_offset="121" \
     --predicted_inputs="0,0" \
     --nlayers=12 \
-    --num_processes=$(nproc) \
+    --workers=$(nproc) \
     --nhead=10 \
     --dhid=800 \
     --dropout=0 \
+    --gpus=1 \
+    --use_pos_emb_output \
+    #--tpu_cores=8 \
     #--continue_train \

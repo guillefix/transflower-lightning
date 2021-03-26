@@ -27,7 +27,7 @@ def get_optimizers(net, opt):
 def get_scheduler(optimizer, opt):
     if opt.lr_policy == 'lambda':
         def lambda_rule(epoch):
-            lr_l = 1.0 - max(0, epoch + opt.epoch_count - opt.nepoch) / float(opt.nepoch_decay + 1)
+            lr_l = 1.0 - max(0, epoch + opt.epoch_count - opt.max_epochs) / float(opt.nepoch_decay + 1)
             return lr_l
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
     elif opt.lr_policy == 'step':
