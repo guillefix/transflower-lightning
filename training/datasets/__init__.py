@@ -97,4 +97,5 @@ def create_dataloader(dataset):
                       # collate_fn=meta_collate_fn(dataset.opt.pad_batches,dataset.opt.model),
                       collate_fn=None,
                       #pin_memory=True,
+                      drop_last=True,
                       num_workers=dataset.opt.workers)
