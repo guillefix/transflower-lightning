@@ -25,9 +25,9 @@ class BaseModel(LightningModule):
     #    pass
 
     def configure_optimizers(self):
-        self.optimizers = get_optimizers(self, self.opt)
-        self.schedulers = [get_scheduler(optimizer, self.opt) for optimizer in self.optimizers]
-        return self.optimizers, self.schedulers
+        optimizers = get_optimizers(self, self.opt)
+        schedulers = [get_scheduler(optimizer, self.opt) for optimizer in self.optimizers]
+        return optimizers, schedulers
         #return self.optimizers
 
     # modify parser to add command line options,
