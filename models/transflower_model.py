@@ -6,6 +6,8 @@ from .transformer import BasicTransformerModel
 from models import BaseModel
 from models.flowplusplus import FlowPlusPlus
 import ast
+import torch_xla.core.xla_model as xm
+import torch_xla.debug.metrics as met
 
 class TransflowerModel(BaseModel):
     def __init__(self, opt):
@@ -248,6 +250,11 @@ class TransflowerModel(BaseModel):
         print(loss_mse)
         #return loss_mse
         return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
+
+    #to help debug XLA stuff, like missing ops, or data loading/compiling bottlenecks
+    # see https://youtu.be/iwtpwQRdb3Y?t=1056
+    #def on_epoch_end(self):
+    #    xm.master_print(met.metrics_report())
 
 
     #def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx,

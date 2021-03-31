@@ -35,8 +35,8 @@ if __name__ == '__main__':
     args = Trainer.parse_argparser(opt)
 
     if opt.continue_train:
-        #logs_path = default_save_path+"/lightning_logs"
         logs_path = default_save_path
+        #logs_path = default_save_path+"/lightning_logs"
         checkpoint_subdirs = [(d,int(d.split("_")[1])) for d in os.listdir(logs_path) if os.path.isdir(logs_path+"/"+d)]
         checkpoint_subdirs = sorted(checkpoint_subdirs,key=lambda t: t[1])
         checkpoint_path=logs_path+"/"+checkpoint_subdirs[-1][0]+"/checkpoints/"

@@ -7,13 +7,7 @@ import sys
 import argparse
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-ROOT_DIR = os.path.abspath(os.path.join(os.path.join(THIS_DIR, os.pardir), os.pardir))
-DATA_DIR = os.path.join(ROOT_DIR, 'data')
-EXTRACT_DIR = os.path.join(DATA_DIR, 'extracted_data')
-if not os.path.isdir(DATA_DIR):
-    os.mkdir(DATA_DIR)
-if not os.path.isdir(EXTRACT_DIR):
-    os.mkdir(EXTRACT_DIR)
+ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
 sys.path.append(ROOT_DIR)
 from audio_feature_utils import extract_features_hybrid, extract_features_mel, extract_features_multi_mel, extract_features_envelope
 from utils import distribute_tasks
@@ -23,7 +17,8 @@ parser = argparse.ArgumentParser(description="Preprocess audio data")
 parser.add_argument("data_path", type=str, help="Directory contining Beat Saber level folders")
 parser.add_argument("--feature_name", metavar='', type=str, default="mel", help="mel, chroma, multi_mel")
 parser.add_argument("--feature_size", metavar='', type=int, default=100)
-parser.add_argument("--step_size", metavar='', type=float, default=0.01666666666)
+# parser.add_argument("--step_size", metavar='', type=float, default=0.01666666666)
+parser.add_argument("--fps", metavar='', type=float, default=60)
 parser.add_argument("--sampling_rate", metavar='', type=float, default=96000)
 parser.add_argument("--replace_existing", action="store_true")
 parser.add_argument("--notranspose", action="store_true")
@@ -32,6 +27,7 @@ args = parser.parse_args()
 
 # makes arugments into global variables of the same name, used later in the code
 globals().update(vars(args))
+step_size=1.0/fps
 data_path = Path(data_path)
 
 ## distributing tasks accross nodes ##
