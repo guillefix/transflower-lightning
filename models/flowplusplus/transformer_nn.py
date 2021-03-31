@@ -41,7 +41,9 @@ class TransformerNN(nn.Module):
 
     def forward(self, x, aux=None):
         b, c, h, w = x.size()
-        x = x.squeeze()
+        # import pdb;pdb.set_trace()
+        x = x.squeeze(-1) # only squeeze the w dimension (important coz otherwise it would squeeze batch dim if theres only one element in minibatch..
+        # import pdb;pdb.set_trace()
         x = x.permute(2,0,1)
         # import pdb;pdb.set_trace()
         x = self.transformer(x)
