@@ -6,8 +6,8 @@ from .transformer import BasicTransformerModel
 from models import BaseModel
 from models.flowplusplus import FlowPlusPlus
 import ast
-import torch_xla.core.xla_model as xm
-import torch_xla.debug.metrics as met
+#import torch_xla.core.xla_model as xm
+#import torch_xla.debug.metrics as met
 
 class TransflowerModel(BaseModel):
     def __init__(self, opt):
