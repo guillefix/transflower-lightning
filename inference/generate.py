@@ -29,6 +29,7 @@ if __name__ == '__main__':
     input_mods = args.input_modalities.split(",")
     output_mods = args.output_modalities.split(",")
 
+    #TODO: change this to load hparams from the particular version folder, that we load the model from, coz the opts could differ between versions potentially.
     opt = json.loads(open("training/experiments/"+args.experiment_name+"/opt.json","r").read())
     class Struct:
         def __init__(self, **entries):
@@ -38,7 +39,8 @@ if __name__ == '__main__':
 
     # Load latest trained checkpoint from experiment
     default_save_path = opt.checkpoints_dir+"/"+opt.experiment_name
-    logs_path = default_save_path+"/lightning_logs"
+    # logs_path = default_save_path+"/lightning_logs"
+    logs_path = default_save_path
     checkpoint_subdirs = [(d,int(d.split("_")[1])) for d in os.listdir(logs_path) if os.path.isdir(logs_path+"/"+d)]
     checkpoint_subdirs = sorted(checkpoint_subdirs,key=lambda t: t[1])
     checkpoint_path=logs_path+"/"+checkpoint_subdirs[-1][0]+"/checkpoints/"
@@ -46,7 +48,7 @@ if __name__ == '__main__':
     latest_file = max(list_of_files, key=os.path.getctime)
     print(latest_file)
     model = create_model(opt)
-    model.setup(is_train=True)
+    # model.setup(is_train=True)
     model = model.load_from_checkpoint(latest_file, opt=opt)
 
     # Load input features (sequences must have been processed previously into features)
@@ -57,6 +59,7 @@ if __name__ == '__main__':
 
     # Generate prediction
     model.cuda()
+    # import pdb;pdb.set_trace()
     predicted_modes = model.generate(features)[0].cpu().numpy()
     # At the moment we are hardcoding the output mod. TODO: make more general
     transform = pickle.load(open(data_dir+"/"+'pkl_joint_angles_mats'+'_'+'scaler'+'.pkl', "rb"))

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-export TPU_IP_ADDRESS=10.8.195.90;
-export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
-export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
+#export TPU_IP_ADDRESS=10.8.195.90;
+#export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
+#export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
 #export XRT_TPU_CONFIG="tpu_worker;0;"
 
 #py=python3
@@ -26,7 +26,7 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --output_lengths="1" \
     --output_time_offset="121" \
     --predicted_inputs="0,0" \
-    --nlayers=12 \
+    --nlayers=10 \
     --nhead=10 \
     --num_glow_coupling_blocks=3 \
     --glow_use_attn \
@@ -43,3 +43,4 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
 #    --gpus=0 \
 #    --log_every_n_steps=1 \
 #    --flush_logs_every_n_steps=1 \
+    #--learning_rate=3e-5 \
