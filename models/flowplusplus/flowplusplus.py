@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
-from models.flowplusplus.act_norm import ActNorm
+from models.flowplusplus.act_norm import ActNorm, BatchNorm
 from models.flowplusplus.inv_conv import InvConv, InvertibleConv1x1
 from models.flowplusplus.nn import GatedConv
 from models.flowplusplus.coupling import Coupling
@@ -42,7 +42,9 @@ class FlowPlusPlus(nn.Module):
                  use_transformer_nn=False,
                  use_pos_emb=False,
                  num_heads=10,
-                 drop_prob=0.2):
+                 drop_prob=0.2,
+                 norm_layer=None,
+                 bn_momentum=0.1):
         super(FlowPlusPlus, self).__init__()
         # Register bounds to pre-process images, not learnable
         self.register_buffer('bounds', torch.tensor([0.9], dtype=torch.float32))
@@ -57,8 +59,9 @@ class FlowPlusPlus(nn.Module):
                                use_transformer_nn=use_transformer_nn,
                                use_pos_emb=use_pos_emb,
                                num_heads=num_heads,
-                              seq_length=in_shape[1],
-                               drop_prob=drop_prob)
+                               drop_prob=drop_prob,
+                               norm_layer=norm_layer,
+                               bn_momentum=bn_momentum)
 
     def forward(self, x, cond, reverse=False):
         if cond is not None:
@@ -115,7 +118,7 @@ class _FlowStep(nn.Module):
         use_attn (bool): Use attention in the coupling layers.
         drop_prob (float): Dropout probability.
     """
-    def __init__(self, scales, in_shape, cond_dim, mid_channels, num_blocks, num_components, use_attn, use_logmix, use_transformer_nn, use_pos_emb, num_heads, drop_prob, seq_length):
+    def __init__(self, scales, in_shape, cond_dim, mid_channels, num_blocks, num_components, use_attn, use_logmix, use_transformer_nn, use_pos_emb, num_heads, drop_prob, norm_layer, bn_momentum):
         super(_FlowStep, self).__init__()
         in_channels, in_height, in_width = in_shape
         num_channelwise, num_checkerboard = scales[0]
@@ -124,8 +127,13 @@ class _FlowStep(nn.Module):
         for i in range(num_channelwise):
             new_channels = in_channels// 2
             out_channels = in_channels-new_channels
-            channels += [InvertibleConv1x1(in_channels),
-                         Coupling(in_channels=new_channels + cond_dim,
+            print(norm_layer)
+            if norm_layer == "batchnorm":
+                channels += [BatchNorm(in_channels, bn_momentum)]
+            elif norm_layer == "actnorm":
+                channels += [ActNorm(in_channels)]
+            channels += [InvertibleConv1x1(in_channels)]
+            channels += [Coupling(in_channels=new_channels + cond_dim,
                                   out_channels=out_channels,
                                   mid_channels=mid_channels,
                                   num_blocks=num_blocks,
@@ -141,8 +149,12 @@ class _FlowStep(nn.Module):
 
         checkers = []
         for i in range(num_checkerboard):
-            checkers += [InvertibleConv1x1(in_channels),
-                         Coupling(in_channels=in_channels+cond_dim,
+            if norm_layer == "batchnorm":
+                checkers += [BatchNorm(in_channels, bn_momentum)]
+            elif norm_layer == "actnorm":
+                checkers += [ActNorm(in_channels)]
+            checkers += [InvertibleConv1x1(in_channels)]
+            checkers += [Coupling(in_channels=in_channels+cond_dim,
                                   out_channels=in_channels,
                                   mid_channels=mid_channels,
                                   num_blocks=num_blocks,

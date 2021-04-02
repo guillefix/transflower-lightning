@@ -6,10 +6,10 @@ from .transformer import BasicTransformerModel
 from models import BaseModel
 from models.flowplusplus import FlowPlusPlus
 import ast
-# import torch_xla.core.xla_model as xm
-# import torch_xla.debug.metrics as met
+import torch_xla.core.xla_model as xm
+import torch_xla.debug.metrics as met
 
-#TODO: refactor a whole bunch of stuff
+from .moglow.models import Glow
 
 class TransflowerModel(BaseModel):
     def __init__(self, opt):
@@ -20,12 +20,7 @@ class TransflowerModel(BaseModel):
         self.dins = dins = [int(x) for x in self.opt.dins.split(",")]
         self.douts = douts = [int(x) for x in self.opt.douts.split(",")]
         self.input_lengths = input_lengths = [int(x) for x in self.opt.input_lengths.split(",")]
-        self.predicted_inputs = predicted_inputs = [int(x) for x in self.opt.predicted_inputs.split(",")]
         self.output_lengths = output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
-        if self.opt.conditioning_output_lengths is not None:
-            self.conditioning_output_lengths = [int(x) for x in self.opt.conditioning_output_lengths.split(",")]
-        else:
-            self.conditioning_output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
         self.output_time_offsets = output_time_offsets = [int(x) for x in self.opt.output_time_offsets.split(",")]
         self.input_time_offsets = input_time_offsets = [int(x) for x in self.opt.input_time_offsets.split(",")]
 
@@ -41,51 +36,10 @@ class TransflowerModel(BaseModel):
             else:
                 raise Exception("number of input_time_offsets doesnt match number of input_mods")
 
-        if len(predicted_inputs) < len(input_mods):
-            if len(predicted_inputs) == 1:
-                self.predicted_inputs = predicted_inputs = predicted_inputs*len(input_mods)
-            else:
-                raise Exception("number of predicted_inputs doesnt match number of input_mods")
+        # import pdb;pdb.set_trace()
+        glow = Glow(dins[0], dins[1], self.opt)
+        setattr(self, "net"+"_glow", glow)
 
-        self.input_mod_nets = []
-        self.output_mod_nets = []
-        self.output_mod_glows = []
-        self.module_names = []
-        for i, mod in enumerate(input_mods):
-            net = BasicTransformerModel(opt.dhid, dins[i], opt.nhead, opt.dhid, 2, opt.dropout, self.device, use_pos_emb=True, input_length=input_lengths[i]).to(self.device)
-            name = "_input_"+mod
-            setattr(self,"net"+name, net)
-            self.input_mod_nets.append(net)
-            self.module_names.append(name)
-        for i, mod in enumerate(output_mods):
-            net = BasicTransformerModel(opt.dhid, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths)).to(self.device)
-            name = "_output_"+mod
-            setattr(self, "net"+name, net)
-            self.output_mod_nets.append(net)
-            self.module_names.append(name)
-
-            # import pdb;pdb.set_trace()
-            glow = FlowPlusPlus(scales=ast.literal_eval(opt.scales),
-                                     in_shape=(douts[i], output_lengths[i], 1),
-                                     cond_dim=opt.dhid,
-                                     mid_channels=opt.dhid_flow,
-                                     num_blocks=opt.num_glow_coupling_blocks,
-                                     num_components=opt.num_mixture_components,
-                                     use_attn=opt.glow_use_attn,
-                                     use_logmix=opt.num_mixture_components>0,
-                                     drop_prob=opt.dropout,
-                                     num_heads=opt.num_heads_flow,
-                                     use_transformer_nn=opt.use_transformer_nn,
-                                     use_pos_emb=opt.use_pos_emb_coupling,
-                                     norm_layer = opt.glow_norm_layer,
-                                     bn_momentum = opt.glow_bn_momentum
-                                     )
-            name = "_output_glow_"+mod
-            setattr(self, "net"+name, glow)
-            self.output_mod_glows.append(glow)
-
-
-        self.generate_full_masks()
         self.inputs = []
         self.targets = []
         self.criterion = nn.MSELoss()
@@ -96,44 +50,16 @@ class TransflowerModel(BaseModel):
     @staticmethod
     def modify_commandline_options(parser, is_train):
         parser.add_argument('--dhid', type=int, default=512)
-        parser.add_argument('--dhid_flow', type=int, default=512)
         parser.add_argument('--dins', default=None)
-        parser.add_argument('--douts', default=None)
-        parser.add_argument('--predicted_inputs', default="0")
-        parser.add_argument('--nlayers', type=int, default=6)
-        parser.add_argument('--nhead', type=int, default=8)
-        parser.add_argument('--num_heads_flow', type=int, default=8)
+        parser.add_argument('--glow_K', type=int, default=516)
+        parser.add_argument('--actnorm_scale', type=float, default=1.0)
+        parser.add_argument('--flow_permutation', type=str, default="invconv")
+        parser.add_argument('--flow_coupling', type=str, default="affine")
+        parser.add_argument('--num_layers', type=int, default=2)
+        parser.add_argument('--network_model', type=str, default="LSTM")
         parser.add_argument('--dropout', type=float, default=0.1)
-        parser.add_argument('--scales', type=str, default="[[10,0]]")
-        parser.add_argument('--glow_norm_layer', type=str, default=None)
-        parser.add_argument('--glow_bn_momentum', type=float, default=0.1)
-        parser.add_argument('--num_glow_coupling_blocks', type=int, default=10)
-        parser.add_argument('--num_mixture_components', type=int, default=0)
-        parser.add_argument('--glow_use_attn', action='store_true', help="whether to use the internal attention for the FlowPlusPLus model")
-        parser.add_argument('--use_transformer_nn', action='store_true', help="whether to use the internal attention for the FlowPlusPLus model")
-        parser.add_argument('--use_pos_emb_output', action='store_true', help="whether to use positional embeddings for output modality transformers")
-        parser.add_argument('--use_pos_emb_coupling', action='store_true', help="whether to use positional embeddings for the coupling layer transformers")
-        parser.add_argument('--conditioning_output_lengths', type=str, default=None, help="the number of outputs of the conditioning transformers to feed (meaning the number of elements along the sequence dimension)")
+        parser.add_argument('--LU_decomposed', action='store_true')
         return parser
-
-    def generate_full_masks(self):
-        input_mods = self.input_mods
-        output_mods = self.output_mods
-        input_lengths = self.input_lengths
-        self.src_masks = []
-        for i, mod in enumerate(input_mods):
-            mask = torch.zeros(input_lengths[i],input_lengths[i])
-            self.register_buffer('src_mask_'+str(i), mask)
-            self.src_masks.append(mask)
-
-        self.output_masks = []
-        for i, mod in enumerate(output_mods):
-            mask = torch.zeros(sum(input_lengths),sum(input_lengths))
-            self.register_buffer('out_mask_'+str(i), mask)
-            self.output_masks.append(mask)
-
-    # def on_train_batch_start(self, trainer, model, batch, batch_idx, dataloader_idx):
-    #     model.training_step(batch, batch_idx)
 
     def forward(self, data):
         # in lightning, forward defines the prediction/inference actions
@@ -147,7 +73,7 @@ class TransflowerModel(BaseModel):
         for i, mod in enumerate(self.output_mods):
             mask = getattr(self,"out_mask_"+str(i))
             #mask = self.output_masks[i]
-            trans_output = self.output_mod_nets[i].forward(latent,mask)[:self.conditioning_output_lengths[i]]
+            trans_output = self.output_mod_nets[i].forward(latent,mask)[:self.conditioning_output_lenghts[i]]
             output, _ = self.output_mod_glows[i](x=None, cond=trans_output.permute(1,0,2), reverse=True)
             outputs.append(output.permute(1,0,2))
 
@@ -239,7 +165,7 @@ class TransflowerModel(BaseModel):
         loss = 0
         for i, mod in enumerate(self.output_mods):
             mask = getattr(self,"out_mask_"+str(i))
-            output = self.output_mod_nets[i].forward(latent,mask)[:self.conditioning_output_lengths[i]]
+            output = self.output_mod_nets[i].forward(latent,mask)[:self.conditioning_output_lenghts[i]]
             glow = self.output_mod_glows[i]
             # import pdb;pdb.set_trace()
             z, sldj = glow(x=self.targets[i].permute(1,0,2), cond=output.permute(1,0,2)) #time, batch, features -> batch, time, features
