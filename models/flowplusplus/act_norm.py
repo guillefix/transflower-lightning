@@ -94,6 +94,7 @@ class BatchNorm(nn.Module):
                 self.running_var.data.copy_(var.data)
 
     def forward(self, x, cond, ldj=None, reverse=False):
+        # import pdb;pdb.set_trace()
         x = torch.cat(x, dim=1)
         if self.training:
             self._get_moments(x)

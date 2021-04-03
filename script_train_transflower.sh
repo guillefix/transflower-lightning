@@ -14,7 +14,7 @@ model=transflower
 exp=aistpp_flower_test2
 
 #$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --max_epochs=20000\
-$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=4 --num_windows=1 --max_epochs=20000\
+$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=8 --num_windows=1 --max_epochs=20000\
     --experiment_name=$exp\
     --lr_policy="multistep" \
     --lr_decay_milestones="[5000,10000]" \
@@ -24,7 +24,7 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --input_modalities="joint_angles_scaled,mel_ddcpca_scaled" \
     --output_modalities="joint_angles_scaled" \
     --input_lengths="120,240" \
-    --output_lengths="1" \
+    --output_lengths="10" \
     --output_time_offset="120" \
     --predicted_inputs="0,0" \
     --nlayers=10 \
@@ -35,17 +35,18 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --use_pos_emb_coupling \
     --use_pos_emb_output \
     --dhid=800 \
+    --cond_concat_dims \
     --glow_norm_layer="batchnorm" \
-    --glow_bn_momentum=0.1 \
+    --glow_bn_momentum=1.0 \
     --dropout=0.1 \
     --workers=$(nproc) \
-    --tpu_cores=8 \
-#    --gradient_clip_val=0.5 \
+    --gpus=1 \
 #    --continue_train \
+#    --tpu_cores=8 \
+#    --gradient_clip_val=0.5 \
 #    --accelerator=ddp \
 #    --workers=$(nproc) \
     #--continue_train \
-    #--tpu_cores=8 \
 #    --log_every_n_steps=1 \
 #    --flush_logs_every_n_steps=1 \
     #--learning_rate=3e-5 \

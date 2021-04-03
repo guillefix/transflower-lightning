@@ -9,7 +9,7 @@ py=python3
 #exp=aistpp_2
 #exp=aistpp_flower_1
 #exp=aistpp_flower_gpu_nodrop
-exp=moglow_loc
+exp=moglow_loc_test
 seq_id="1"
 
 mkdir inference/generated/${exp}

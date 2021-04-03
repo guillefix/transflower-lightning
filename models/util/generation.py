@@ -1,7 +1,7 @@
 
 import torch
 
-def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teacher_forcing=False):
+def autoregressive_generation_multimodal(inputs_, model, autoreg_mods=[], teacher_forcing=False):
     input_time_offsets = model.input_time_offsets
     input_lengths = model.input_lengths
     input_mods = model.input_mods
@@ -9,13 +9,6 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
     predicted_inputs = model.predicted_inputs
     for mod in autoreg_mods:
         assert mod in output_mods
-    inputs_ = []
-    for i,mod in enumerate(input_mods):
-        input_ = features["in_"+mod]
-        input_ = torch.from_numpy(input_).float().cuda()
-        input_shape = input_.shape
-        input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3])).permute(2,0,1).to(model.device)
-        inputs_.append(input_)
 
     input_tmp = []
     for i,mod in enumerate(input_mods):

@@ -19,10 +19,10 @@ class TransflowerModel(BaseModel):
         self.input_lengths = input_lengths = [int(x) for x in self.opt.input_lengths.split(",")]
         self.predicted_inputs = predicted_inputs = [int(x) for x in self.opt.predicted_inputs.split(",")]
         self.output_lengths = output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
-        if self.opt.conditioning_output_lengths is not None:
-            self.conditioning_output_lengths = [int(x) for x in self.opt.conditioning_output_lengths.split(",")]
+        if self.opt.conditioning_seq_lens is not None:
+            self.conditioning_seq_lens = [int(x) for x in self.opt.conditioning_seq_lens.split(",")]
         else:
-            self.conditioning_output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
+            self.conditioning_seq_lens = [int(x) for x in self.opt.output_lengths.split(",")]
         self.output_time_offsets = output_time_offsets = [int(x) for x in self.opt.output_time_offsets.split(",")]
         self.input_time_offsets = input_time_offsets = [int(x) for x in self.opt.input_time_offsets.split(",")]
 
@@ -55,7 +55,10 @@ class TransflowerModel(BaseModel):
             self.input_mod_nets.append(net)
             self.module_names.append(name)
         for i, mod in enumerate(output_mods):
-            net = BasicTransformerModel(opt.dhid, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths)).to(self.device)
+            if self.opt.cond_concat_dims:
+                net = BasicTransformerModel(opt.dhid, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths)).to(self.device)
+            else:
+                net = BasicTransformerModel(douts[i]//2, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths)).to(self.device)
             name = "_output_"+mod
             setattr(self, "net"+name, net)
             self.output_mod_nets.append(net)
@@ -75,8 +78,10 @@ class TransflowerModel(BaseModel):
                                      use_transformer_nn=opt.use_transformer_nn,
                                      use_pos_emb=opt.use_pos_emb_coupling,
                                      norm_layer = opt.glow_norm_layer,
-                                     bn_momentum = opt.glow_bn_momentum
-                                     )
+                                     bn_momentum = opt.glow_bn_momentum,
+                                     cond_concat_dims=opt.cond_concat_dims,
+                                     cond_seq_len=self.conditioning_seq_lens[i],
+                                )
             name = "_output_glow_"+mod
             setattr(self, "net"+name, glow)
             self.output_mod_glows.append(glow)
@@ -96,6 +101,7 @@ class TransflowerModel(BaseModel):
         parser.add_argument('--dins', default=None)
         parser.add_argument('--douts', default=None)
         parser.add_argument('--predicted_inputs', default="0")
+        parser.add_argument('--conditioning_seq_lens', type=str, default=None, help="the number of outputs of the conditioning transformers to feed (meaning the number of elements along the sequence dimension)")
         parser.add_argument('--nlayers', type=int, default=6)
         parser.add_argument('--nhead', type=int, default=8)
         parser.add_argument('--num_heads_flow', type=int, default=8)
@@ -109,6 +115,7 @@ class TransflowerModel(BaseModel):
         parser.add_argument('--use_transformer_nn', action='store_true', help="whether to use the internal attention for the FlowPlusPLus model")
         parser.add_argument('--use_pos_emb_output', action='store_true', help="whether to use positional embeddings for output modality transformers")
         parser.add_argument('--use_pos_emb_coupling', action='store_true', help="whether to use positional embeddings for the coupling layer transformers")
+        parser.add_argument('--cond_concat_dims', action='store_true', help="if set we concatenate along the channel dimension with with the x for the coupling layer; otherwise we concatenate along the sequence dimesion")
         return parser
 
     def generate_full_masks(self):
@@ -135,14 +142,21 @@ class TransflowerModel(BaseModel):
         latent = torch.cat(latents)
         outputs = []
         for i, mod in enumerate(self.output_mods):
-            trans_output = self.output_mod_nets[i].forward(latent)[:self.conditioning_output_lengths[i]]
+            trans_output = self.output_mod_nets[i].forward(latent)[:self.conditioning_seq_lens[i]]
             output, _ = self.output_mod_glows[i](x=None, cond=trans_output.permute(1,0,2), reverse=True)
             outputs.append(output.permute(1,0,2))
 
         return outputs
 
     def generate(self,features, teacher_forcing=False):
-        output_seq = autoregressive_generation_multimodal(features, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
+        inputs_ = []
+        for i,mod in enumerate(self.input_mods):
+            input_ = features["in_"+mod]
+            input_ = torch.from_numpy(input_).float().cuda()
+            input_shape = input_.shape
+            input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3])).permute(2,0,1).to(self.device)
+            inputs_.append(input_)
+        output_seq = autoregressive_generation_multimodal(inputs_, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
         return output_seq
 
     def set_inputs(self, data):
@@ -173,11 +187,12 @@ class TransflowerModel(BaseModel):
         latent = torch.cat(latents)
         loss = 0
         for i, mod in enumerate(self.output_mods):
-            output = self.output_mod_nets[i].forward(latent)[:self.conditioning_output_lengths[i]]
+            output = self.output_mod_nets[i].forward(latent)[:self.conditioning_seq_lens[i]]
             glow = self.output_mod_glows[i]
             # import pdb;pdb.set_trace()
             z, sldj = glow(x=self.targets[i].permute(1,0,2), cond=output.permute(1,0,2)) #time, batch, features -> batch, time, features
             #print(sldj)
+            n_timesteps = self.targets[i].shape[1]
             loss += glow.loss_generative(z, sldj)
         #self.log('nll_loss', loss)
         return loss

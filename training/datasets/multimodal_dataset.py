@@ -214,7 +214,9 @@ class MultimodalDataset(BaseDataset):
         # sample indices at which we will get opt.num_windows windows of the sequence to feed as inputs
         # TODO: make this deterministic, and determined by `item`, so that one epoch really corresponds to going through all the data..
         sequence_length = x[0].shape[-1]
-        indices = np.random.choice(range(0,sequence_length-max(max(input_lengths)+max(input_time_offsets),max(output_time_offsets)+max(output_lengths))),size=self.opt.num_windows,replace=True)
+        indices = np.random.choice(range(0,sequence_length-max(max(input_lengths)+max(input_time_offsets),max(output_time_offsets)+max(output_lengths))+1),size=self.opt.num_windows,replace=True)
+        # indices = np.random.choice(range(0,sequence_length-max(max(input_lengths)+max(input_time_offsets),max(output_time_offsets)+max(output_lengths))+1-self.opt.num_windows),size=1,replace=True)
+        # indices = list(range(indices[i],indices[i]+self.opt.num_windows))
         #max_i = sequence_length-max(max(input_lengths)+max(input_time_offsets),max(output_time_offsets)+max(output_lengths))
         #indices = np.random.choice(range(0,20),size=self.opt.num_windows,replace=True)
         #indices = np.random.choice([0,1,2,3,4],size=1)
