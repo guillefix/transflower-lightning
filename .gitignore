@@ -12,3 +12,4 @@ analaysis/aistplusplus_api/img/*
 inference/generated/*
 analysis/weight_mats/*
 data/videos/*
+data/moglow_loc/*

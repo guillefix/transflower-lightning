@@ -34,7 +34,8 @@ class _ActNorm(nn.Module):
         self.register_parameter("logs", nn.Parameter(torch.zeros(*size)))
         self.num_features = num_features
         self.scale = float(scale)
-        self.inited = False
+        # self.inited = False
+        self.register_buffer('is_initialized', torch.zeros(1))
 
     def _check_input_dim(self, input):
         return NotImplemented
@@ -50,7 +51,8 @@ class _ActNorm(nn.Module):
             logs = torch.log(self.scale/(torch.sqrt(vars)+1e-6))
             self.bias.data.copy_(bias.data)
             self.logs.data.copy_(logs.data)
-            self.inited = True
+            # self.inited = True
+            self.is_initialized += 1.
 
     def _center(self, input, reverse=False):
         if not reverse:
@@ -76,7 +78,7 @@ class _ActNorm(nn.Module):
         return input, logdet
 
     def forward(self, input, logdet=None, reverse=False):
-        if not self.inited:
+        if not self.is_initialized:
             self.initialize_parameters(input)
         self._check_input_dim(input)
         # no need to permute dims as old version

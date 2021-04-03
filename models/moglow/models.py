@@ -167,6 +167,7 @@ class FlowNet(nn.Module):
                          LU_decomposed=LU_decomposed))
             self.output_shapes.append(
                 [-1, x_channels, 1])
+            # import pdb;pdb.set_trace()
 
     def init_lstm_hidden(self):
         for layer in self.layers:
