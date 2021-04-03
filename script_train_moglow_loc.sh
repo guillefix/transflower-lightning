@@ -11,7 +11,7 @@ py=python
 dataset=multimodal
 model=transflower
 #exp=aistpp_big
-exp=moglow_loc
+exp=moglow_loc_bn1
 
 $py training/train.py --data_dir=data/moglow_loc --dataset_name=$dataset --model=$model --batch_size=128 --num_windows=1 --max_epochs=20000\
     --experiment_name=$exp\
@@ -34,10 +34,12 @@ $py training/train.py --data_dir=data/moglow_loc --dataset_name=$dataset --model
     --use_pos_emb_coupling \
     --use_pos_emb_output \
     --dhid=800 \
+    --glow_norm_layer="batchnorm" \
+    --glow_bn_momentum=1.0 \
     --dropout=0 \
     --workers=$(nproc) \
     --tpu_cores=8 \
-    --continue_train \
+#    --continue_train \
 #    --gradient_clip_val=0.5 \
 #    --accelerator=ddp \
 #    --gpus=0 \
