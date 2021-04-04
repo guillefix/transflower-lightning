@@ -49,8 +49,8 @@ class TransformerNN(nn.Module):
         x = x.permute(2,0,1)
         # import pdb;pdb.set_trace()
         if self.concat_dims:
-            # x = self.transformer(x)
-            x = torch.mean(self.transformer(x), dim=0, keepdim=True)
+            x = self.transformer(x)
+            # x = torch.mean(self.transformer(x), dim=0, keepdim=True)
             # x = 0.5*x + 0.5*torch.mean(x, dim=0, keepdim=True)
             # x = self.transformer(x)[:1]
         else:
@@ -59,8 +59,8 @@ class TransformerNN(nn.Module):
         x = x.permute(1,2,0)
         # Split into components and post-process
         if self.concat_dims:
-            # x = x.view(b, -1, self.out_channels, h, w)
-            x = x.view(b, -1, self.out_channels, 1, w)
+            x = x.view(b, -1, self.out_channels, h, w)
+            # x = x.view(b, -1, self.out_channels, 1, w)
         else:
             x = x.view(b, -1, self.out_channels, self.output_length, w)
         s, t, pi, mu, scales = x.split((1, 1, self.k, self.k, self.k), dim=1)

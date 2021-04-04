@@ -97,6 +97,7 @@ class BatchNorm(nn.Module):
         # import pdb;pdb.set_trace()
         x = torch.cat(x, dim=1)
         if self.training:
+            # print("HI")
             self._get_moments(x)
         inv_std = 1. / (self.running_var.sqrt() + self.eps)
         if reverse:

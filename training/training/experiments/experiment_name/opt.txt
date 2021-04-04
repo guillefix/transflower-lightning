@@ -30,6 +30,7 @@
               fix_lengths: False                         
  flush_logs_every_n_steps: 100                           
            fork_processes: False                         
+ generate_attention_masks: False                         
         gradient_clip_val: 0                             
             input_lengths: None                          
          input_modalities: mp3_mel_100                   

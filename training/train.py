@@ -34,7 +34,11 @@ if __name__ == '__main__':
 
     args = Trainer.parse_argparser(opt)
 
+    # print("opt.continue_train")
+    # print(opt.continue_train)
+
     if opt.continue_train:
+        print("CONTINUE TRAIN")
         logs_path = default_save_path
         #logs_path = default_save_path+"/lightning_logs"
         checkpoint_subdirs = [(d,int(d.split("_")[1])) for d in os.listdir(logs_path) if os.path.isdir(logs_path+"/"+d)]
@@ -48,6 +52,9 @@ if __name__ == '__main__':
             model.load_state_dict(state_dict['state_dict'])
             trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path)
         else:
+            # print("STATE DICT")
+            # state_dict = torch.load(latest_file)
+            # print(state_dict['state_dict'])
             trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file)
     else:
         trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path)

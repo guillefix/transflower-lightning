@@ -32,7 +32,13 @@ if __name__ == '__main__':
     scalers = [x for x in args.scalers.split(",") if len(x)>0]
 
     #TODO: change this to load hparams from the particular version folder, that we load the model from, coz the opts could differ between versions potentially.
-    opt = json.loads(open("training/experiments/"+args.experiment_name+"/opt.json","r").read())
+    exp_opt = json.loads(open("training/experiments/"+args.experiment_name+"/opt.json","r").read())
+    opt = vars(TrainOptions().parse(parse_args=["--model", exp_opt["model"]]))
+    print(opt)
+    opt.update(exp_opt)
+    # opt["cond_concat_dims"] = True
+    # opt["bn_momentum"] = 0.0
+    opt["batch_size"] = 1
     class Struct:
         def __init__(self, **entries):
             self.__dict__.update(entries)
@@ -63,6 +69,7 @@ if __name__ == '__main__':
     model.cuda()
     # import pdb;pdb.set_trace()
     predicted_mods = model.generate(features)
+    # import pdb;pdb.set_trace()
     # At the moment we are hardcoding the output mod. TODO: make more general
     for i, mod in enumerate(output_mods):
         predicted_mod = predicted_mods[i].cpu().numpy()

@@ -9,40 +9,32 @@ py=python3
 #py=python
 #py='python3 -m torch_xla.distributed.xla_dist --tpu='${TPU_NAME}' --conda-env=torch-xla-nightly -- python'
 dataset=multimodal
-model=transflower
+model=moglow
 #exp=aistpp_big
-exp=aistpp_flower_test5
+exp=aistpp_moglow_test2
 
 #$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --max_epochs=20000\
-$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=8 --num_windows=1 --max_epochs=20000\
+$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=1 --num_windows=1 --max_epochs=20000\
     --experiment_name=$exp\
     --lr_policy="multistep" \
     --lr_decay_milestones="[5000,10000]" \
     --learning_rate=1e-4 \
     --dins="219,103" \
-    --douts="219" \
     --input_modalities="joint_angles_scaled,mel_ddcpca_scaled" \
     --output_modalities="joint_angles_scaled" \
-    --input_lengths="60,120" \
-    --output_lengths="10" \
-    --output_time_offset="60" \
-    --predicted_inputs="0,0" \
-    --nlayers=4 \
-    --nhead=10 \
-    --scales="[[6,0]]" \
-    --num_glow_coupling_blocks=2 \
-    --glow_use_attn \
-    --use_transformer_nn \
-    --use_pos_emb_coupling \
-    --use_pos_emb_output \
-    --dhid=800 \
-    --cond_concat_dims \
-    --glow_norm_layer="actnorm" \
-    --glow_bn_momentum=1.0 \
+    --input_lengths="49,50" \
+    --input_seq_lens="10,11" \
+    --output_lengths="40" \
+    --output_time_offset="10" \
+    --glow_K=16 \
     --dropout=0 \
-    --workers=$(nproc) \
+    --workers=0 \
     --gpus=1 \
-    --continue_train \
+#    --continue_train \
+#    --output_time_offset="20" \
+#    --input_lengths="90,110" \
+#    --input_seq_lens="20,40" \
+#    --output_lengths="71" \
 #    --tpu_cores=8 \
 #    --gradient_clip_val=0.5 \
 #    --accelerator=ddp \

@@ -41,6 +41,7 @@ class _ActNorm(nn.Module):
         return NotImplemented
 
     def initialize_parameters(self, input):
+        # print("HOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOo")
         self._check_input_dim(input)
         if not self.training:
             return

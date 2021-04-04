@@ -3,10 +3,14 @@ import torch
 
 def autoregressive_generation_multimodal(inputs_, model, autoreg_mods=[], teacher_forcing=False):
     input_time_offsets = model.input_time_offsets
-    input_lengths = model.input_lengths
+    if hasattr(model, "input_seq_lens"):
+        input_lengths = model.input_seq_lens
+        print(input_lengths)
+    else:
+        input_lengths = model.input_lengths
     input_mods = model.input_mods
     output_mods = model.output_mods
-    predicted_inputs = model.predicted_inputs
+    # predicted_inputs = model.predicted_inputs
     for mod in autoreg_mods:
         assert mod in output_mods
 
@@ -19,6 +23,7 @@ def autoregressive_generation_multimodal(inputs_, model, autoreg_mods=[], teache
     output_seq = []
     # sequence_length = inputs_[0].shape[0]
     sequence_length = inputs_[1].shape[0]
+    print(sequence_length)
     with torch.no_grad():
         # for t in range(min(512, sequence_length-max(input_lengths)-1)):
         for t in range(sequence_length-max(input_lengths)-1):
@@ -46,9 +51,12 @@ def autoregressive_generation_multimodal(inputs_, model, autoreg_mods=[], teache
                         if teacher_forcing:
                             input_tmp[i] = torch.cat([input_tmp[i][1:],inputs_[i][t+input_time_offsets[i]+input_lengths[i]:t+input_time_offsets[i]+input_lengths[i]+1]],0)
                         else:
+                            # import pdb;pdb.set_trace()
                             input_tmp[i] = torch.cat([input_tmp[i][1:],output[:1].detach().clone()],0)
-                        print(torch.mean((inputs_[i][t+input_time_offsets[i]+input_lengths[i]-predicted_inputs[i]+1:t+input_time_offsets[i]+input_lengths[i]-predicted_inputs[i]+1+1]-outputs[j][:1].detach().clone())**2))
+                        # print(torch.mean((inputs_[i][t+input_time_offsets[i]+input_lengths[i]-predicted_inputs[i]+1:t+input_time_offsets[i]+input_lengths[i]-predicted_inputs[i]+1+1]-outputs[j][:1].detach().clone())**2))
+                        print(torch.mean((inputs_[i][t+input_time_offsets[i]+input_lengths[i]+1:t+input_time_offsets[i]+input_lengths[i]+1+1]-outputs[j][:1].detach().clone())**2))
                     else:
                         input_tmp[i] = torch.cat([input_tmp[i][1:],inputs_[i][input_time_offsets[i]+input_lengths[i]+t:input_time_offsets[i]+input_lengths[i]+t+1]],0)
 
     return output_seq
+

@@ -16,7 +16,7 @@ exp=moglow_loc_og_test
 $py training/train.py --data_dir=data/moglow_loc --dataset_name=$dataset --model=$model --batch_size=128 --num_windows=1 --max_epochs=20000\
     --experiment_name=$exp\
     --lr_policy="multistep" \
-    --network_model="FF" \
+    --network_model="LSTM" \
     --lr_decay_milestones="[5000,10000]" \
     --learning_rate=2e-4 \
     --dins="63,3" \

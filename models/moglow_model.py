@@ -13,12 +13,13 @@ class MoglowModel(BaseModel):
         self.input_mods = input_mods = self.opt.input_modalities.split(",")
         self.output_mods = output_mods = self.opt.output_modalities.split(",")
         self.dins = dins = [int(x) for x in self.opt.dins.split(",")]
-        # self.input_lengths = input_lengths = [int(x) for x in self.opt.input_lengths.split(",")]
-        # self.output_lengths = output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
+        self.input_lengths = input_lengths = [int(x) for x in self.opt.input_lengths.split(",")]
+        self.output_lengths = output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
         self.input_seq_lens = input_seq_lens = [int(x) for x in self.opt.input_seq_lens.split(",")]
         self.output_seq_lens = output_seq_lens = [int(x) for x in self.opt.output_seq_lens.split(",")]
         self.output_time_offsets = output_time_offsets = [int(x) for x in self.opt.output_time_offsets.split(",")]
         self.input_time_offsets = input_time_offsets = [int(x) for x in self.opt.input_time_offsets.split(",")]
+        # self.predicted_inputs = predicted_inputs = [int(x) for x in self.opt.predicted_inputs.split(",")]
 
         if len(output_time_offsets) < len(output_mods):
             if len(output_time_offsets) == 1:
@@ -41,6 +42,7 @@ class MoglowModel(BaseModel):
         self.inputs = []
         self.targets = []
         # self.criterion = nn.MSELoss()
+        # self.has_initialized = False
 
     def name(self):
         return "Moglow"
@@ -63,8 +65,22 @@ class MoglowModel(BaseModel):
 
     def forward(self, data, eps_std=1.0):
         # in lightning, forward defines the prediction/inference actions
-        outputs = self.net_glow(z=None, cond=data, eps_std=eps_std, reverse=True)
-        return outputs
+        # inputs_ = []
+        # import pdb;pdb.set_trace()
+        min_len = min(self.input_seq_lens)
+        for i,mod in enumerate(self.input_mods):
+            input_ = data[i]
+            input_ = input_.permute(1,2,0)
+            input_ = input_.permute(0,2,1)
+            input_ = self.concat_sequence(self.input_seq_lens[i], input_)
+            input_ = input_.permute(0,2,1)
+            input_ = input_[:,:,:min_len]
+            # inputs_.append(input_)
+            data[i] = input_
+        # import pdb;pdb.set_trace()
+        outputs = self.net_glow(z=None, cond=torch.cat(data, dim=1), eps_std=eps_std, reverse=True)
+        # import pdb;pdb.set_trace()
+        return [outputs.permute(0,2,1)]
 
     def generate(self,features, teacher_forcing=False):
         inputs_ = []
@@ -72,10 +88,9 @@ class MoglowModel(BaseModel):
             input_ = features["in_"+mod]
             input_ = torch.from_numpy(input_).float().cuda()
             input_shape = input_.shape
-            input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3])).to(self.device)
-            input_ = self.concat_sequence(self.input_seq_lens[i], input_)
+            input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3])).permute(2,0,1).to(self.device)
             inputs_.append(input_)
-        output_seq = autoregressive_generation_multimodal(torch.cat(inputs_, dim=1), self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
+        output_seq = autoregressive_generation_multimodal(inputs_, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
         return output_seq
 
     def on_train_start(self):
@@ -146,7 +161,13 @@ class MoglowModel(BaseModel):
         loss = Glow.loss_generative(nll)
         self.log('nll_loss', loss)
         # import pdb;pdb.set_trace()
+        # if not self.has_initialized:
+        #     self.has_initialized=True
+        #     return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
+        # else:
+        # print(loss)
         return loss
+        # return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
 
     #to help debug XLA stuff, like missing ops, or data loading/compiling bottlenecks
     # see https://youtu.be/iwtpwQRdb3Y?t=1056

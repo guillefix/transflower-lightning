@@ -97,11 +97,15 @@ class FlowPlusPlus(nn.Module):
         See Also:
             Equation (3) in the RealNVP paper: https://arxiv.org/abs/1605.08803
         """
+        # print(z)
         prior_ll = -0.5 * (z ** 2 + np.log(2 * np.pi))
         prior_ll = prior_ll.flatten(1).sum(-1)# \
 #            - np.log(k) * np.prod(z.size()[1:])
         ll = prior_ll + sldj
+        # print(sldj.mean())
+        # import pdb;pdb.set_trace()
         nll = -ll.mean()/float(np.log(2.) * z.size(2) * z.size(3))
+        # nll = -ll.mean()/float(np.log(2.))
 
         return nll
         
@@ -131,7 +135,7 @@ class _FlowStep(nn.Module):
         for i in range(num_channelwise):
             new_channels = in_channels// 2
             out_channels = in_channels-new_channels
-            print(norm_layer)
+            # print(norm_layer)
             if norm_layer == "batchnorm":
                 channels += [BatchNorm(in_channels, bn_momentum)]
             elif norm_layer == "actnorm":
