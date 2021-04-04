@@ -1,9 +1,10 @@
 #!/bin/bash
 
-export TPU_IP_ADDRESS=10.8.195.90;
-export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
-export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
-#export XRT_TPU_CONFIG="tpu_worker;0;"
+#export TPU_IP_ADDRESS=10.8.195.90;
+#export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
+#export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
+export XRT_WORKERS="localservice:0;grpc://localhost:40934"
+export XRT_DEVICE_MAP="CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0|GPU:0;/job:localservice/replica:0/task:0/device:XLA_GPU:0"
 
 py=python3
 #py=python
@@ -14,7 +15,7 @@ model=transflower
 exp=aistpp_flower_test5
 
 #$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --max_epochs=20000\
-$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=8 --num_windows=1 --max_epochs=20000\
+$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --max_epochs=20000\
     --experiment_name=$exp\
     --lr_policy="multistep" \
     --lr_decay_milestones="[5000,10000]" \
