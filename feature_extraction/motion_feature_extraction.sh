@@ -10,6 +10,8 @@ n=$(nproc)
 # mpirun -n $n $py ./scripts/feature_extraction/apply_transforms.py $@ --feature_name pkl_joint_angles_mats --transform_name scaler --new_feature_name joint_angles_scaled
 
 # code for Expmap representations from bvhs
-#mpirun -n $n $py feature_extraction/process_motions.py $@
-mpirun -n 1 $py feature_extraction/extract_transform2.py $1 --feature_name bvh_expmap --transforms scaler
-mpirun -n $n $py feature_extraction/apply_transforms.py $@ --feature_name bvh_expmap --transform_name scaler --new_feature_name expmap_scaled
+#param=expmap
+param=position
+mpirun -n $n $py feature_extraction/process_motions.py $@ --param ${param}
+mpirun -n 1 $py feature_extraction/extract_transform2.py $1 --feature_name bvh_${param} --transforms scaler
+mpirun -n $n $py feature_extraction/apply_transforms.py $@ --feature_name bvh_${param} --transform_name scaler --new_feature_name ${param}_scaled

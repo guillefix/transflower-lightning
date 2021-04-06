@@ -23,6 +23,7 @@ import joblib as jl
 parser = argparse.ArgumentParser(description="Preprocess motion data")
 
 parser.add_argument("data_path", type=str, help="Directory contining Beat Saber level folders")
+parser.add_argument("--param", type=str, default="expmap", help="expmap, position")
 parser.add_argument("--replace_existing", action="store_true")
 parser.add_argument("--fps", type=float, default=60)
 
@@ -45,7 +46,7 @@ data_pipe = Pipeline([
     ('root', RootTransformer('pos_rot_deltas')),
     # ('mir', Mirror(axis='X', append=True)),
     ('jtsel', JointSelector(['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
-    ('exp', MocapParameterizer('expmap')),
+    ('exp', MocapParameterizer(param)),
     # ('cnst', ConstantsRemover()),
     ('np', Numpyfier())
 ])
@@ -62,11 +63,11 @@ def extract_joint_angles(files):
     assert len(out_data) == len(files)
 
     if rank == 0:
-        jl.dump(data_pipe, os.path.join(data_path, 'motion_data_pipe.sav'))
+        jl.dump(data_pipe, os.path.join(data_path, 'motion_'+param+'_data_pipe.sav'))
 
     fi=0
     for f in files:
-        features_file = f + "_expmap.npy"
+        features_file = f + "_"+param+".npy"
         if replace_existing or not os.path.isfile(features_file):
             #print(features_file)
             #print(out_data[fi].shape)
