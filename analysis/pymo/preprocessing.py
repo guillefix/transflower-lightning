@@ -591,6 +591,9 @@ class JointSelector(BaseEstimator, TransformerMixin):
             t2 = track.clone()
             for key in track.skeleton.keys():
                 if key not in self.selected_joints:
+                    parent = t2.skeleton[key]['parent']
+                    if parent in t2.skeleton:
+                        t2.skeleton[parent]['children'].remove(key)
                     t2.skeleton.pop(key)
             t2.values = track.values[self.selected_channels]
 

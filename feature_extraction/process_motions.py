@@ -46,7 +46,7 @@ data_pipe = Pipeline([
     ('root', RootTransformer('pos_rot_deltas')),
     # ('mir', Mirror(axis='X', append=True)),
     ('jtsel', JointSelector(['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
-    ('exp', MocapParameterizer(param)),
+    (param, MocapParameterizer(param)),
     # ('cnst', ConstantsRemover()),
     ('np', Numpyfier())
 ])
