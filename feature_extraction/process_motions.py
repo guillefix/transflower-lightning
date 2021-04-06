@@ -42,7 +42,7 @@ print(rank)
 p = BVHParser()
 data_pipe = Pipeline([
     ('dwnsampl', DownSampler(tgt_fps=fps,  keep_all=False)),
-    ('root', RootTransformer('hip_centric')),
+    ('root', RootTransformer('pos_rot_deltas')),
     # ('mir', Mirror(axis='X', append=True)),
     ('jtsel', JointSelector(['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
     ('exp', MocapParameterizer('expmap')),
@@ -66,13 +66,16 @@ def extract_joint_angles(files):
 
     fi=0
     for f in files:
-        features_file = f + "_expmap.npz"
+        features_file = f + "_expmap.npy"
         if replace_existing or not os.path.isfile(features_file):
-            np.savez(features_file, clips=out_data[fi])
+            #print(features_file)
+            #print(out_data[fi].shape)
+            np.save(features_file, out_data[fi])
             # np.savez(ff + "_mirrored.npz", clips=out_data[len(files)+fi])
             fi=fi+1
 
 candidate_motion_files = sorted(data_path.glob('**/*.bvh'), key=lambda path: path.parent.__str__())
+#candidate_motion_files = candidate_motion_files[:32]
 tasks = distribute_tasks(candidate_motion_files,rank,size)
 
 files = [path.__str__() for i, path in enumerate(candidate_motion_files) if i in tasks]
