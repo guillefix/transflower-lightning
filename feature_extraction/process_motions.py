@@ -68,11 +68,14 @@ def extract_joint_angles(files):
     for f in files:
         features_file = f + "_expmap.npy"
         if replace_existing or not os.path.isfile(features_file):
+            #print(features_file)
+            #print(out_data[fi].shape)
             np.save(features_file, out_data[fi])
             # np.savez(ff + "_mirrored.npz", clips=out_data[len(files)+fi])
             fi=fi+1
 
 candidate_motion_files = sorted(data_path.glob('**/*.bvh'), key=lambda path: path.parent.__str__())
+#candidate_motion_files = candidate_motion_files[:32]
 tasks = distribute_tasks(candidate_motion_files,rank,size)
 
 files = [path.__str__() for i, path in enumerate(candidate_motion_files) if i in tasks]
