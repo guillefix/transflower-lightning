@@ -67,14 +67,15 @@ class MoglowModel(BaseModel):
         # in lightning, forward defines the prediction/inference actions
         # inputs_ = []
         # import pdb;pdb.set_trace()
-        min_len = min(self.input_seq_lens)
+        # min_len = min(self.input_seq_lens)
         for i,mod in enumerate(self.input_mods):
             input_ = data[i]
             input_ = input_.permute(1,2,0)
             input_ = input_.permute(0,2,1)
             input_ = self.concat_sequence(self.input_seq_lens[i], input_)
             input_ = input_.permute(0,2,1)
-            input_ = input_[:,:,:min_len]
+            # import pdb;pdb.set_trace()
+            # input_ = input_[:,:,:min_len]
             # inputs_.append(input_)
             data[i] = input_
         # import pdb;pdb.set_trace()

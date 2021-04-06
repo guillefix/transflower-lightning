@@ -10,44 +10,38 @@ py=python3
 #py=python
 #py='python3 -m torch_xla.distributed.xla_dist --tpu='${TPU_NAME}' --conda-env=torch-xla-nightly -- python'
 dataset=multimodal
-model=transflower
+model=transformerflow
 #exp=aistpp_big
-exp=aistpp_flower_expmap
+exp=aaaaaa
 
 #$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --max_epochs=20000\
-$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=64 --num_windows=1 --max_epochs=20000\
-    --fix_lengths \
+$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --max_epochs=20000\
     --experiment_name=$exp\
     --lr_policy="multistep" \
-    --lr_decay_milestones="[25,50]" \
-    --learning_rate=5e-5 \
-    --dins="72,103" \
-    --douts="72" \
-    --input_modalities="expmap_scaled,mel_ddcpca_scaled" \
-    --output_modalities="expmap_scaled" \
+    --lr_decay_milestones="[5000,10000]" \
+    --learning_rate=1e-4 \
+    --dins="219,103" \
+    --douts="219" \
+    --input_modalities="joint_angles_scaled,mel_ddcpca_scaled" \
+    --output_modalities="joint_angles_scaled" \
     --input_lengths="60,120" \
     --output_lengths="10" \
     --output_time_offset="60" \
     --predicted_inputs="0,0" \
     --nlayers=4 \
     --nhead=10 \
-    --scales="[[4,0], [4,0]]" \
+    --scales="[[4,0],[4,0]]" \
     --num_glow_coupling_blocks=2 \
     --glow_use_attn \
-    --use_transformer_nn \
-    --use_pos_emb_coupling \
-    --use_pos_emb_output \
-    --dhid=800 \
-    --cond_concat_dims \
-    --glow_norm_layer="batchnorm" \
-    --glow_bn_momentum=0.1 \
+    --dhid=200 \
     --dropout=0 \
     --workers=$(nproc) \
     --gpus=1 \
-    --gradient_clip_val=0.5 \
+#    --glow_norm_layer="actnorm" \
+#    --glow_bn_momentum=1.0 \
 #    --continue_train \
-#    --load_weights_only \
 #    --tpu_cores=8 \
+#    --gradient_clip_val=0.5 \
 #    --accelerator=ddp \
 #    --workers=$(nproc) \
     #--continue_train \

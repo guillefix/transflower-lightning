@@ -6,15 +6,22 @@ export XRT_DEVICE_MAP="CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0
 
 #py=python3
 py=python3
-#exp=aistpp_2
+exp=aistpp_2
 #exp=aistpp_flower_1
 #exp=aistpp_flower_gpu_nodrop
 #exp=aistpp_flower_gpu_mfix
 #exp=aistpp_flower_test3b
 #exp=aistpp_flower_test3
+
 #exp=aistpp_moglow_test2
-#exp=aistpp_flower_test4
-exp=aistpp_flower_test5
+#exp=aistpp_flower_test5
+#exp=aistpp_moglow_test_filter
+#exp=aaaaaa
+#exp=aistpp_transglower
+#exp=aistpp_flower_expmap
+#exp=aistpp_moglow_expmap
+exp=aistpp_test
+
 #seq_id="gLH_sBM_cAll_d16_mLH1_ch04"
 #seq_id="gWA_sBM_cAll_d26_mWA1_ch10"
 #seq_id="gWA_sFM_cAll_d27_mWA2_ch17"
@@ -39,15 +46,20 @@ mkdir inference/generated/${exp}
 mkdir inference/generated/${exp}/predicted_mods
 mkdir inference/generated/${exp}/videos
 
+#in_mod=expmap_scaled
+in_mod=joint_angles_scaled
+
 $py inference/generate.py --data_dir=test_data --experiment_name=$exp \
     --seq_id $seq_id \
-    --input_modalities="joint_angles_scaled,mel_ddcpca_scaled" \
-    --output_modalities="joint_angles_scaled" \
+    --input_modalities=${in_mod}",mel_ddcpca_scaled" \
+    --output_modalities=${in_mod} \
     --scalers="pkl_joint_angles_mats_scaler"
+#    --scalers="bvh_expmap_scaler"
 
-$py analysis/aistplusplus_api/generate_video_from_mats.py --pred_mats_file inference/generated/${exp}/predicted_mods/${seq_id}.joint_angles_scaled.generated.npy \
+$py analysis/aistplusplus_api/generate_video_from_mats.py --pred_mats_file inference/generated/${exp}/predicted_mods/${seq_id}.${in_mod}.generated.npy \
     --output_folder inference/generated/${exp}/videos/ \
     --audio_file test_data/${seq_id}.mp3 \
-    --trim_audio 2
+#    --trim_audio 2
+    --trim_audio 0.66
 
 

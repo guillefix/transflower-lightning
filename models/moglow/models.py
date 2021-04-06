@@ -6,6 +6,7 @@ from tqdm import tqdm
 from . import thops
 from . import modules
 from . import utils
+from models.transformer import BasicTransformerModel
 
 def nan_throw(tensor, name="tensor"):
         stop = False
@@ -20,6 +21,8 @@ def nan_throw(tensor, name="tensor"):
             #raise ValueError(name + ' contains nans of infs')
 
 def f(in_channels, out_channels, hidden_channels, cond_channels, network_model, num_layers):
+    if network_model=="transformer":
+        return BasicTransformerModel(out_channels, in_channels + cond_channels, 10, hidden_channels, num_layers)
     if network_model=="LSTM":
         return modules.LSTM(in_channels + cond_channels, hidden_channels, out_channels, num_layers)
     if network_model=="GRU":

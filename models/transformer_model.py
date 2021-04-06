@@ -47,14 +47,15 @@ class TransformerModel(BaseModel):
             self.module_names.append(name)
         for i, mod in enumerate(output_mods):
             net = BasicTransformerModel(douts[i], opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths))
+            # net = BasicTransformerModel(douts[i], opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=True, input_length=sum(input_lengths))
             name = "_output_"+mod
             setattr(self,"net"+name, net)
             self.output_mod_nets.append(net)
             self.module_names.append(name)
 
         #This is feature creep. Will remove soon
-        if self.opt.generate_attention_masks:
-            self.generate_full_masks()
+        # if self.opt.generate_attention_masks:
+        self.generate_full_masks()
         self.inputs = []
         self.targets = []
         self.criterion = nn.MSELoss()
@@ -72,7 +73,7 @@ class TransformerModel(BaseModel):
         parser.add_argument('--nhead', type=int, default=8)
         parser.add_argument('--dropout', type=float, default=0.1)
         parser.add_argument('--use_pos_emb_output', action='store_true', help="whether to use positional embeddings for output modality transformers")
-        parser.add_argument('--generate_attention_masks', action='store_true', help="whether to generate the masks (but right now they are full masks, so it's not necessary")
+        # parser.add_argument('--generate_attention_masks', action='store_true', help="whether to generate the masks (but right now they are full masks, so it's not necessary")
         return parser
 
     def generate_full_masks(self):

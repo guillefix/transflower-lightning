@@ -9,15 +9,15 @@
 #export XRT_DEVICE_MAP="CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0|GPU:0;/job:localservice/replica:0/task:0/device:XLA_GPU:0"
 
 
-#py=python3
-py=python
+py=python3
+#py=python
 #py='python3 -m torch_xla.distributed.xla_dist --tpu='${TPU_NAME}' --conda-env=torch-xla-nightly -- python'
 dataset=multimodal
 model=transformer
 #exp=aistpp_big
 exp=aistpp_test
 
-$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=60 --num_windows=1 --max_epochs=20000 \
+$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=8 --num_windows=1 --max_epochs=20000 \
     --experiment_name=$exp\
     --optimizer=adam \
     --learning_rate=3e-5 \
@@ -39,5 +39,5 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --gpus=1 \
     --accelerator=ddp \
     --gradient_clip_val=0.5 \
-    --continue_train \
+#    --continue_train \
     #--tpu_cores=8 \

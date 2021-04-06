@@ -76,7 +76,7 @@ class FlowPlusPlus(nn.Module):
                 x = x.permute(0,2,1).unsqueeze(3)
         else:
             c, h, w = self.flows.z_dim()
-            x = torch.randn((cond.size(0), c, h, w), dtype=torch.float32).type_as(cond)
+            x = 1.0*torch.randn((cond.size(0), c, h, w), dtype=torch.float32).type_as(cond)
             
         sldj = torch.zeros(x.size(0), device=x.device)
         x, sldj = self.flows(x, cond, sldj, reverse)

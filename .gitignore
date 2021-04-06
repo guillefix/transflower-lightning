@@ -14,3 +14,4 @@ analysis/weight_mats/*
 data/videos/*
 data/moglow_loc.tar.gz
 data/moglow_loc/*
+analysis/tmp/*
