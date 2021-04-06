@@ -44,5 +44,6 @@ for i in tasks:
     bvh_file = motion_file_path[:-4]+".bvh"
     if replace_existing or not os.path.isfile(bvh_file):
         result_filename=ntpath.basename(motion_file_path)[:-4]
+        print("retargetting "+motion_file_path)
         convert_smpl(motion_file_path, data_path, result_filename,60)
 

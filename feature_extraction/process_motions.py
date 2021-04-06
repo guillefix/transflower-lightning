@@ -42,7 +42,7 @@ print(rank)
 p = BVHParser()
 data_pipe = Pipeline([
     ('dwnsampl', DownSampler(tgt_fps=fps,  keep_all=False)),
-    ('root', RootTransformer('hip_centric')),
+    ('root', RootTransformer('pos_rot_deltas')),
     # ('mir', Mirror(axis='X', append=True)),
     ('jtsel', JointSelector(['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
     ('exp', MocapParameterizer('expmap')),
@@ -66,9 +66,9 @@ def extract_joint_angles(files):
 
     fi=0
     for f in files:
-        features_file = f + "_expmap.npz"
+        features_file = f + "_expmap.npy"
         if replace_existing or not os.path.isfile(features_file):
-            np.savez(features_file, clips=out_data[fi])
+            np.save(features_file, out_data[fi])
             # np.savez(ff + "_mirrored.npz", clips=out_data[len(files)+fi])
             fi=fi+1
 
