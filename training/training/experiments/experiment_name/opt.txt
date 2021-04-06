@@ -20,14 +20,17 @@
                      dhid: 512                           
                      dins: None                          
       distributed_backend: None                          
+            do_validation: False                         
                     douts: None                          
                   dropout: 0.1                           
       enable_pl_optimizer: None                          
+              epoch_count: 1                             
           experiment_name: experiment_name               
              fast_dev_run: False                         
               fix_lengths: False                         
  flush_logs_every_n_steps: 100                           
-                     gpus: <function _gpus_arg_default at 0x7ff1c262dd40>
+           fork_processes: False                         
+ generate_attention_masks: False                         
         gradient_clip_val: 0                             
             input_lengths: None                          
          input_modalities: mp3_mel_100                   
@@ -85,12 +88,14 @@ reload_dataloaders_every_epoch: False
            sync_batchnorm: False                         
                      task: training                      
          terminate_on_nan: False                         
-                tpu_cores: <function _gpus_arg_default at 0x7ff1c262dd40>
           track_grad_norm: -1                            
      truncated_bptt_steps: None                          
+       use_pos_emb_output: False                         
+           val_batch_size: 1                             
        val_check_interval: 1.0                           
                   verbose: False                         
              weight_decay: 0                             
         weights_save_path: None                          
           weights_summary: top                           
+                  workers: 0                             
 ----------------- End -------------------

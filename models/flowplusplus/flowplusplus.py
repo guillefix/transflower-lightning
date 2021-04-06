@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
-from models.flowplusplus.act_norm import ActNorm
+from models.flowplusplus.act_norm import ActNorm, BatchNorm
 from models.flowplusplus.inv_conv import InvConv, InvertibleConv1x1
 from models.flowplusplus.nn import GatedConv
 from models.flowplusplus.coupling import Coupling
@@ -42,7 +42,11 @@ class FlowPlusPlus(nn.Module):
                  use_transformer_nn=False,
                  use_pos_emb=False,
                  num_heads=10,
-                 drop_prob=0.2):
+                 drop_prob=0.2,
+                 norm_layer=None,
+                 cond_concat_dims=True,
+                 cond_seq_len=1,
+                 bn_momentum=0.1):
         super(FlowPlusPlus, self).__init__()
         # Register bounds to pre-process images, not learnable
         self.register_buffer('bounds', torch.tensor([0.9], dtype=torch.float32))
@@ -57,8 +61,11 @@ class FlowPlusPlus(nn.Module):
                                use_transformer_nn=use_transformer_nn,
                                use_pos_emb=use_pos_emb,
                                num_heads=num_heads,
-                              seq_length=in_shape[1],
-                               drop_prob=drop_prob)
+                               drop_prob=drop_prob,
+                               norm_layer=norm_layer,
+                               cond_concat_dims=cond_concat_dims,
+                               cond_seq_len=cond_seq_len,
+                               bn_momentum=bn_momentum)
 
     def forward(self, x, cond, reverse=False):
         if cond is not None:
@@ -90,11 +97,15 @@ class FlowPlusPlus(nn.Module):
         See Also:
             Equation (3) in the RealNVP paper: https://arxiv.org/abs/1605.08803
         """
+        # print(z)
         prior_ll = -0.5 * (z ** 2 + np.log(2 * np.pi))
         prior_ll = prior_ll.flatten(1).sum(-1)# \
 #            - np.log(k) * np.prod(z.size()[1:])
         ll = prior_ll + sldj
+        # print(sldj.mean())
+        # import pdb;pdb.set_trace()
         nll = -ll.mean()/float(np.log(2.) * z.size(2) * z.size(3))
+        # nll = -ll.mean()/float(np.log(2.))
 
         return nll
         
@@ -115,7 +126,7 @@ class _FlowStep(nn.Module):
         use_attn (bool): Use attention in the coupling layers.
         drop_prob (float): Dropout probability.
     """
-    def __init__(self, scales, in_shape, cond_dim, mid_channels, num_blocks, num_components, use_attn, use_logmix, use_transformer_nn, use_pos_emb, num_heads, drop_prob, seq_length):
+    def __init__(self, scales, in_shape, cond_dim, mid_channels, num_blocks, num_components, use_attn, use_logmix, use_transformer_nn, use_pos_emb, num_heads, drop_prob, norm_layer, bn_momentum, cond_concat_dims, cond_seq_len):
         super(_FlowStep, self).__init__()
         in_channels, in_height, in_width = in_shape
         num_channelwise, num_checkerboard = scales[0]
@@ -124,8 +135,19 @@ class _FlowStep(nn.Module):
         for i in range(num_channelwise):
             new_channels = in_channels// 2
             out_channels = in_channels-new_channels
-            channels += [InvertibleConv1x1(in_channels),
-                         Coupling(in_channels=new_channels + cond_dim,
+            # print(norm_layer)
+            if norm_layer == "batchnorm":
+                channels += [BatchNorm(in_channels, bn_momentum)]
+            elif norm_layer == "actnorm":
+                channels += [ActNorm(in_channels)]
+            if cond_concat_dims:
+                c_in_channels = new_channels + cond_dim
+                seq_length = in_height
+            else:
+                c_in_channels = new_channels
+                seq_length = in_height + cond_seq_len
+            channels += [InvertibleConv1x1(in_channels)]
+            channels += [Coupling(in_channels=c_in_channels,
                                   out_channels=out_channels,
                                   mid_channels=mid_channels,
                                   num_blocks=num_blocks,
@@ -135,14 +157,26 @@ class _FlowStep(nn.Module):
                                   use_transformer_nn=use_transformer_nn,
                                   use_pos_emb=use_pos_emb,
                                   num_heads=num_heads,
-                                  seq_length=in_height,
+                                  seq_length=seq_length,
+                                  output_length=in_height,
+                                  concat_dims=cond_concat_dims,
                                   drop_prob=drop_prob)]#,
                          #Flip()] Flip currently does not work with odd number of channels. But is it needed when we have channel mixing with 1x1convs? 
 
         checkers = []
+        if cond_concat_dims:
+            c_in_channels = new_channels + cond_dim
+            seq_length = in_height
+        else:
+            c_in_channels = new_channels
+            seq_length = in_height + cond_seq_len
         for i in range(num_checkerboard):
-            checkers += [InvertibleConv1x1(in_channels),
-                         Coupling(in_channels=in_channels+cond_dim,
+            if norm_layer == "batchnorm":
+                checkers += [BatchNorm(in_channels, bn_momentum)]
+            elif norm_layer == "actnorm":
+                checkers += [ActNorm(in_channels)]
+            checkers += [InvertibleConv1x1(in_channels)]
+            checkers += [Coupling(in_channels=c_in_channels,
                                   out_channels=in_channels,
                                   mid_channels=mid_channels,
                                   num_blocks=num_blocks,
@@ -152,7 +186,9 @@ class _FlowStep(nn.Module):
                                   use_transformer_nn=use_transformer_nn,
                                   use_pos_emb=use_pos_emb,
                                   num_heads=num_heads,
-                                  seq_length=in_height,
+                                  seq_length=seq_length,
+                                  output_length=in_height,
+                                  concat_dims=cond_concat_dims,
                                   drop_prob=drop_prob)]#,
                          #Flip()]
         self.channels = nn.ModuleList(channels) if channels else None
@@ -173,7 +209,10 @@ class _FlowStep(nn.Module):
                                   use_transformer_nn=use_transformer_nn,
                                   use_pos_emb=use_pos_emb,
                                   num_heads=num_heads,
-                                  seq_length=in_height,
+                                  norm_layer = norm_layer,
+                                  bn_momentum = bn_momentum,
+                                  cond_concat_dims = cond_concat_dims,
+                                  cond_seq_len = cond_seq_len,
                                   drop_prob=drop_prob)
                                   
         self.z_shape = (in_channels, in_height, in_width)
@@ -210,7 +249,7 @@ class _FlowStep(nn.Module):
             if self.channels:
                 x = channelwise(x)
                 for flow in self.channels:
-                    #import pdb;pdb.set_trace()
+                    # import pdb;pdb.set_trace()
                     x, sldj = flow(x, cond, sldj, reverse)
                 x = channelwise(x, reverse=True)
 

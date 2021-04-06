@@ -49,7 +49,9 @@ class _BaseNorm(nn.Module):
     def forward(self, x, cond, ldj=None, reverse=False):
         #import pdb;pdb.set_trace()
         x = torch.cat(x, dim=1)
+        # import pdb;pdb.set_trace()
         if not self.is_initialized:
+            print("Initializing norm Layer!")
             self.initialize_parameters(x)
 
         if reverse:
@@ -62,6 +64,71 @@ class _BaseNorm(nn.Module):
 
         return x, ldj
 
+
+class BatchNorm(nn.Module):
+    def __init__(self, num_channels, momentum=0.1):
+        super(BatchNorm, self).__init__()
+        self.gamma = nn.Parameter(torch.ones(1, num_channels, 1, 1))
+        self.beta = nn.Parameter(torch.zeros(1, num_channels, 1, 1))
+        self.register_buffer('running_mean', torch.zeros(1, num_channels, 1, 1))
+        self.register_buffer('running_var', torch.ones(1, num_channels, 1, 1))
+        self.eps = 1e-5
+        self.momentum = momentum
+        self.inv_std = None
+        self.register_buffer('is_initialized', torch.zeros(1))
+
+    def _get_moments(self, x):
+        mean = mean_dim(x.clone(), dim=[0, 2, 3], keepdims=True).detach()
+        var = mean_dim((x.clone() - mean) ** 2, dim=[0, 2, 3], keepdims=True).detach()
+        # inv_std = 1. / (var.sqrt() + self.eps)
+        if not self.is_initialized:
+            self.running_mean.data.copy_(mean.data)
+            self.running_var.data.copy_(var.data)
+            self.is_initialized += 1.
+        else:
+            if self.momentum < 1.0:
+                self.running_mean = (1 - self.momentum) * self.running_mean + self.momentum * mean
+                self.running_var = (1 - self.momentum) * self.running_var + self.momentum * var
+            else:
+                self.running_mean.data.copy_(mean.data)
+                self.running_var.data.copy_(var.data)
+
+    def forward(self, x, cond, ldj=None, reverse=False):
+        # import pdb;pdb.set_trace()
+        x = torch.cat(x, dim=1)
+        if self.training:
+            # print("HI")
+            self._get_moments(x)
+        inv_std = 1. / (self.running_var.sqrt() + self.eps)
+        if reverse:
+            x = self._center(x, self.beta, reverse)
+            x, ldj = self._scale(x, ldj, self.gamma, reverse)
+            x, ldj = self._scale(x, ldj, inv_std, reverse)
+            x = self._center(x, self.running_mean, reverse)
+        else:
+            x = self._center(x, self.running_mean, reverse)
+            x, ldj = self._scale(x, ldj, inv_std, reverse)
+            x, ldj = self._scale(x, ldj, self.gamma, reverse)
+            x = self._center(x, self.beta, reverse)
+        x = x.chunk(2, dim=1)
+
+        return x, ldj
+
+    def _center(self, x, centerer, reverse=False):
+        if reverse:
+            return x + centerer
+        else:
+            return x - centerer
+
+    def _scale(self, x, sldj, scaler, reverse=False):
+        if reverse:
+            x = x / scaler
+            sldj = sldj - scaler.log().sum() * x.size(2) * x.size(3)
+        else:
+            x = x * scaler
+            sldj = sldj + scaler.log().sum() * x.size(2) * x.size(3)
+
+        return x, sldj
 
 class ActNorm(_BaseNorm):
     """Activation Normalization used in Glow

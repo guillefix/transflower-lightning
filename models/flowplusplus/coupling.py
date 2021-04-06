@@ -18,24 +18,27 @@ class Coupling(nn.Module):
         use_attn (bool): Use attention in the NN blocks.
         aux_channels (int): Number of channels in optional auxiliary input.
     """
-    def __init__(self, in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob, seq_length, 
-                 use_attn=True, use_logmix=True, use_transformer_nn=False, use_pos_emb=False, num_heads=10, aux_channels=None):
+    def __init__(self, in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob, seq_length, output_length,
+                 use_attn=True, use_logmix=True, use_transformer_nn=False, use_pos_emb=False, num_heads=10, aux_channels=None, concat_dims=True):
         super(Coupling, self).__init__()
 
         if use_transformer_nn:
-            self.nn = TransformerNN(in_channels, out_channels, mid_channels, num_blocks, num_heads, num_components, drop_prob=drop_prob, use_pos_emb=use_pos_emb, input_length=seq_length)
+            self.nn = TransformerNN(in_channels, out_channels, mid_channels, num_blocks, num_heads, num_components, drop_prob=drop_prob, use_pos_emb=use_pos_emb, input_length=seq_length, concat_dims=concat_dims, output_length=output_length)
         else:
             self.nn = NN(in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob, use_attn, aux_channels)
         self.use_logmix = use_logmix
         self.offset = 2.0
         self.sigmoid_offset = 1 - 1 / (1 + math.exp(-self.offset))
+        self.concat_dims = concat_dims
 
     def forward(self, x, cond, sldj=None, reverse=False, aux=None):
         x_change, x_id = x
-        #import pdb;pdb.set_trace()
 
-        x_id_cond = torch.cat((x_id, cond), dim=1)
-        # import pdb;pdb.set_trace()
+        if self.concat_dims:
+            x_id_cond = torch.cat((x_id, cond), dim=1)
+        else:
+            x_id_cond = torch.cat((x_id, cond), dim=2)
+        #import pdb;pdb.set_trace()
         a, b, pi, mu, s = self.nn(x_id_cond, aux)
         # import pdb;pdb.set_trace()
         scale = (torch.sigmoid(a+self.offset)+self.sigmoid_offset)

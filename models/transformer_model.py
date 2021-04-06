@@ -1,9 +1,8 @@
-import os
 import torch
 from torch import nn
-import torch.nn.functional as F
 from .transformer import BasicTransformerModel
 from models import BaseModel
+from .util.generation import autoregressive_generation_multimodal
 
 class TransformerModel(BaseModel):
     def __init__(self, opt):
@@ -53,7 +52,9 @@ class TransformerModel(BaseModel):
             self.output_mod_nets.append(net)
             self.module_names.append(name)
 
-        self.generate_full_masks()
+        #This is feature creep. Will remove soon
+        if self.opt.generate_attention_masks:
+            self.generate_full_masks()
         self.inputs = []
         self.targets = []
         self.criterion = nn.MSELoss()
@@ -71,8 +72,8 @@ class TransformerModel(BaseModel):
         parser.add_argument('--nhead', type=int, default=8)
         parser.add_argument('--dropout', type=float, default=0.1)
         parser.add_argument('--use_pos_emb_output', action='store_true', help="whether to use positional embeddings for output modality transformers")
+        parser.add_argument('--generate_attention_masks', action='store_true', help="whether to generate the masks (but right now they are full masks, so it's not necessary")
         return parser
-
 
     def generate_full_masks(self):
         input_mods = self.input_mods
@@ -94,22 +95,17 @@ class TransformerModel(BaseModel):
         # in lightning, forward defines the prediction/inference actions
         latents = []
         for i, mod in enumerate(self.input_mods):
-            mask = getattr(self,"src_mask_"+str(i))
-            #mask = self.src_masks[i]
-            latents.append(self.input_mod_nets[i].forward(data[i],mask))
+            latents.append(self.input_mod_nets[i].forward(data[i]))
         latent = torch.cat(latents)
         outputs = []
         for i, mod in enumerate(self.output_mods):
-            mask = getattr(self,"out_mask_"+str(i))
-            #mask = self.output_masks[i]
-            output = self.output_mod_nets[i].forward(latent,mask)[:self.output_lengths[i]]
+            output = self.output_mod_nets[i].forward(latent)[:self.output_lengths[i]]
             outputs.append(output)
 
         # import pdb;pdb.set_trace()
         return outputs
 
-    def generate(self,features):
-        opt = self.opt
+    def generate(self,features, teacher_forcing=False):
         inputs_ = []
         for i,mod in enumerate(self.input_mods):
             input_ = features["in_"+mod]
@@ -117,49 +113,8 @@ class TransformerModel(BaseModel):
             input_shape = input_.shape
             input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3])).permute(2,0,1).to(self.device)
             inputs_.append(input_)
-
-
-        inputs = []
-        input_tmp = []
-        for i,mod in enumerate(self.input_mods):
-            input_tmp.append(inputs_[i].clone()[self.input_time_offsets[i]:self.input_time_offsets[i]+self.input_lengths[i]])
-
-        self.eval()
-        output_seq = []
-        # sequence_length = inputs_[0].shape[0]
-        sequence_length = inputs_[1].shape[0]
-        with torch.no_grad():
-            for t in range(min(512, sequence_length-max(self.input_lengths)-1)):
-                # for t in range(sequence_length-max(self.input_lengths)-1):
-                # for t in range(sequence_length):
-                print(t)
-                inputs = [x.clone().cuda() for x in input_tmp]
-                outputs = self.forward(inputs)
-                if t == 0:
-                    for i, mod in enumerate(self.output_mods):
-                        output = outputs[i]
-                        # output[:,0,:-3] = torch.clamp(output[:,0,:-3],-3,3)
-                        output_seq.append(output[:1].detach().clone())
-                        # output_seq.append(inputs_[i][t+self.input_time_offsets[i]+self.input_lengths[i]:t+self.input_time_offsets[i]+self.input_lengths[i]+1]+0.15*torch.randn(1,219).cuda())
-                else:
-                    for i, mod in enumerate(self.output_mods):
-                        # output_seq[i] = torch.cat([output_seq[i], inputs_[i][t+self.input_time_offsets[i]+self.input_lengths[i]:t+self.input_time_offsets[i]+self.input_lengths[i]+1]+0.15*torch.randn(1,219).cuda()])
-                        output = outputs[i]
-                        output_seq[i] = torch.cat([output_seq[i], output[:1].detach().clone()])
-                        # output[:,0,:-3] = torch.clamp(output[:,0,:-3],-3,3)
-                        # print(outputs[i][:1])
-                if t < sequence_length-1:
-                    for i, mod in enumerate(self.input_mods):
-                        if mod in self.output_mods: #TODO: need flag to mark if autoregressive
-                            j = self.output_mods.index(mod)
-                            output = outputs[i]
-                            input_tmp[i] = torch.cat([input_tmp[i][1:],output[:1].detach().clone()],0)
-                            # input_tmp[i] = torch.cat([input_tmp[i][1:],inputs_[i][t+self.input_time_offsets[i]+self.input_lengths[i]:t+self.input_time_offsets[i]+self.input_lengths[i]+1]],0)
-                            print(torch.mean((inputs_[i][t+self.input_time_offsets[i]+self.input_lengths[i]-self.predicted_inputs[i]+1:t+self.input_time_offsets[i]+self.input_lengths[i]-self.predicted_inputs[i]+1+1]-outputs[j][:1].detach().clone())**2))
-                        else:
-                            input_tmp[i] = torch.cat([input_tmp[i][1:],inputs_[i][self.input_time_offsets[i]+self.input_lengths[i]+t:self.input_time_offsets[i]+self.input_lengths[i]+t+1]],0)
-
-            return output_seq
+        output_seq = autoregressive_generation_multimodal(inputs_, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
+        return output_seq
 
     def set_inputs(self, data):
         self.inputs = []
@@ -185,14 +140,12 @@ class TransformerModel(BaseModel):
         #print(self.inputs)
         latents = []
         for i, mod in enumerate(self.input_mods):
-            mask = getattr(self,"src_mask_"+str(i))
-            latents.append(self.input_mod_nets[i].forward(self.inputs[i],mask))
+            latents.append(self.input_mod_nets[i].forward(self.inputs[i]))
 
         latent = torch.cat(latents)
         loss_mse = 0
         for i, mod in enumerate(self.output_mods):
-            mask = getattr(self,"out_mask_"+str(i))
-            output = self.output_mod_nets[i].forward(latent,mask)[:self.output_lengths[i]]
+            output = self.output_mod_nets[i].forward(latent)[:self.output_lengths[i]]
             #print(output)
             loss_mse += self.criterion(output, self.targets[i])
             #loss_mse += self.criterion(output, self.targets[i]).detach()

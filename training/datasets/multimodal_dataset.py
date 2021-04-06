@@ -4,6 +4,21 @@ import numpy as np
 import torch
 from .base_dataset import BaseDataset
 
+def find_example_idx(n, cum_sums, idx = 0):
+    N = len(cum_sums)
+    search_i = N//2 - 1
+    if N > 1:
+        if n < cum_sums[search_i]:
+            return find_example_idx(n, cum_sums[:search_i+1], idx=idx)
+        else:
+            return find_example_idx(n, cum_sums[search_i+1:], idx=idx+search_i+1)
+    else:
+        if n < cum_sums[0]:
+            return idx
+        else:
+            return idx + 1
+
+
 class MultimodalDataset(BaseDataset):
 
     def __init__(self, opt):
@@ -50,6 +65,9 @@ class MultimodalDataset(BaseDataset):
         print(min_length)
 
         fix_lengths = opt.fix_lengths
+
+        self.total_frames = 0
+        self.frame_cum_sums = []
 
         #Get the list of files containing features (in numpy format for now), and populate the dictionaries of input and output features (separated by modality)
         for base_filename in temp_base_filenames:
@@ -142,6 +160,11 @@ class MultimodalDataset(BaseDataset):
                     else:
                         assert length == length_0
 
+            sequence_length = self.input_features[input_mods[0]][base_filename].shape[0]
+            possible_init_frames = sequence_length-max(max(input_lengths)+max(input_time_offsets),max(output_time_offsets)+max(output_lengths))+1
+            self.total_frames += possible_init_frames
+            self.frame_cum_sums.append(self.total_frames)
+
             self.base_filenames.append(base_filename)
 
         print("sequences added: "+str(len(self.base_filenames)))
@@ -172,7 +195,8 @@ class MultimodalDataset(BaseDataset):
         return "MultiModalDataset"
 
     def __getitem__(self, item):
-        base_filename = self.base_filenames[item]
+        idx = find_example_idx(item, self.frame_cum_sums)
+        base_filename = self.base_filenames[idx]
 
         input_lengths = self.input_lengths
         output_lengths = self.output_lengths
@@ -212,14 +236,20 @@ class MultimodalDataset(BaseDataset):
 
         ## WINDOWS ##
         # sample indices at which we will get opt.num_windows windows of the sequence to feed as inputs
-        # TODO: make this deterministic, and determined by `item`, so that one epoch really corresponds to going through all the data..
-        sequence_length = x[0].shape[-1]
-        indices = np.random.choice(range(0,sequence_length-max(max(input_lengths)+max(input_time_offsets),max(output_time_offsets)+max(output_lengths))),size=self.opt.num_windows,replace=True)
-        #max_i = sequence_length-max(max(input_lengths)+max(input_time_offsets),max(output_time_offsets)+max(output_lengths))
+        # sequence_length = x[0].shape[-1]
+
+        # indices = np.random.choice(range(0,sequence_length-max(max(input_lengths)+max(input_time_offsets),max(output_time_offsets)+max(output_lengths))+1),size=self.opt.num_windows,replace=True)
+
         #indices = np.random.choice(range(0,20),size=self.opt.num_windows,replace=True)
-        #indices = np.random.choice([0,1,2,3,4],size=1)
-        #indices = [0]
-        #print(indices)
+        # print(np.random.get_state()[1][-1])
+        # indices = np.random.choice([0,1,2,3,4],size=1)
+        # print(indices)
+        # indices = [0]
+
+        if idx > 0:
+            indices = [item - self.frame_cum_sums[idx-1]]
+        else:
+            indices = [item]
 
         ## CONSTRUCT TENSOR OF INPUT FEATURES ##
         input_windows = [torch.tensor([xx[:,i+input_time_offsets[j]:i+input_time_offsets[j]+input_lengths[j]] for i in indices]).float() for j,xx in enumerate(x)]
@@ -241,7 +271,8 @@ class MultimodalDataset(BaseDataset):
         return return_dict
 
     def __len__(self):
-        return len(self.base_filenames)
+        # return len(self.base_filenames)
+        return self.total_frames
 
 
 def pairwise(iterable):

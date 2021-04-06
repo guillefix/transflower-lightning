@@ -30,7 +30,7 @@ class TransformerNN(nn.Module):
         use_attn (bool): Use attention in each block.
         aux_channels (int): Number of channels in optional auxiliary input.
     """
-    def __init__(self, in_channels, out_channels, num_channels, num_layers, num_heads, num_components, drop_prob, use_pos_emb, input_length):
+    def __init__(self, in_channels, out_channels, num_channels, num_layers, num_heads, num_components, drop_prob, use_pos_emb, input_length, concat_dims, output_length):
         #import pdb;pdb.set_trace()
         super(TransformerNN, self).__init__()
         self.k = num_components  # k = number of mixture components
@@ -38,17 +38,31 @@ class TransformerNN(nn.Module):
         self.transformer = BasicTransformerModel(out_channels * (2 + 3 * self.k), in_channels, num_heads, num_channels, num_layers, drop_prob, use_pos_emb=use_pos_emb, input_length=input_length)
         self.rescale = weight_norm(Rescale(out_channels))
         self.out_channels = out_channels
+        self.concat_dims = concat_dims
+        self.output_length = output_length
 
     def forward(self, x, aux=None):
         b, c, h, w = x.size()
-        x = x.squeeze()
+        # import pdb;pdb.set_trace()
+        x = x.squeeze(-1) # only squeeze the w dimension (important coz otherwise it would squeeze batch dim if theres only one element in minibatch..
+        # import pdb;pdb.set_trace()
         x = x.permute(2,0,1)
         # import pdb;pdb.set_trace()
-        x = self.transformer(x)
+        if self.concat_dims:
+            x = self.transformer(x)
+            # x = torch.mean(self.transformer(x), dim=0, keepdim=True)
+            # x = 0.5*x + 0.5*torch.mean(x, dim=0, keepdim=True)
+            # x = self.transformer(x)[:1]
+        else:
+            x = self.transformer(x)[:self.output_length]
         # import pdb;pdb.set_trace()
         x = x.permute(1,2,0)
         # Split into components and post-process
-        x = x.view(b, -1, self.out_channels, h, w)
+        if self.concat_dims:
+            x = x.view(b, -1, self.out_channels, h, w)
+            # x = x.view(b, -1, self.out_channels, 1, w)
+        else:
+            x = x.view(b, -1, self.out_channels, self.output_length, w)
         s, t, pi, mu, scales = x.split((1, 1, self.k, self.k, self.k), dim=1)
         s = self.rescale(torch.tanh(s.squeeze(1)))
         t = t.squeeze(1)

@@ -41,21 +41,30 @@ class BaseOptions:
         self.is_train = None
         self.opt = None
 
-    def gather_options(self):
+    def gather_options(self, parse_args=None):
         # get the basic options
-        opt, _ = self.parser.parse_known_args()
+        if parse_args is not None:
+            opt, _ = self.parser.parse_known_args(parse_args)
+        else:
+            opt, _ = self.parser.parse_known_args()
 
         # load task module and task-specific options
         task_name = opt.task
         task_options = importlib.import_module("{}.options.task_options".format(task_name))  # must be defined in each task folder
         self.parser = argparse.ArgumentParser(parents=[self.parser, task_options.TaskOptions().parser])
-        opt, _ = self.parser.parse_known_args()
+        if parse_args is not None:
+            opt, _ = self.parser.parse_known_args(parse_args)
+        else:
+            opt, _ = self.parser.parse_known_args()
 
         # modify model-related parser options
         model_name = opt.model
         model_option_setter = models.get_option_setter(model_name, task_name)
         parser = model_option_setter(self.parser, self.is_train)
-        opt, _ = parser.parse_known_args()  # parse again with the new defaults
+        if parse_args is not None:
+            opt, _ = parser.parse_known_args(parse_args)  # parse again with the new defaults
+        else:
+            opt, _ = self.parser.parse_known_args()
 
         # modify dataset-related parser options fsldkn
         dataset_name = opt.dataset_name
@@ -65,7 +74,10 @@ class BaseOptions:
 
         self.parser = parser
 
-        return parser.parse_args()
+        if parse_args is not None:
+            return parser.parse_args(parse_args)
+        else:
+            return parser.parse_args()
 
     def print_options(self, opt):
         message = ''
@@ -90,9 +102,9 @@ class BaseOptions:
         with open(file_name_json, 'wt') as opt_file:
             opt_file.write(json.dumps(vars(opt)))
 
-    def parse(self):
+    def parse(self, parse_args=None):
 
-        opt = self.gather_options()
+        opt = self.gather_options(parse_args=parse_args)
         opt.is_train = self.is_train   # train or test
 
         # check options:
