@@ -15,7 +15,8 @@ model=residualflower
 exp=aistpp_residual
 
 #$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --max_epochs=20000\
-$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --max_epochs=20000\
+$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=64 --num_windows=1 --max_epochs=20000\
+    --fix_lengths \
     --experiment_name=$exp\
     --lr_policy="multistep" \
     --lr_decay_milestones="[25,50]" \
@@ -28,7 +29,7 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --output_lengths="10" \
     --output_time_offset="60" \
     --predicted_inputs="0,0" \
-    --nlayers=4 \
+    --nlayers=6 \
     --nhead=10 \
     --scales="[[4,0], [4,0]]" \
     --num_glow_coupling_blocks=2 \
@@ -44,7 +45,7 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --workers=$(nproc) \
     --gpus=1 \
     --gradient_clip_val=0.5 \
-    --continue_train \
+    #--continue_train \
 #    --load_weights_only \
 #    --tpu_cores=8 \
 #    --accelerator=ddp \

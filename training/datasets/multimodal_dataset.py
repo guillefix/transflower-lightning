@@ -130,6 +130,7 @@ class MultimodalDataset(BaseDataset):
                         if first_match:
                             first_match = False
                         else:
+                            print(np.abs(length-shortest_length))
                             assert np.abs(length-shortest_length) < 2
                         shortest_length = length
                 for mod in input_mods:
@@ -159,7 +160,8 @@ class MultimodalDataset(BaseDataset):
                         if first_match:
                             first_match = False
                         else:
-                            assert np.abs(length-shortest_length) < 2
+                            print(np.abs(length-shortest_length))
+                            assert np.abs(length-shortest_length) < 3
                         shortest_length = length
                 for mod in output_mods:
                     if mod not in input_mods:
