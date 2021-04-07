@@ -118,6 +118,7 @@ class FlowStep(nn.Module):
     def reverse_flow(self, input, cond, logdet):
         # 1.coupling
         z1, z2 = thops.split_feature(input, "split")
+        # import pdb;pdb.set_trace()
         z1_cond = torch.cat((z1, cond), dim=1)
 
         if self.flow_coupling == "additive":
@@ -214,11 +215,11 @@ class Glow(nn.Module):
         self.flow.init_lstm_hidden()
 
     def forward(self, x=None, cond=None, z=None,
-                eps_std=None, reverse=False):
+                eps_std=None, reverse=False, output_length=1):
         if not reverse:
             return self.normal_flow(x, cond)
         else:
-            return self.reverse_flow(z, cond, eps_std)
+            return self.reverse_flow(z, cond, eps_std, output_length=output_length)
 
     def normal_flow(self, x, cond):
     
@@ -236,10 +237,11 @@ class Glow(nn.Module):
         nll = (-objective) / float(np.log(2.) * n_timesteps)
         return z, nll
 
-    def reverse_flow(self, z, cond, eps_std):
+    def reverse_flow(self, z, cond, eps_std, output_length=1):
         with torch.no_grad():
 
             z_shape = self.z_shape
+            z_shape[-1] = output_length
             if z is None:
                 z = modules.GaussianDiag.sample(z_shape, eps_std, device=cond.device)
 

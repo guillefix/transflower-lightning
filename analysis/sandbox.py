@@ -220,28 +220,30 @@ from analysis.pymo.writers import *
 from sklearn.pipeline import Pipeline
 
 # data = np.load("data/scaled_features/gWA_sFM_cAll_d26_mWA4_ch12.expmap_scaled.npy")
-data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_flower_expmap/predicted_mods/gLO_sBM_cAll_d13_mLO3_ch06.expmap_scaled.generated.npy")
+# data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_flower_expmap/predicted_mods/gLO_sBM_cAll_d13_mLO3_ch06.expmap_scaled.generated.npy")
+data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_moglow_expmap/predicted_mods/gLO_sBM_cAll_d13_mLO3_ch06.expmap_scaled.generated.npy")
+# data = np.load("data/scaled_features/gLO_sBM_cAll_d13_mLO3_ch06.expmap_scaled.npy")
 # data = np.load(""analysis/tmp/gWA_sFM_cAll_d26_mWA4_ch12.bvh_expmap.npz")["clips"]
 
 # transform = pickle.load(open("data/scaled_features/bvh_expmap_scaler.pkl", "rb"))
-transform = pickle.load(open("data/scaled_features/bvh_expmap_scaler.pkl", "rb"))
-
-data = transform.inverse_transform(data)
+# transform = pickle.load(open("data/scaled_features/bvh_expmap_scaler.pkl", "rb"))
+#
+# data = transform.inverse_transform(data)
 
 import joblib as jl
 #%%
 
-# pipeline = jl.load("data/scaled_features/motion_data_pipe.sav")
+pipeline = jl.load("data/scaled_features/motion_data_pipe.sav")
 fps=60
-pipeline = Pipeline([
-    ('dwnsampl', DownSampler(tgt_fps=fps,  keep_all=False)),
-    ('root', RootTransformer('pos_rot_deltas')),
-    # ('mir', Mirror(axis='X', append=True)),
-    ('jtsel', JointSelector(['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
-    ('exp', MocapParameterizer('expmap')),
-    # ('cnst', ConstantsRemover()),
-    ('np', Numpyfier())
-])
+# pipeline = Pipeline([
+#     ('dwnsampl', DownSampler(tgt_fps=fps,  keep_all=False)),
+#     ('root', RootTransformer('pos_rot_deltas')),
+#     # ('mir', Mirror(axis='X', append=True)),
+#     ('jtsel', JointSelector(['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
+#     ('exp', MocapParameterizer('expmap')),
+#     # ('cnst', ConstantsRemover()),
+#     ('np', Numpyfier())
+# ])
 
 
 data.shape
@@ -249,7 +251,10 @@ data.shape
 # transform the data back to it's original shape
 # note: in a real scenario this is usually done with predicted data
 # note: some transformations (such as transforming to joint positions) are not inversible
+# bvh_data=pipeline.inverse_transform([data[:,0,:]])
+# bvh_data=pipeline.inverse_transform([np.concatenate([data[:,0,:],np.zeros((data.shape[0],3))], 1)])
 bvh_data=pipeline.inverse_transform([data[:,0,:]])
+# bvh_data=pipeline.inverse_transform([data])
 
 writer = BVHWriter()
 with open('analysis/tmp/converted.bvh','w') as f:
@@ -260,27 +265,27 @@ with open('analysis/tmp/converted.bvh','w') as f:
 # pd.__version__
 #
 #
-# fps=60
-# p = BVHParser()
-# data_pipe = Pipeline([
-#     ('dwnsampl', DownSampler(tgt_fps=fps,  keep_all=False)),
-#     ('root', RootTransformer('pos_rot_deltas')),
-#     # ('mir', Mirror(axis='X', append=True)),
-#     ('jtsel', JointSelector(['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
-#     ('exp', MocapParameterizer('expmap')),
-#     # ('cnst', ConstantsRemover()),
-#     ('np', Numpyfier())
-# ])
-#
-# f="analysis/tmp/gWA_sFM_cAll_d26_mWA4_ch12.bvh"
-# out_data = data_pipe.fit_transform([p.parse(f)])
-#
-# # out_data[0].values
-# out_data.shape
-# out_data[0,:10,-1]
-#
-# bvh_data=data_pipe.inverse_transform(out_data)
-#
-# writer = BVHWriter()
-# with open('analysis/tmp/test.bvh','w') as f:
-#     writer.write(bvh_data[0], f)
+fps=60
+p = BVHParser()
+data_pipe = Pipeline([
+    ('dwnsampl', DownSampler(tgt_fps=fps,  keep_all=False)),
+    ('root', RootTransformer('pos_rot_deltas')),
+    # ('mir', Mirror(axis='X', append=True)),
+    ('jtsel', JointSelector(['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
+    ('exp', MocapParameterizer('expmap')),
+    # ('cnst', ConstantsRemover()),
+    ('np', Numpyfier())
+])
+
+f="analysis/tmp/gWA_sFM_cAll_d26_mWA4_ch12.bvh"
+out_data = data_pipe.fit_transform([p.parse(f)])
+
+# out_data[0].values
+out_data.shape
+out_data[0,:10,-1]
+
+bvh_data=data_pipe.inverse_transform(out_data)
+
+writer = BVHWriter()
+with open('analysis/tmp/test.bvh','w') as f:
+    writer.write(bvh_data[0], f)

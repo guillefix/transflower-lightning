@@ -20,7 +20,9 @@ exp=aistpp_2
 #exp=aistpp_transglower
 #exp=aistpp_flower_expmap
 #exp=aistpp_moglow_expmap
-exp=aistpp_test
+#exp=aistpp_test
+exp=aistpp_residual
+
 
 #seq_id="gLH_sBM_cAll_d16_mLH1_ch04"
 #seq_id="gWA_sBM_cAll_d26_mWA1_ch10"
@@ -46,20 +48,20 @@ mkdir inference/generated/${exp}
 mkdir inference/generated/${exp}/predicted_mods
 mkdir inference/generated/${exp}/videos
 
-#in_mod=expmap_scaled
-in_mod=joint_angles_scaled
+in_mod=expmap_scaled
+#in_mod=joint_angles_scaled
 
 $py inference/generate.py --data_dir=test_data --experiment_name=$exp \
     --seq_id $seq_id \
     --input_modalities=${in_mod}",mel_ddcpca_scaled" \
     --output_modalities=${in_mod} \
-    --scalers="pkl_joint_angles_mats_scaler"
-#    --scalers="bvh_expmap_scaler"
+    --scalers="bvh_expmap_scaler"
+#    --scalers="pkl_joint_angles_mats_scaler"
 
-$py analysis/aistplusplus_api/generate_video_from_mats.py --pred_mats_file inference/generated/${exp}/predicted_mods/${seq_id}.${in_mod}.generated.npy \
-    --output_folder inference/generated/${exp}/videos/ \
-    --audio_file test_data/${seq_id}.mp3 \
-#    --trim_audio 2
-    --trim_audio 0.66
+#$py analysis/aistplusplus_api/generate_video_from_mats.py --pred_mats_file inference/generated/${exp}/predicted_mods/${seq_id}.${in_mod}.generated.npy \
+#    --output_folder inference/generated/${exp}/videos/ \
+#    --audio_file test_data/${seq_id}.mp3 \
+#    --trim_audio 0.66
+##    --trim_audio 2
 
 

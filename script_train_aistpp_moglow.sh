@@ -11,7 +11,7 @@ py=python3
 dataset=multimodal
 model=moglow
 #exp=aistpp_big
-exp=aistpp_moglow_expmap
+exp=aistpp_moglow_expmap_mse
 
 #$py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=32 --num_windows=1 --max_epochs=20000\
 $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --model=$model --batch_size=8 --num_windows=1 --max_epochs=20000\
@@ -28,8 +28,9 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --input_seq_lens="10,11" \
     --glow_K=16 \
     --dropout=0 \
-    --workers=0 \
+    --workers=4 \
     --gpus=1 \
+    --gradient_clip_val=1 \
 #    --continue_train \
 #    --output_time_offset="20" \
 #    --input_lengths="90,110" \

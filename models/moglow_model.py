@@ -41,7 +41,7 @@ class MoglowModel(BaseModel):
 
         self.inputs = []
         self.targets = []
-        # self.criterion = nn.MSELoss()
+        self.criterion = nn.MSELoss()
         # self.has_initialized = False
 
     def name(self):
@@ -159,8 +159,16 @@ class MoglowModel(BaseModel):
         self.set_inputs(batch)
         z, nll = self.net_glow(x=self.targets[0], cond=torch.cat(self.inputs, dim=1))
 
-        loss = Glow.loss_generative(nll)
-        self.log('nll_loss', loss)
+        output = self.net_glow(z=None, cond=torch.cat(self.inputs, dim=1), eps_std=1.0, reverse=True, output_length=self.output_lengths[0])
+
+        nll_loss = Glow.loss_generative(nll)
+        mse_loss = self.criterion(output, self.targets[0])
+        loss = 0.1*nll_loss + 100*mse_loss
+        # loss = mse_loss
+        print(nll_loss)
+        print(mse_loss)
+        # self.log('nll_loss', nll_loss)
+        self.log('mse_loss', mse_loss)
         # import pdb;pdb.set_trace()
         # if not self.has_initialized:
         #     self.has_initialized=True
