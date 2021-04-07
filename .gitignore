@@ -15,3 +15,5 @@ data/videos/*
 data/moglow_loc.tar.gz
 data/moglow_loc/*
 analysis/tmp/*
+ones_to_check.txt
+ones_to_check2.txt

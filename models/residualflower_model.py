@@ -190,7 +190,7 @@ class ResidualflowerModel(BaseModel):
         mse_loss = 0
         for i, mod in enumerate(self.output_mods):
             mse_loss += 100*self.criterion(predicted_means[i], self.targets[i])
-        print("mse_loss: ", mse_loss)
+        #print("mse_loss: ", mse_loss)
         latents = []
         for i, mod in enumerate(self.input_mods):
             latents.append(self.input_mod_nets[i].forward(self.inputs[i]))
@@ -207,7 +207,7 @@ class ResidualflowerModel(BaseModel):
             nll_loss += glow.loss_generative(z, sldj)
 
         loss = mse_loss + nll_loss
-        print("nll_loss: ", nll_loss)
+        #print("nll_loss: ", nll_loss)
         self.log('mse_loss', mse_loss)
         self.log('nll_loss', nll_loss)
         self.log('loss', loss)
