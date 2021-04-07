@@ -28,7 +28,7 @@ It will constract individual data points from these sequences, by specifying the
 
 In the image below you see an illustration of how a data point would look like with two input modalities (e.g. music, and movement), and one output modality (e.g. movement), with the specified lengths and offsets. This way of specifying data points is quite general and can conver a variety of tasks, including the multimodal autoregressive generation tasks we are studying here.
 
-![multimodal_dataset_example.png](multimodal dataset example)
+![multimodal dataset example](multimodal_dataset_example.png)
 
 Note that although not a technical requirement for the above dataset to work, for more tasks, we expect the sequences to be sampled at the same frequency, and have the same length (the later requirement could be relaxed, as we are gonna take subwindows of different sizes, but it at the moment it's what it expects)
 
@@ -42,7 +42,7 @@ The basic (multimodal) transformer model is a generalization of the model propos
 
 Here's an example of how it would look with the input and output modalities described above: 
 
-![multimodal_transformer_example.png](multimodal transformer example)
+![multimodal transformer example](multimodal_transformer_example.png)
 
 Note:
 
@@ -53,7 +53,7 @@ Note:
 
 The idea of using autoregressive normalizing flows (NF), in particular for probabilistic modelling of motion, was inspired by [MoGlow](https://arxiv.org/abs/1905.06598). The idea of the Transflower model is to combine that idea with the multimodal transformer defined above. This can be done simply by feeding the output of the multimodal transformer (MT) as conditioning for the normalizing flow, which is done through the coupling layers of the normalizing flow, as illustrated below.
 
-![transflower_example.png](transflower example)
+![transflower example](transflower_example.png)
 
 
 Within the normalizing flow there are a series of different architectural choices possible, some of which correspond to the model variations in the `model` folder. 
