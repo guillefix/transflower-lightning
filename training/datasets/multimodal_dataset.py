@@ -126,12 +126,14 @@ class MultimodalDataset(BaseDataset):
                 for mod in input_mods:
                     length = self.input_features[mod][base_filename].shape[0]
                     if length < shortest_length:
-                        print(np.abs(length-shortest_length))
+                        #print(np.abs(length-shortest_length))
                         if first_match:
                             first_match = False
                         else:
-                            print(np.abs(length-shortest_length))
-                            assert np.abs(length-shortest_length) < 2
+                            if np.abs(length-shortest_length) > 2:
+                                print(np.abs(length-shortest_length))
+                                print(base_filename)
+                            assert np.abs(length-shortest_length) <= 2
                         shortest_length = length
                 for mod in input_mods:
                     np.save(self.input_features_filenames[mod][base_filename],self.input_features[mod][base_filename][:shortest_length])
@@ -156,12 +158,14 @@ class MultimodalDataset(BaseDataset):
                 for mod in output_mods:
                     length = self.output_features[mod][base_filename].shape[0]
                     if length < shortest_length:
-                        print(np.abs(length-shortest_length))
+                        #print(np.abs(length-shortest_length))
                         if first_match:
                             first_match = False
                         else:
-                            print(np.abs(length-shortest_length))
-                            assert np.abs(length-shortest_length) < 3
+                            if np.abs(length-shortest_length) > 2:
+                                print(base_filename)
+                                print(np.abs(length-shortest_length))
+                            assert np.abs(length-shortest_length) <= 2
                         shortest_length = length
                 for mod in output_mods:
                     if mod not in input_mods:
