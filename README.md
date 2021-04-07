@@ -96,3 +96,7 @@ You can get a copy of the (already preprocessed) AIST++ data by running the file
 This data is extracted from a dataset of dance videos. More data comming soon.
 
 You can also ask me for a copy of the MoGlow dataset if you want. I'm currently playing with the model, but soon will begin playing again with the data, and organize it more. 
+
+## Community
+
+You can join [the community discord](https://discord.gg/HQ8Crcw), where we discuss progress in this project, which is part of the umbrella project to explore and develop the intersection between VR and AI. See http://metagen.ai
