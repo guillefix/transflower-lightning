@@ -36,11 +36,11 @@ exp=aistpp_moglow_test_filter
 #seq_id="gJB_sBM_cAll_d09_mJB5_ch10"
 #seq_id="gLH_sFM_cAll_d16_mLH4_ch05"
 #seq_id="gKR_sBM_cAll_d28_mKR1_ch07"
-#seq_id="gMH_sBM_cAll_d24_mMH2_ch08"
+seq_id="gMH_sBM_cAll_d24_mMH2_ch08"
 #seq_id="gJS_sBM_cAll_d03_mJS3_ch02"
 #seq_id="gPO_sBM_cAll_d10_mPO0_ch10"
 #seq_id="gBR_sBM_cAll_d04_mBR2_ch01"
-seq_id="gWA_sBM_cAll_d26_mWA1_ch05"
+#seq_id="gWA_sBM_cAll_d26_mWA1_ch05"
 #seq_id="gLO_sBM_cAll_d13_mLO3_ch06"
 #seq_id="mambo"
 

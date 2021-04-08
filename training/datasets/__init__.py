@@ -4,11 +4,12 @@ from .base_dataset import BaseDataset
 import numpy as np
 import torch
 
-def find_dataset_using_name(dataset_name, task_name):
+def find_dataset_using_name(dataset_name):
     # Given the option --dataset_name [datasetname],
     # the file "data/datasetname_dataset.py"
     # will be imported.
 
+    task_name = "training"
     task_module = importlib.import_module(task_name)
     dataset_filename = task_name + ".datasets." + dataset_name + "_dataset"
     # datasetlib = importlib.import_module(dataset_filename, package=task_module)
@@ -35,13 +36,13 @@ def find_dataset_using_name(dataset_name, task_name):
     return dataset
 
 
-def get_option_setter(dataset_name, task_name):
-    dataset_class = find_dataset_using_name(dataset_name, task_name)
+def get_option_setter(dataset_name):
+    dataset_class = find_dataset_using_name(dataset_name)
     return dataset_class.modify_commandline_options
 
 
 def create_dataset(opt, phase="train", *args, **kwargs):
-    dataset = find_dataset_using_name(opt.dataset_name, opt.task)
+    dataset = find_dataset_using_name(opt.dataset_name)
     opt.phase = phase
     instance = dataset(opt,*args,**kwargs)
     print('dataset [{}] was created {}'.format(instance.name(), "(val)" if opt.phase=="val" else ''))
