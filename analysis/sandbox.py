@@ -221,7 +221,13 @@ from sklearn.pipeline import Pipeline
 
 # data = np.load("data/scaled_features/gWA_sFM_cAll_d26_mWA4_ch12.expmap_scaled.npy")
 # data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_flower_expmap/predicted_mods/gLO_sBM_cAll_d13_mLO3_ch06.expmap_scaled.generated.npy")
-data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_moglow_expmap/predicted_mods/gLO_sBM_cAll_d13_mLO3_ch06.expmap_scaled.generated.npy")
+# data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_moglow_expmap/predicted_mods/gLO_sBM_cAll_d13_mLO3_ch06.expmap_scaled.generated.npy")
+# data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_residual/predicted_mods/gLO_sBM_cAll_d13_mLO3_ch06.expmap_scaled.generated.npy")
+# data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_residual/predicted_mods/gWA_sBM_cAll_d26_mWA1_ch05.expmap_scaled.generated.npy")
+# data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_residual/predicted_mods/gBR_sBM_cAll_d04_mBR2_ch01.expmap_scaled.generated.npy")
+# data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_residual/predicted_mods/gPO_sBM_cAll_d10_mPO0_ch10.expmap_scaled.generated.npy")
+# data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_residual/predicted_mods/gJS_sBM_cAll_d03_mJS3_ch02.expmap_scaled.generated.npy")
+data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_residual/predicted_mods/gMH_sBM_cAll_d24_mMH2_ch08.expmap_scaled.generated.npy")
 # data = np.load("data/scaled_features/gLO_sBM_cAll_d13_mLO3_ch06.expmap_scaled.npy")
 # data = np.load(""analysis/tmp/gWA_sFM_cAll_d26_mWA4_ch12.bvh_expmap.npz")["clips"]
 
@@ -233,6 +239,7 @@ data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_mog
 import joblib as jl
 #%%
 
+# pipeline = jl.load("data/scaled_features/motion_expmap_data_pipe.sav")
 pipeline = jl.load("data/scaled_features/motion_data_pipe.sav")
 fps=60
 # pipeline = Pipeline([
@@ -259,6 +266,12 @@ bvh_data=pipeline.inverse_transform([data[:,0,:]])
 writer = BVHWriter()
 with open('analysis/tmp/converted.bvh','w') as f:
     writer.write(bvh_data[0], f)
+
+bvh2pos = MocapParameterizer('position')
+pos_data = bvh2pos.fit_transform(bvh_data)
+dest_dir = "analysis/tmp"
+filename="test"
+render_mp4(pos_data[0], f'{dest_dir}/{filename}.mp4', axis_scale=3, elev=45, azim=45)
 
 # import pandas as pd
 #

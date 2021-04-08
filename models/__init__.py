@@ -3,14 +3,15 @@ import importlib
 from .base_model import BaseModel
 print("HIIIIIIOOO")
 
-def find_model_using_name(model_name, task_name):
+def find_model_using_name(model_name):
     # Given the option --model [modelname],
     # the file "models/modelname_model.py"
     # will be imported.
-    task_module = importlib.import_module(task_name)
+    # task_module = importlib.import_module(task_name)
     # model_filename = task_name + ".models." + model_name.lower() + "_model"
     model_filename = "models." + model_name.lower() + "_model"
-    modellib = importlib.import_module(model_filename, package=task_module)
+    # modellib = importlib.import_module(model_filename, package=task_module)
+    modellib = importlib.import_module(model_filename)
 
     # In the file, the class called ModelNameModel() will
     # be instantiated. It has to be a subclass of BaseModel,
@@ -28,14 +29,17 @@ def find_model_using_name(model_name, task_name):
     return model
 
 
-def get_option_setter(model_name, task_name):
-    model_class = find_model_using_name(model_name, task_name)
+def get_option_setter(model_name):
+    model_class = find_model_using_name(model_name)
     return model_class.modify_commandline_options
 
 
-
 def create_model(opt):
-    model = find_model_using_name(opt.model, opt.task)
+    instance = create_model_by_name(opt.model, opt)
+    return instance
+
+def create_model_by_name(name, opt):
+    model = find_model_using_name(name)
     instance = model(opt)
     print("model [%s] was created" % (instance.name()))
     return instance

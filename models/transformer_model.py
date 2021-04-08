@@ -55,7 +55,7 @@ class TransformerModel(BaseModel):
 
         #This is feature creep. Will remove soon
         # if self.opt.generate_attention_masks:
-        self.generate_full_masks()
+        # self.generate_full_masks()
         self.inputs = []
         self.targets = []
         self.criterion = nn.MSELoss()
@@ -64,7 +64,7 @@ class TransformerModel(BaseModel):
         return "Transformer"
 
     @staticmethod
-    def modify_commandline_options(parser, is_train):
+    def modify_commandline_options(parser, opt):
         parser.add_argument('--dhid', type=int, default=512)
         parser.add_argument('--dins', default=None)
         parser.add_argument('--douts', default=None)
@@ -105,36 +105,6 @@ class TransformerModel(BaseModel):
 
         # import pdb;pdb.set_trace()
         return outputs
-
-    def generate(self,features, teacher_forcing=False):
-        inputs_ = []
-        for i,mod in enumerate(self.input_mods):
-            input_ = features["in_"+mod]
-            input_ = torch.from_numpy(input_).float().cuda()
-            input_shape = input_.shape
-            input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3])).permute(2,0,1).to(self.device)
-            inputs_.append(input_)
-        output_seq = autoregressive_generation_multimodal(inputs_, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
-        return output_seq
-
-    def set_inputs(self, data):
-        self.inputs = []
-        self.targets = []
-        for i, mod in enumerate(self.input_mods):
-            input_ = data["in_"+mod]
-            input_shape = input_.shape
-            if len(input_shape)==4:
-                # It's coming as 0 batch dimension, 1 window dimension, 2 input channel dimension, 3 time dimension
-                input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3]))
-            input_ = input_.permute(2,0,1)
-            self.inputs.append(input_)
-        for i, mod in enumerate(self.output_mods):
-            target_ = data["out_"+mod]
-            target_shape = target_.shape
-            if len(target_shape)==4:
-                target_ = target_.reshape((target_shape[0]*target_shape[1], target_shape[2], target_shape[3]))
-            target_ = target_.permute(2,0,1)
-            self.targets.append(target_)
 
     def training_step(self, batch, batch_idx):
         self.set_inputs(batch)

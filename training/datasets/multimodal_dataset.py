@@ -224,64 +224,41 @@ class MultimodalDataset(BaseDataset):
         input_mods = self.opt.input_modalities.split(",")
         output_mods = self.opt.output_modalities.split(",")
 
-        input_features = []
-        output_features = []
-
+        x = []
+        y = []
         for i, mod in enumerate(input_mods):
             #input_feature = np.load(self.input_features[mod][base_filename])
             input_feature = self.input_features[mod][base_filename]
-            input_features.append(input_feature)
+            x.append(input_feature)
 
         for i, mod in enumerate(output_mods):
             #output_feature = np.load(self.output_features[mod][base_filename])
             output_feature = self.output_features[mod][base_filename]
-            output_features.append(output_feature)
-
-        x = [input_feature.transpose(1,0) for input_feature in input_features]
-        y = [output_feature.transpose(1,0) for output_feature in output_features]
+            y.append(output_feature)
 
         # normalization of individual features for the sequence
         # not doing this any more as we are normalizing over all examples now
-        #x = [(xx-np.mean(xx,-1,keepdims=True))/(np.std(xx,-1,keepdims=True)+1e-5) for xx in x]
-        #y = [(yy-np.mean(yy,-1,keepdims=True))/(np.std(yy,-1,keepdims=True)+1e-5) for yy in y]
+        #x = [(xx-np.mean(xx,0,keepdims=True))/(np.std(xx,0,keepdims=True)+1e-5) for xx in x]
+        #y = [(yy-np.mean(yy,0,keepdims=True))/(np.std(yy,0,keepdims=True)+1e-5) for yy in y]
 
         ## we pad the song features with zeros to imitate during training what happens during generation
-        #x = [np.concatenate((np.zeros(( xx.shape[0],max(0,max(output_time_offsets)) )),xx),1) for xx in x]
-        #y = [np.concatenate((np.zeros(( yy.shape[0],max(0,max(output_time_offsets)) )),yy),1) for yy in y]
+        #x = [np.concatenate((np.zeros(( xx.shape[0],max(0,max(output_time_offsets)) )),xx),0) for xx in x]
+        #y = [np.concatenate((np.zeros(( yy.shape[0],max(0,max(output_time_offsets)) )),yy),0) for yy in y]
         ## we also pad at the end to allow generation to be of the same length of sequence, by padding an amount corresponding to time_offset
-        #x = [np.concatenate((xx,np.zeros(( xx.shape[0],max(0,max(input_lengths)+max(input_time_offsets)-(min(output_time_offsets)+min(output_lengths)-1)) ))),1) for xx in x]
-        #y = [np.concatenate((yy,np.zeros(( yy.shape[0],max(0,max(input_lengths)+max(input_time_offsets)-(min(output_time_offsets)+min(output_lengths)-1)) ))),1) for yy in y]
+        #x = [np.concatenate((xx,np.zeros(( xx.shape[0],max(0,max(input_lengths)+max(input_time_offsets)-(min(output_time_offsets)+min(output_lengths)-1)) ))),0) for xx in x]
+        #y = [np.concatenate((yy,np.zeros(( yy.shape[0],max(0,max(input_lengths)+max(input_time_offsets)-(min(output_time_offsets)+min(output_lengths)-1)) ))),0) for yy in y]
 
-        ## WINDOWS ##
-        # sample indices at which we will get opt.num_windows windows of the sequence to feed as inputs
-        # sequence_length = x[0].shape[-1]
-
-        # indices = np.random.choice(range(0,sequence_length-max(max(input_lengths)+max(input_time_offsets),max(output_time_offsets)+max(output_lengths))+1),size=self.opt.num_windows,replace=True)
-
-        #indices = np.random.choice(range(0,20),size=self.opt.num_windows,replace=True)
-        # print(np.random.get_state()[1][-1])
-        # indices = np.random.choice([0,1,2,3,4],size=1)
-        # print(indices)
-        # indices = [0]
-
-        if idx > 0:
-            indices = [item - self.frame_cum_sums[idx-1]]
-        else:
-            indices = [item]
+        if idx > 0: index = item - self.frame_cum_sums[idx-1]
+        else: index = item
 
         ## CONSTRUCT TENSOR OF INPUT FEATURES ##
-        input_windows = [torch.tensor([xx[:,i+input_time_offsets[j]:i+input_time_offsets[j]+input_lengths[j]] for i in indices]).float() for j,xx in enumerate(x)]
+        input_windows = [torch.tensor(xx[index+input_time_offsets[j]:index+input_time_offsets[j]+input_lengths[j], :]).float() for j,xx in enumerate(x)]
 
         ## CONSTRUCT TENSOR OF OUTPUT FEATURES ##
-        output_windows = [torch.tensor([yy[:,i+output_time_offsets[j]:i+output_time_offsets[j]+output_lengths[j]] for i in indices]).float() for j,yy in enumerate(y)]
+        output_windows = [torch.tensor(yy[index+output_time_offsets[j]:index+output_time_offsets[j]+output_lengths[j], :]).float() for j,yy in enumerate(y)]
 
-        # print(input_windows.shape)
-
-        # return {'input': input_windows, 'target': output_windows}
         return_dict = {}
-
         for i,mod in enumerate(input_mods):
-            # print(input_windows[i].shape)
             return_dict["in_"+mod] = input_windows[i]
         for i,mod in enumerate(output_mods):
             return_dict["out_"+mod] = output_windows[i]

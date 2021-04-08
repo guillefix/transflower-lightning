@@ -15,9 +15,10 @@ class BaseOptions:
     def __init__(self):
         parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                          add_help=False)  # TODO - check that help is still displayed
-        parser.add_argument('--task', type=str, default='training', help="Module from which dataset and model are loaded")
+        # parser.add_argument('--task', type=str, default='training', help="Module from which dataset and model are loaded")
         parser.add_argument('-d', '--data_dir', type=str, default='data/scaled_features')
         parser.add_argument('--dataset_name', type=str, default="multimodal")
+        parser.add_argument('--phase', type=str, default='train', help='train, val, test, etc')
         parser.add_argument('--batch_size', default=1, type=int)
         parser.add_argument('--val_batch_size', default=1, type=int, help='batch size for validation data loader')
         parser.add_argument('--num_windows', default=16, type=int)
@@ -49,29 +50,28 @@ class BaseOptions:
             opt, _ = self.parser.parse_known_args()
 
         # load task module and task-specific options
-        task_name = opt.task
-        task_options = importlib.import_module("{}.options.task_options".format(task_name))  # must be defined in each task folder
-        self.parser = argparse.ArgumentParser(parents=[self.parser, task_options.TaskOptions().parser])
-        if parse_args is not None:
-            opt, _ = self.parser.parse_known_args(parse_args)
-        else:
-            opt, _ = self.parser.parse_known_args()
+        # task_name = opt.task
+        # task_options = importlib.import_module("{}.options.task_options".format(task_name))  # must be defined in each task folder
+        # self.parser = argparse.ArgumentParser(parents=[self.parser, task_options.TaskOptions().parser])
+        # if parse_args is not None:
+        #     opt, _ = self.parser.parse_known_args(parse_args)
+        # else:
+        #     opt, _ = self.parser.parse_known_args()
 
         # modify model-related parser options
         model_name = opt.model
-        model_option_setter = models.get_option_setter(model_name, task_name)
-        parser = model_option_setter(self.parser, self.is_train)
+        model_option_setter = models.get_option_setter(model_name)
+        parser = model_option_setter(self.parser, opt)
         if parse_args is not None:
             opt, _ = parser.parse_known_args(parse_args)  # parse again with the new defaults
         else:
             opt, _ = self.parser.parse_known_args()
 
-        # modify dataset-related parser options fsldkn
+        # modify dataset-related parser options
         dataset_name = opt.dataset_name
-        print(dataset_name, task_name)
-        dataset_option_setter = data.get_option_setter(dataset_name, task_name)
+        print(dataset_name)
+        dataset_option_setter = data.get_option_setter(dataset_name)
         parser = dataset_option_setter(parser, self.is_train)
-
         self.parser = parser
 
         if parse_args is not None:

@@ -23,9 +23,9 @@ $py training/train.py --data_dir=data/scaled_features --dataset_name=$dataset --
     --input_modalities="joint_angles_scaled,mel_ddcpca_scaled" \
     --output_modalities="joint_angles_scaled" \
     --input_lengths="119,120" \
-    --input_seq_lens="40,41" \
     --output_lengths="80" \
     --output_time_offset="40" \
+    --input_seq_lens="40,41" \
     --glow_K=16 \
     --dropout=0 \
     --workers=$(nproc) \
