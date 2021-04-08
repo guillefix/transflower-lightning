@@ -23,7 +23,8 @@ NUM_SPECIAL_STATES = 4
 
 HUMAN_DELTA = 0.125 # minimum block separation that we are happy with
 
-from models import create_model
+#from models import create_model
+from models.ddc_model import DDCModel
 from feature_extraction.utils import distribute_tasks,ResampleLinear1D
 
 parser = argparse.ArgumentParser(description='Get DDC features from song features')
@@ -62,7 +63,7 @@ from pathlib import Path
 #%%
 
 ##loading opt object from experiment
-opt = json.loads(open(ROOT_DIR.__str__()+"/training/"+experiment_name+"opt.json","r").read())
+opt = json.loads(open(ROOT_DIR.__str__()+"/training/experiments/"+experiment_name+"opt.json","r").read())
 # we assume we have 1 GPU in generating machine :P
 if args.cuda:
     opt["gpu_ids"] = [0]
@@ -85,8 +86,9 @@ opt = Struct(**opt)
 
 assert opt.binarized
 
-model = create_model(opt)
-model.setup()
+#model = create_model(opt)
+model = DDCModel(opt)
+#model.setup()
 receptive_field = 1
 
 checkpoint = "iter_"+checkpoint

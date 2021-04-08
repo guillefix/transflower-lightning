@@ -2,13 +2,15 @@ from .base_model import BaseModel
 import torch.nn.functional as F
 from torch import nn
 import torch
-from models import constants
+#from models import constants
 import numpy as np
 
-class DDCModel(BaseModel):
+class DDCModel(nn.Module):
+#class DDCModel(BaseModel):
 
     def __init__(self, opt):
-        super().__init__(opt)
+        super().__init__()
+        #super().__init__(opt)
         self.opt = opt
         self.loss_names = ['ce', 'humaneness_reg', 'total']
         self.metric_names = ['accuracy']
