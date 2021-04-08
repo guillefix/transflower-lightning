@@ -1,13 +1,14 @@
 
 import torch
 
-def autoregressive_generation_multimodal(inputs_, model, autoreg_mods=[], teacher_forcing=False):
+def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teacher_forcing=False):
+    inputs_ = []
+    for i,mod in enumerate(model.input_mods):
+        input_ = features["in_"+mod]
+        input_ = torch.from_numpy(input_).float().to(model.device)
+        inputs_.append(input_)
     input_time_offsets = model.input_time_offsets
-    if hasattr(model, "input_seq_lens"):
-        input_lengths = model.input_seq_lens
-        print(input_lengths)
-    else:
-        input_lengths = model.input_lengths
+    input_lengths = model.input_lengths
     input_mods = model.input_mods
     output_mods = model.output_mods
     # predicted_inputs = model.predicted_inputs

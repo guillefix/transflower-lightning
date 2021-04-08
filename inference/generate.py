@@ -39,6 +39,7 @@ if __name__ == '__main__':
     # opt["cond_concat_dims"] = True
     # opt["bn_momentum"] = 0.0
     opt["batch_size"] = 1
+    opt["phase"] = "inference"
     class Struct:
         def __init__(self, **entries):
             self.__dict__.update(entries)
@@ -63,7 +64,7 @@ if __name__ == '__main__':
     features = {}
     for mod in input_mods:
         feature = np.load(data_dir+"/"+seq_id+"."+mod+".npy")
-        features["in_"+mod] = np.expand_dims(np.expand_dims(feature.transpose(1,0),0),0)
+        features["in_"+mod] = np.expand_dims(feature,0).transpose((1,0,2))
 
     # Generate prediction
     model.cuda()

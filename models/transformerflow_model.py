@@ -71,16 +71,16 @@ class TransformerFlowModel(BaseModel):
             self.output_mod_glows.append(glow)
 
 
-        self.generate_full_masks()
+        # self.generate_full_masks()
         self.inputs = []
         self.targets = []
         self.criterion = nn.MSELoss()
 
     def name(self):
-        return "Transformer"
+        return "Transformerflow"
 
     @staticmethod
-    def modify_commandline_options(parser, is_train):
+    def modify_commandline_options(parser, opt):
         parser.add_argument('--dhid', type=int, default=512)
         parser.add_argument('--dins', default=None)
         parser.add_argument('--douts', default=None)
@@ -130,17 +130,6 @@ class TransformerFlowModel(BaseModel):
         #shape
 
         return outputs
-
-    def generate(self,features, teacher_forcing=False):
-        inputs_ = []
-        for i,mod in enumerate(self.input_mods):
-            input_ = features["in_"+mod]
-            input_ = torch.from_numpy(input_).float().cuda()
-            input_shape = input_.shape
-            input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3])).permute(2,0,1).to(self.device)
-            inputs_.append(input_)
-        output_seq = autoregressive_generation_multimodal(inputs_, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
-        return output_seq
 
     def set_inputs(self, data):
         self.inputs = []

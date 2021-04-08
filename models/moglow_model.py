@@ -13,12 +13,16 @@ class MoglowModel(BaseModel):
         self.input_mods = input_mods = self.opt.input_modalities.split(",")
         self.output_mods = output_mods = self.opt.output_modalities.split(",")
         self.dins = dins = [int(x) for x in self.opt.dins.split(",")]
-        self.input_lengths = input_lengths = [int(x) for x in self.opt.input_lengths.split(",")]
-        self.output_lengths = output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
-        self.input_seq_lens = input_seq_lens = [int(x) for x in self.opt.input_seq_lens.split(",")]
-        self.output_seq_lens = output_seq_lens = [int(x) for x in self.opt.output_seq_lens.split(",")]
+        if opt.phase == "inference":
+            self.input_lengths = input_lengths = [int(x) for x in self.opt.input_seq_lens.split(",")]
+            self.output_lengths = output_lengths = [int(x) for x in self.opt.output_seq_lens.split(",")]
+        else:
+            self.input_lengths = input_lengths = [int(x) for x in self.opt.input_lengths.split(",")]
+            self.output_lengths = output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
         self.output_time_offsets = output_time_offsets = [int(x) for x in self.opt.output_time_offsets.split(",")]
         self.input_time_offsets = input_time_offsets = [int(x) for x in self.opt.input_time_offsets.split(",")]
+        self.input_seq_lens = input_seq_lens = [int(x) for x in self.opt.input_seq_lens.split(",")]
+        self.output_seq_lens = output_seq_lens = [int(x) for x in self.opt.output_seq_lens.split(",")]
         # self.predicted_inputs = predicted_inputs = [int(x) for x in self.opt.predicted_inputs.split(",")]
 
         if len(output_time_offsets) < len(output_mods):
@@ -48,7 +52,7 @@ class MoglowModel(BaseModel):
         return "Moglow"
 
     @staticmethod
-    def modify_commandline_options(parser, is_train):
+    def modify_commandline_options(parser, opt):
         parser.add_argument('--dhid', type=int, default=512)
         parser.add_argument('--dins', default=None)
         parser.add_argument('--input_seq_lens', type=str, default="10,11")
@@ -64,34 +68,20 @@ class MoglowModel(BaseModel):
         return parser
 
     def forward(self, data, eps_std=1.0):
-        # in lightning, forward defines the prediction/inference actions
-        # inputs_ = []
         # import pdb;pdb.set_trace()
-        # min_len = min(self.input_seq_lens)
         for i,mod in enumerate(self.input_mods):
             input_ = data[i]
-            input_ = input_.permute(1,2,0)
-            input_ = input_.permute(0,2,1)
+            input_ = input_.permute(1,0,2)
             input_ = self.concat_sequence(self.input_seq_lens[i], input_)
             input_ = input_.permute(0,2,1)
-            # import pdb;pdb.set_trace()
-            # input_ = input_[:,:,:min_len]
-            # inputs_.append(input_)
             data[i] = input_
-        # import pdb;pdb.set_trace()
         outputs = self.net_glow(z=None, cond=torch.cat(data, dim=1), eps_std=eps_std, reverse=True)
         # import pdb;pdb.set_trace()
         return [outputs.permute(0,2,1)]
 
     def generate(self,features, teacher_forcing=False):
-        inputs_ = []
-        for i,mod in enumerate(self.input_mods):
-            input_ = features["in_"+mod]
-            input_ = torch.from_numpy(input_).float().cuda()
-            input_shape = input_.shape
-            input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3])).permute(2,0,1).to(self.device)
-            inputs_.append(input_)
-        output_seq = autoregressive_generation_multimodal(inputs_, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
+        self.net_glow.init_lstm_hidden()
+        output_seq = autoregressive_generation_multimodal(features, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
         return output_seq
 
     def on_train_start(self):
@@ -134,23 +124,20 @@ class MoglowModel(BaseModel):
         self.targets = []
         for i, mod in enumerate(self.input_mods):
             input_ = data["in_"+mod]
-            input_shape = input_.shape
-            if len(input_shape)==4:
-                # It's coming as 0 batch dimension, 1 window dimension, 2 input channel dimension, 3 time dimension
-                input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3]))
             if self.input_seq_lens[i] > 1:
-                input_ = input_.permute(0,2,1)
+                # input_ = input_.permute(0,2,1)
                 input_ = self.concat_sequence(self.input_seq_lens[i], input_)
+                input_ = input_.permute(0,2,1)
+            else:
                 input_ = input_.permute(0,2,1)
             self.inputs.append(input_)
         for i, mod in enumerate(self.output_mods):
             target_ = data["out_"+mod]
-            target_shape = target_.shape
-            if len(target_shape)==4:
-                target_ = target_.reshape((target_shape[0]*target_shape[1], target_shape[2], target_shape[3]))
             if self.output_seq_lens[i] > 1:
-                target_ = target_.permute(0,2,1)
+                # target_ = target_.permute(0,2,1)
                 target_ = self.concat_sequence(self.output_seq_lens[i], target_)
+                target_ = target_.permute(0,2,1)
+            else:
                 target_ = target_.permute(0,2,1)
             # target_ = target_.permute(2,0,1)
             self.targets.append(target_)

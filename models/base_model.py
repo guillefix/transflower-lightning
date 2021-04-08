@@ -15,6 +15,13 @@ class BaseModel(LightningModule):
         super().__init__()
         self.save_hyperparameters(vars(opt))
         self.opt = opt
+        self.input_mods = input_mods = self.opt.input_modalities.split(",")
+        self.output_mods = output_mods = self.opt.output_modalities.split(",")
+        self.dins = dins = [int(x) for x in self.opt.dins.split(",")]
+        self.input_lengths = input_lengths = [int(x) for x in self.opt.input_lengths.split(",")]
+        self.output_lengths = output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
+        self.output_time_offsets = output_time_offsets = [int(x) for x in self.opt.output_time_offsets.split(",")]
+        self.input_time_offsets = input_time_offsets = [int(x) for x in self.opt.input_time_offsets.split(",")]
         self.optimizers = []
         self.schedulers = []
 
@@ -29,6 +36,23 @@ class BaseModel(LightningModule):
         schedulers = [get_scheduler(optimizer, self.opt) for optimizer in self.optimizers]
         return optimizers, schedulers
         #return self.optimizers
+
+    def set_inputs(self, data):
+        # BTC -> TBC
+        self.inputs = []
+        self.targets = []
+        for i, mod in enumerate(self.input_mods):
+            input_ = data["in_"+mod]
+            input_ = input_.permute(1,0,2)
+            self.inputs.append(input_)
+        for i, mod in enumerate(self.output_mods):
+            target_ = data["out_"+mod]
+            target_ = target_.permute(1,0,2)
+            self.targets.append(target_)
+
+    def generate(self,features, teacher_forcing=False):
+        output_seq = autoregressive_generation_multimodal(features, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
+        return output_seq
 
     # modify parser to add command line options,
     # and also change the default values if needed
