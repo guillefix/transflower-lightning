@@ -1,2 +1,0 @@
-#find dev_audio -type f -iname "*.mp3" -exec basename \{\} .mp3 \; > base_filenames.txt
-find motions -type f -iname "*.pkl" -exec basename \{\} .pkl \; > base_filenames.txt
