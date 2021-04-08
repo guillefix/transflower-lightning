@@ -4,6 +4,7 @@ from torch import nn
 import torch
 #from models import constants
 import numpy as np
+import os
 
 class DDCModel(nn.Module):
 #class DDCModel(BaseModel):
@@ -14,7 +15,7 @@ class DDCModel(nn.Module):
         self.opt = opt
         self.loss_names = ['ce', 'humaneness_reg', 'total']
         self.metric_names = ['accuracy']
-        self.module_names = ['DDCNet']  # changed from 'model_names'
+        self.module_names = ['']  # changed from 'model_names'
         self.schedulers = []
         self.net = DDCNet(opt)
         self.optimizers = [torch.optim.Adam([
@@ -25,6 +26,8 @@ class DDCModel(nn.Module):
         ])]
         self.loss_ce = None
         self.humaneness_reg = None
+        self.save_dir="training/experiments/block_placement_ddc2"
+        self.device="cpu"
 
     def name(self):
         return "DDCNet"
@@ -45,8 +48,8 @@ class DDCModel(nn.Module):
                     del state_dict._metadata
 
                 # patch InstanceNorm checkpoints prior to 0.4
-                for key in list(state_dict.keys()):  # need to copy keys here because we mutate in loop
-                    self.__patch_instance_norm_state_dict(state_dict, net, key.split('.'))
+                #for key in list(state_dict.keys()):  # need to copy keys here because we mutate in loop
+                #    self.__patch_instance_norm_state_dict(state_dict, net, key.split('.'))
                 # if not self.opt.gpu_ids:
                 #    state_dict = {key[6:]: value for key, value in
                 #                    state_dict.items()}  # remove data_parallel's "module."

@@ -30,6 +30,7 @@ from feature_extraction.utils import distribute_tasks,ResampleLinear1D
 parser = argparse.ArgumentParser(description='Get DDC features from song features')
 parser.add_argument("data_path", type=str, help="Directory contining Beat Saber level folders")
 parser.add_argument('--checkpoints_dir', type=str)
+parser.add_argument('--audio_format', type=str, default="wav")
 parser.add_argument('--experiment_name', type=str)
 parser.add_argument('--peak_threshold', type=float, default=0.0148)
 parser.add_argument('--fps', type=float, default=60)
@@ -95,7 +96,7 @@ checkpoint = "iter_"+checkpoint
 model.load_networks(checkpoint)
 
 #assuming mp3 for now. TODO: generalize
-candidate_feature_files = sorted(data_path.glob('**/*mp3_multi_mel_80.npy'), key=lambda path: path.parent.__str__())
+candidate_feature_files = sorted(data_path.glob('**/*'+audio_format+'_multi_mel_80.npy'), key=lambda path: path.parent.__str__())
 tasks = distribute_tasks(candidate_feature_files,rank,size)
 
 for i in tasks:

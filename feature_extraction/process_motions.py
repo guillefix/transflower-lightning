@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser(description="Preprocess motion data")
 parser.add_argument("data_path", type=str, help="Directory contining Beat Saber level folders")
 parser.add_argument("--param", type=str, default="expmap", help="expmap, position")
 parser.add_argument("--replace_existing", action="store_true")
-parser.add_argument("--fps", type=float, default=60)
+parser.add_argument("--fps", type=int, default=60)
 
 args = parser.parse_args()
 
