@@ -67,7 +67,7 @@ data = np.load(data_dir + seqs[-11]+".joint_angles_scaled.npy")
 #         f.writelines(seq+"\n")
 
 train_ones = [x[:-1] for x in open("analysis/aistpp_base_filenames_train_filtered.txt", "r").readlines()]
-bad_ones = [x[:-1] for x in open("bad_ones.txt", "r").readlines()]
+bad_ones = [x[:-1] for x in open("analysis/aistpp_bad_ones.txt", "r").readlines()]
 
 
 with open("analysis/aistpp_base_filenames_train_filtered.txt", "w") as f:

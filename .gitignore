@@ -17,3 +17,4 @@ data/moglow_loc/*
 analysis/tmp/*
 ones_to_check.txt
 ones_to_check2.txt
+!training/experiments/block_placement_ddc2
