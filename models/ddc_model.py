@@ -14,7 +14,7 @@ class DDCModel(nn.Module):
         self.opt = opt
         self.loss_names = ['ce', 'humaneness_reg', 'total']
         self.metric_names = ['accuracy']
-        self.module_names = ['']  # changed from 'model_names'
+        self.module_names = ['DDCNet']  # changed from 'model_names'
         self.schedulers = []
         self.net = DDCNet(opt)
         self.optimizers = [torch.optim.Adam([
@@ -28,6 +28,29 @@ class DDCModel(nn.Module):
 
     def name(self):
         return "DDCNet"
+
+    def load_networks(self, epoch):
+        for name in self.module_names:
+            if isinstance(name, str):
+                load_filename = '%s_net_%s.pth' % (epoch, name)
+                load_path = os.path.join(self.save_dir, load_filename)
+                net = getattr(self, 'net' + name)
+                if isinstance(net, torch.nn.DataParallel):
+                    net = net.module
+                print('loading the model from %s' % load_path)
+                # if you are using PyTorch newer than 0.4 (e.g., built from
+                # GitHub source), you can remove str() on self.device
+                state_dict = torch.load(load_path, map_location=str(self.device))
+                if hasattr(state_dict, '_metadata'):
+                    del state_dict._metadata
+
+                # patch InstanceNorm checkpoints prior to 0.4
+                for key in list(state_dict.keys()):  # need to copy keys here because we mutate in loop
+                    self.__patch_instance_norm_state_dict(state_dict, net, key.split('.'))
+                # if not self.opt.gpu_ids:
+                #    state_dict = {key[6:]: value for key, value in
+                #                    state_dict.items()}  # remove data_parallel's "module."
+                net.load_state_dict(state_dict)
 
     @staticmethod
     def modify_commandline_options(parser, is_train):
