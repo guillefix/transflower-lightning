@@ -226,7 +226,8 @@ from sklearn.pipeline import Pipeline
 # data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_residual/predicted_mods/gWA_sBM_cAll_d26_mWA1_ch05.expmap_scaled.generated.npy")
 # data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_residual/predicted_mods/gBR_sBM_cAll_d04_mBR2_ch01.expmap_scaled.generated.npy")
 # data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_residual/predicted_mods/gPO_sBM_cAll_d10_mPO0_ch10.expmap_scaled.generated.npy")
-data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_residual/predicted_mods/gJS_sBM_cAll_d03_mJS3_ch02.expmap_scaled.generated.npy")
+# data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_residual/predicted_mods/gJS_sBM_cAll_d03_mJS3_ch02.expmap_scaled.generated.npy")
+data = np.load("/home/guillefix/code/mt-lightning/inference/generated/aistpp_residual/predicted_mods/gMH_sBM_cAll_d24_mMH2_ch08.expmap_scaled.generated.npy")
 # data = np.load("data/scaled_features/gLO_sBM_cAll_d13_mLO3_ch06.expmap_scaled.npy")
 # data = np.load(""analysis/tmp/gWA_sFM_cAll_d26_mWA4_ch12.bvh_expmap.npz")["clips"]
 
