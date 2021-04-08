@@ -16,6 +16,7 @@ parser = argparse.ArgumentParser(description="Preprocess audio data")
 
 parser.add_argument("data_path", type=str, help="Directory contining Beat Saber level folders")
 parser.add_argument("--feature_name", metavar='', type=str, default="mel", help="mel, chroma, multi_mel")
+parser.add_argument("--audio_format", type=str, default="wav")
 parser.add_argument("--feature_size", metavar='', type=int, default=100)
 # parser.add_argument("--step_size", metavar='', type=float, default=0.01666666666)
 parser.add_argument("--fps", metavar='', type=float, default=60)
@@ -39,13 +40,15 @@ print(rank)
 print("creating {} of size {}".format(feature_name, feature_size))
 
 #assuming mp3 for now.
-candidate_audio_files = sorted(data_path.glob('**/*.mp3'), key=lambda path: path.parent.__str__())
+candidate_audio_files = sorted(data_path.glob('**/*.'+audio_format), key=lambda path: path.parent.__str__())
 tasks = distribute_tasks(candidate_audio_files,rank,size)
 
 for i in tasks:
     path = candidate_audio_files[i]
     song_file_path = path.__str__()
     # feature files are going to be saved as numpy files
+    if feature_name=="envelope":
+        feature_size=1
     features_file = song_file_path+"_"+feature_name+"_"+str(feature_size)+".npy"
 
     if replace_existing or not os.path.isfile(features_file):
