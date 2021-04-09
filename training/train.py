@@ -12,6 +12,9 @@ from training.options.train_options import TrainOptions
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
 print("HIII")
+from pytorch_lightning.plugins import DDPPlugin
+
+ddpplugin = DDPPlugin(find_unused_parameters=False)
 
 if __name__ == '__main__':
     opt = TrainOptions().parse()
@@ -50,14 +53,14 @@ if __name__ == '__main__':
         if opt.load_weights_only:
             state_dict = torch.load(latest_file)
             model.load_state_dict(state_dict['state_dict'])
-            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path)
+            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=ddpplugin)
         else:
             # print("STATE DICT")
             # state_dict = torch.load(latest_file)
             # print(state_dict['state_dict'])
-            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file)
+            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file, plugins=ddpplugin)
     else:
-        trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path)
+        trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=ddpplugin)
 
 
     trainer.fit(model, train_dataloader)
