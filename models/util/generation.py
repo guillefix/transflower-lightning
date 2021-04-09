@@ -1,6 +1,7 @@
 
 import torch
 
+#TODO: implement option to include the conditioning bit of input in the output
 def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teacher_forcing=False):
     inputs_ = []
     for i,mod in enumerate(model.input_mods):

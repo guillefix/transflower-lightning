@@ -17,19 +17,16 @@ import os, glob
 
 if __name__ == '__main__':
     print("Hi")
-    parser = argparse.ArgumentParser(description='Generate dance from song')
+    parser = argparse.ArgumentParser(description='Generate with model')
     parser.add_argument('--data_dir', type=str)
+    parser.add_argument('--output_folder', type=str)
     parser.add_argument('--experiment_name', type=str)
     parser.add_argument('--seq_id', type=str)
-    parser.add_argument('--input_modalities', type=str)
-    parser.add_argument('--output_modalities', type=str)
     parser.add_argument('--scalers', type=str, default="")
     args = parser.parse_args()
     data_dir = args.data_dir
+    output_folder = args.output_folder
     seq_id = args.seq_id
-    input_mods = args.input_modalities.split(",")
-    output_mods = args.output_modalities.split(",")
-    scalers = [x for x in args.scalers.split(",") if len(x)>0]
 
     #TODO: change this to load hparams from the particular version folder, that we load the model from, coz the opts could differ between versions potentially.
     exp_opt = json.loads(open("training/experiments/"+args.experiment_name+"/opt.json","r").read())
@@ -45,6 +42,10 @@ if __name__ == '__main__':
             self.__dict__.update(entries)
     print(opt)
     opt = Struct(**opt)
+
+    input_mods = opt.input_modalities.split(",")
+    output_mods = opt.output_modalities.split(",")
+    scalers = [x+"_scaler.pkl" for x in output_mods]
 
     # Load latest trained checkpoint from experiment
     default_save_path = opt.checkpoints_dir+"/"+opt.experiment_name
@@ -75,7 +76,10 @@ if __name__ == '__main__':
     for i, mod in enumerate(output_mods):
         predicted_mod = predicted_mods[i].cpu().numpy()
         if len(scalers)>0:
-            transform = pickle.load(open(data_dir+"/"+scalers[i]+'.pkl', "rb"))
+            transform = pickle.load(open(data_dir+"/"+scalers[i], "rb"))
             predicted_mod = transform.inverse_transform(predicted_mod)
         print(predicted_mod)
-        np.save("inference/generated/"+args.experiment_name+"/predicted_mods/"+seq_id+"."+mod+".generated",predicted_mod)
+        np.save(output_folder+"/"+args.experiment_name+"/predicted_mods/"+seq_id+"."+mod+".generated",predicted_mod)
+
+    with open(output_folder+"/"+args.experiment_name+"/predicted_mods/"+seq_id+"_audio_trim.txt", "w") as f:
+       f.writelines(str(opt.output_time_offsets.split(",")[0]))

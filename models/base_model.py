@@ -6,6 +6,8 @@ from pytorch_lightning import LightningModule
 print("HOOOOOO")
 from .optimizer import get_scheduler, get_optimizers
 
+from models.util.generation import autoregressive_generation_multimodal
+
 # Benefits of having one skeleton, e.g. for train - is that you can keep all the incremental changes in
 # one single code, making it your streamlined and updated script -- no need to keep separate logs on how
 # to implement stuff
