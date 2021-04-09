@@ -8,3 +8,5 @@ matplotlib
 mpi4py
 sklearn
 joblib
+smplx
+transforms3d

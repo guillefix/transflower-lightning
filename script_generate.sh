@@ -15,13 +15,13 @@ py=python3
 
 #exp=aistpp_moglow_test2
 #exp=aistpp_flower_test5
-exp=aistpp_moglow_test_filter
+#exp=aistpp_moglow_test_filter
 #exp=aaaaaa
 #exp=aistpp_transglower
 #exp=aistpp_flower_expmap
 #exp=aistpp_moglow_expmap
 #exp=aistpp_test
-#exp=aistpp_residual
+exp=aistpp_residual
 
 
 #seq_id="gLH_sBM_cAll_d16_mLH1_ch04"
@@ -34,7 +34,7 @@ exp=aistpp_moglow_test_filter
 #seq_id="gWA_sFM_cAll_d25_mWA3_ch04"
 #seq_id="gWA_sBM_cAll_d26_mWA1_ch05"
 #seq_id="gJB_sBM_cAll_d09_mJB5_ch10"
-#seq_id="gLH_sFM_cAll_d16_mLH4_ch05"
+#seq_id="gLH_sBM_cAll_d16_mLH1_ch04"
 #seq_id="gKR_sBM_cAll_d28_mKR1_ch07"
 seq_id="gMH_sBM_cAll_d24_mMH2_ch08"
 #seq_id="gJS_sBM_cAll_d03_mJS3_ch02"
@@ -48,20 +48,27 @@ mkdir inference/generated/${exp}
 mkdir inference/generated/${exp}/predicted_mods
 mkdir inference/generated/${exp}/videos
 
-#in_mod=expmap_scaled
-in_mod=joint_angles_scaled
+#audio_trim=120
+#audio_trim=40
+#fps=20
+fps=60
+feature_type=expmap
+#out_mod=expmap_scaled_20
+out_mod=expmap_scaled
 
 $py inference/generate.py --data_dir=test_data --experiment_name=$exp \
     --seq_id $seq_id \
-    --input_modalities=${in_mod}",mel_ddcpca_scaled" \
-    --output_modalities=${in_mod} \
-    --scalers="pkl_joint_angles_mats_scaler"
-#    --scalers="bvh_expmap_scaler"
+    --output_folder=inference/generated
 
-$py analysis/aistplusplus_api/generate_video_from_mats.py --pred_mats_file inference/generated/${exp}/predicted_mods/${seq_id}.${in_mod}.generated.npy \
+#export seq_id, exp
+audio_trim=$(cat inference/generated/${exp}/predicted_mods/${seq_id}_audio_trim.txt)
+
+$py analysis/visualization/generate_video_from_features.py --feature_type ${feature_type} \
+    --features_file inference/generated/${exp}/predicted_mods/${seq_id}.${out_mod}.generated.npy \
     --output_folder inference/generated/${exp}/videos/ \
     --audio_file test_data/${seq_id}.mp3 \
-    --trim_audio 0.66
-#    --trim_audio 2
+    --pipeline_file=test_data/motion_${feature_type}_data_pipe.sav \
+    --trim_audio ${audio_trim} \
+    --fps ${fps}
 
 

@@ -55,7 +55,7 @@ class TransformerModel(BaseModel):
 
         #This is feature creep. Will remove soon
         # if self.opt.generate_attention_masks:
-        # self.generate_full_masks()
+        self.generate_full_masks()
         self.inputs = []
         self.targets = []
         self.criterion = nn.MSELoss()
