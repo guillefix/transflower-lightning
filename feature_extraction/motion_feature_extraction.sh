@@ -8,7 +8,7 @@ n=$(nproc)
 fps=20
 
 # to convert aistpp to BVH with mixamo skeleton
-mpirun -n $n $py feature_extraction/process_aistpp.py $@ --fps 60 # this fps is the source fps of aistpp which is 60Hz
+#mpirun -n $n $py feature_extraction/process_aistpp.py $@ --fps 60 # this fps is the source fps of aistpp which is 60Hz
 
 # code for Rotmat representation for AISTPP
 #mpirun -n $n $py ./scripts/feature_extraction/aistpp_to_rotmats.py $@

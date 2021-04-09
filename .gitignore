@@ -25,3 +25,4 @@ data/scaled_features/*
 data/music/*
 data/scaled_features.tar.gz
 test_data/*
+data/aistpp_mixamo_bvh.tar.gz
