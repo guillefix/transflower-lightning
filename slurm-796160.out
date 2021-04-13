@@ -1,0 +1,551 @@
+HIII
+HIIIIIIOOO
+HOOOOOO
+HOOOOOO
+HIIIIIIOOO
+HIII
+multimodal
+----------------- Options ---------------
+              accelerator: ddp                           	[default: None]
+  accumulate_grad_batches: 1                             
+              amp_backend: native                        
+                amp_level: O2                            
+             auto_lr_find: False                         
+    auto_scale_batch_size: False                         
+         auto_select_gpus: False                         
+   automatic_optimization: None                          
+               batch_size: 64                            	[default: 1]
+                benchmark: False                         
+  check_val_every_n_epoch: 1                             
+      checkpoint_callback: True                          
+          checkpoints_dir: training/experiments          
+         cond_concat_dims: True                          	[default: False]
+    conditioning_seq_lens: None                          
+           continue_train: False                         
+                 data_dir: data/features_20              	[default: data/scaled_features]
+             dataset_name: multimodal                    
+         default_root_dir: None                          
+            deterministic: False                         
+                     dhid: 800                           	[default: 512]
+                dhid_flow: 512                           
+                     dins: 72,23                         	[default: None]
+      distributed_backend: None                          
+            do_validation: False                         
+                    douts: 72                            	[default: None]
+                  dropout: 0.0                           	[default: 0.1]
+      enable_pl_optimizer: None                          
+              epoch_count: 1                             
+          experiment_name: aistpp_residual_20            	[default: experiment_name]
+             fast_dev_run: False                         
+              fix_lengths: True                          	[default: False]
+ flush_logs_every_n_steps: 100                           
+           fork_processes: False                         
+         glow_bn_momentum: 0.1                           
+          glow_norm_layer: batchnorm                     	[default: None]
+            glow_use_attn: True                          	[default: False]
+                     gpus: 4                             	[default: <function _gpus_arg_default at 0x152727f61680>]
+        gradient_clip_val: 0.5                           	[default: 0]
+            input_lengths: 60,120                        	[default: None]
+         input_modalities: expmap_scaled_20,mel_ddcpca_scaled_20	[default: mp3_mel_100]
+       input_time_offsets: 0                             
+                 is_train: True                          	[default: None]
+            learning_rate: 5e-05                         	[default: 0.0001]
+    limit_predict_batches: 1.0                           
+       limit_test_batches: 1.0                           
+      limit_train_batches: 1.0                           
+        limit_val_batches: 1.0                           
+        load_weights_only: False                         
+        log_every_n_steps: 50                            
+           log_gpu_memory: None                          
+                   logger: True                          
+          lr_decay_factor: 0.1                           
+           lr_decay_iters: 50                            
+      lr_decay_milestones: [25,50]                       	[default: [500,1000]]
+                lr_policy: multistep                     	[default: lambda]
+               max_epochs: 100                           	[default: None]
+                max_steps: None                          
+        max_token_seq_len: 1024                          
+               min_epochs: None                          
+                min_steps: None                          
+                    model: residualflower                	[default: transformer]
+                 momentum: 0                             
+      move_metrics_to_cpu: False                         
+multiple_trainloader_mode: max_size_cycle                
+             nepoch_decay: 100                           
+                    nhead: 10                            	[default: 8]
+                  nlayers: 6                             
+ num_glow_coupling_blocks: 2                             	[default: 10]
+           num_heads_flow: 8                             
+   num_mixture_components: 0                             
+                num_nodes: 1                             
+            num_processes: 1                             
+     num_sanity_val_steps: 2                             
+        num_train_samples: 0                             
+              num_windows: 1                             	[default: 16]
+                optimizer: adam                          
+          output_channels: 1                             
+            output_length: 1                             
+           output_lengths: 10                            	[default: None]
+        output_modalities: expmap_scaled_20              	[default: mp3_mel_100]
+      output_time_offsets: 60                            	[default: 1]
+          overfit_batches: 0.0                           
+                    phase: train                         
+                  plugins: None                          
+                precision: 32                            
+         predicted_inputs: 0,0                           	[default: 0]
+    prepare_data_per_node: True                          
+         process_position: 0                             
+                 profiler: None                          
+progress_bar_refresh_rate: None                          
+reload_dataloaders_every_epoch: False                         
+      replace_sampler_ddp: True                          
+   resume_from_checkpoint: None                          
+            sampling_rate: 44100                         
+                   scales: [[4,0], [4,0]]                	[default: [[10,0]]]
+    stochastic_weight_avg: False                         
+           sync_batchnorm: False                         
+         terminate_on_nan: False                         
+          track_grad_norm: -1                            
+     truncated_bptt_steps: None                          
+     use_pos_emb_coupling: True                          	[default: False]
+       use_pos_emb_output: True                          	[default: False]
+       use_transformer_nn: True                          	[default: False]
+           val_batch_size: 1                             
+       val_check_interval: 1.0                           
+                  verbose: False                         
+             weight_decay: 0                             
+        weights_save_path: None                          
+          weights_summary: top                           
+                  workers: 16                            	[default: 0]
+----------------- End -------------------
+HIII
+model [Transflower] was created
+HIII
+120
+sequences added: 1162
+dataset [MultiModalDataset] was created 
+#training sequences = 177612
+GPU available: True, used: True
+TPU available: False, using: 0 TPU cores
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+HIII
+HIIIIIIOOO
+HOOOOOO
+HOOOOOO
+HIIIIIIOOO
+HIII
+multimodal
+----------------- Options ---------------
+              accelerator: ddp                           	[default: None]
+  accumulate_grad_batches: 1                             
+              amp_backend: native                        
+                amp_level: O2                            
+             auto_lr_find: False                         
+    auto_scale_batch_size: False                         
+         auto_select_gpus: False                         
+   automatic_optimization: None                          
+               batch_size: 64                            	[default: 1]
+                benchmark: False                         
+  check_val_every_n_epoch: 1                             
+      checkpoint_callback: True                          
+          checkpoints_dir: training/experiments          
+         cond_concat_dims: True                          	[default: False]
+    conditioning_seq_lens: None                          
+           continue_train: False                         
+                 data_dir: data/features_20              	[default: data/scaled_features]
+             dataset_name: multimodal                    
+         default_root_dir: None                          
+            deterministic: False                         
+                     dhid: 800                           	[default: 512]
+                dhid_flow: 512                           
+                     dins: 72,23                         	[default: None]
+      distributed_backend: None                          
+            do_validation: False                         
+                    douts: 72                            	[default: None]
+                  dropout: 0.0                           	[default: 0.1]
+      enable_pl_optimizer: None                          
+              epoch_count: 1                             
+          experiment_name: aistpp_residual_20            	[default: experiment_name]
+             fast_dev_run: False                         
+              fix_lengths: True                          	[default: False]
+ flush_logs_every_n_steps: 100                           
+           fork_processes: False                         
+         glow_bn_momentum: 0.1                           
+          glow_norm_layer: batchnorm                     	[default: None]
+            glow_use_attn: True                          	[default: False]
+                     gpus: 4                             	[default: <function _gpus_arg_default at 0x14cfbcd88680>]
+        gradient_clip_val: 0.5                           	[default: 0]
+            input_lengths: 60,120                        	[default: None]
+         input_modalities: expmap_scaled_20,mel_ddcpca_scaled_20	[default: mp3_mel_100]
+       input_time_offsets: 0                             
+                 is_train: True                          	[default: None]
+            learning_rate: 5e-05                         	[default: 0.0001]
+    limit_predict_batches: 1.0                           
+       limit_test_batches: 1.0                           
+      limit_train_batches: 1.0                           
+        limit_val_batches: 1.0                           
+        load_weights_only: False                         
+        log_every_n_steps: 50                            
+           log_gpu_memory: None                          
+                   logger: True                          
+          lr_decay_factor: 0.1                           
+           lr_decay_iters: 50                            
+      lr_decay_milestones: [25,50]                       	[default: [500,1000]]
+                lr_policy: multistep                     	[default: lambda]
+               max_epochs: 100                           	[default: None]
+                max_steps: None                          
+        max_token_seq_len: 1024                          
+               min_epochs: None                          
+                min_steps: None                          
+                    model: residualflower                	[default: transformer]
+                 momentum: 0                             
+      move_metrics_to_cpu: False                         
+multiple_trainloader_mode: max_size_cycle                
+             nepoch_decay: 100                           
+                    nhead: 10                            	[default: 8]
+                  nlayers: 6                             
+ num_glow_coupling_blocks: 2                             	[default: 10]
+           num_heads_flow: 8                             
+   num_mixture_components: 0                             
+                num_nodes: 1                             
+            num_processes: 1                             
+     num_sanity_val_steps: 2                             
+        num_train_samples: 0                             
+              num_windows: 1                             	[default: 16]
+                optimizer: adam                          
+          output_channels: 1                             
+            output_length: 1                             
+           output_lengths: 10                            	[default: None]
+        output_modalities: expmap_scaled_20              	[default: mp3_mel_100]
+      output_time_offsets: 60                            	[default: 1]
+          overfit_batches: 0.0                           
+                    phase: train                         
+                  plugins: None                          
+                precision: 32                            
+         predicted_inputs: 0,0                           	[default: 0]
+    prepare_data_per_node: True                          
+         process_position: 0                             
+                 profiler: None                          
+progress_bar_refresh_rate: None                          
+reload_dataloaders_every_epoch: False                         
+      replace_sampler_ddp: True                          
+   resume_from_checkpoint: None                          
+            sampling_rate: 44100                         
+                   scales: [[4,0], [4,0]]                	[default: [[10,0]]]
+    stochastic_weight_avg: False                         
+           sync_batchnorm: False                         
+         terminate_on_nan: False                         
+          track_grad_norm: -1                            
+     truncated_bptt_steps: None                          
+     use_pos_emb_coupling: True                          	[default: False]
+       use_pos_emb_output: True                          	[default: False]
+       use_transformer_nn: True                          	[default: False]
+           val_batch_size: 1                             
+       val_check_interval: 1.0                           
+                  verbose: False                         
+             weight_decay: 0                             
+        weights_save_path: None                          
+          weights_summary: top                           
+                  workers: 16                            	[default: 0]
+----------------- End -------------------
+HIII
+HIII
+HIIIIIIOOO
+HOOOOOO
+HOOOOOO
+HIIIIIIOOO
+HIII
+multimodal
+----------------- Options ---------------
+              accelerator: ddp                           	[default: None]
+  accumulate_grad_batches: 1                             
+              amp_backend: native                        
+                amp_level: O2                            
+             auto_lr_find: False                         
+    auto_scale_batch_size: False                         
+         auto_select_gpus: False                         
+   automatic_optimization: None                          
+               batch_size: 64                            	[default: 1]
+                benchmark: False                         
+  check_val_every_n_epoch: 1                             
+      checkpoint_callback: True                          
+          checkpoints_dir: training/experiments          
+         cond_concat_dims: True                          	[default: False]
+    conditioning_seq_lens: None                          
+           continue_train: False                         
+                 data_dir: data/features_20              	[default: data/scaled_features]
+             dataset_name: multimodal                    
+         default_root_dir: None                          
+            deterministic: False                         
+                     dhid: 800                           	[default: 512]
+                dhid_flow: 512                           
+                     dins: 72,23                         	[default: None]
+      distributed_backend: None                          
+            do_validation: False                         
+                    douts: 72                            	[default: None]
+                  dropout: 0.0                           	[default: 0.1]
+      enable_pl_optimizer: None                          
+              epoch_count: 1                             
+          experiment_name: aistpp_residual_20            	[default: experiment_name]
+             fast_dev_run: False                         
+              fix_lengths: True                          	[default: False]
+ flush_logs_every_n_steps: 100                           
+           fork_processes: False                         
+         glow_bn_momentum: 0.1                           
+          glow_norm_layer: batchnorm                     	[default: None]
+            glow_use_attn: True                          	[default: False]
+                     gpus: 4                             	[default: <function _gpus_arg_default at 0x1484e3514680>]
+        gradient_clip_val: 0.5                           	[default: 0]
+            input_lengths: 60,120                        	[default: None]
+         input_modalities: expmap_scaled_20,mel_ddcpca_scaled_20	[default: mp3_mel_100]
+       input_time_offsets: 0                             
+                 is_train: True                          	[default: None]
+            learning_rate: 5e-05                         	[default: 0.0001]
+    limit_predict_batches: 1.0                           
+       limit_test_batches: 1.0                           
+      limit_train_batches: 1.0                           
+        limit_val_batches: 1.0                           
+        load_weights_only: False                         
+        log_every_n_steps: 50                            
+           log_gpu_memory: None                          
+                   logger: True                          
+          lr_decay_factor: 0.1                           
+           lr_decay_iters: 50                            
+      lr_decay_milestones: [25,50]                       	[default: [500,1000]]
+                lr_policy: multistep                     	[default: lambda]
+               max_epochs: 100                           	[default: None]
+                max_steps: None                          
+        max_token_seq_len: 1024                          
+               min_epochs: None                          
+                min_steps: None                          
+                    model: residualflower                	[default: transformer]
+                 momentum: 0                             
+      move_metrics_to_cpu: False                         
+multiple_trainloader_mode: max_size_cycle                
+             nepoch_decay: 100                           
+                    nhead: 10                            	[default: 8]
+                  nlayers: 6                             
+ num_glow_coupling_blocks: 2                             	[default: 10]
+           num_heads_flow: 8                             
+   num_mixture_components: 0                             
+                num_nodes: 1                             
+            num_processes: 1                             
+     num_sanity_val_steps: 2                             
+        num_train_samples: 0                             
+              num_windows: 1                             	[default: 16]
+                optimizer: adam                          
+          output_channels: 1                             
+            output_length: 1                             
+           output_lengths: 10                            	[default: None]
+        output_modalities: expmap_scaled_20              	[default: mp3_mel_100]
+      output_time_offsets: 60                            	[default: 1]
+          overfit_batches: 0.0                           
+                    phase: train                         
+                  plugins: None                          
+                precision: 32                            
+         predicted_inputs: 0,0                           	[default: 0]
+    prepare_data_per_node: True                          
+         process_position: 0                             
+                 profiler: None                          
+progress_bar_refresh_rate: None                          
+reload_dataloaders_every_epoch: False                         
+      replace_sampler_ddp: True                          
+   resume_from_checkpoint: None                          
+            sampling_rate: 44100                         
+                   scales: [[4,0], [4,0]]                	[default: [[10,0]]]
+    stochastic_weight_avg: False                         
+           sync_batchnorm: False                         
+         terminate_on_nan: False                         
+          track_grad_norm: -1                            
+     truncated_bptt_steps: None                          
+     use_pos_emb_coupling: True                          	[default: False]
+       use_pos_emb_output: True                          	[default: False]
+       use_transformer_nn: True                          	[default: False]
+           val_batch_size: 1                             
+       val_check_interval: 1.0                           
+                  verbose: False                         
+             weight_decay: 0                             
+        weights_save_path: None                          
+          weights_summary: top                           
+                  workers: 16                            	[default: 0]
+----------------- End -------------------
+HIII
+HIII
+HIIIIIIOOO
+HOOOOOO
+model [Transflower] was created
+HIII
+120
+HOOOOOO
+HIIIIIIOOO
+HIII
+multimodal
+----------------- Options ---------------
+              accelerator: ddp                           	[default: None]
+  accumulate_grad_batches: 1                             
+              amp_backend: native                        
+                amp_level: O2                            
+             auto_lr_find: False                         
+    auto_scale_batch_size: False                         
+         auto_select_gpus: False                         
+   automatic_optimization: None                          
+               batch_size: 64                            	[default: 1]
+                benchmark: False                         
+  check_val_every_n_epoch: 1                             
+      checkpoint_callback: True                          
+          checkpoints_dir: training/experiments          
+         cond_concat_dims: True                          	[default: False]
+    conditioning_seq_lens: None                          
+           continue_train: False                         
+                 data_dir: data/features_20              	[default: data/scaled_features]
+             dataset_name: multimodal                    
+         default_root_dir: None                          
+            deterministic: False                         
+                     dhid: 800                           	[default: 512]
+                dhid_flow: 512                           
+                     dins: 72,23                         	[default: None]
+      distributed_backend: None                          
+            do_validation: False                         
+                    douts: 72                            	[default: None]
+                  dropout: 0.0                           	[default: 0.1]
+      enable_pl_optimizer: None                          
+              epoch_count: 1                             
+          experiment_name: aistpp_residual_20            	[default: experiment_name]
+             fast_dev_run: False                         
+              fix_lengths: True                          	[default: False]
+ flush_logs_every_n_steps: 100                           
+           fork_processes: False                         
+         glow_bn_momentum: 0.1                           
+          glow_norm_layer: batchnorm                     	[default: None]
+            glow_use_attn: True                          	[default: False]
+                     gpus: 4                             	[default: <function _gpus_arg_default at 0x1504156a5680>]
+        gradient_clip_val: 0.5                           	[default: 0]
+            input_lengths: 60,120                        	[default: None]
+         input_modalities: expmap_scaled_20,mel_ddcpca_scaled_20	[default: mp3_mel_100]
+       input_time_offsets: 0                             
+                 is_train: True                          	[default: None]
+            learning_rate: 5e-05                         	[default: 0.0001]
+    limit_predict_batches: 1.0                           
+       limit_test_batches: 1.0                           
+      limit_train_batches: 1.0                           
+        limit_val_batches: 1.0                           
+        load_weights_only: False                         
+        log_every_n_steps: 50                            
+           log_gpu_memory: None                          
+                   logger: True                          
+          lr_decay_factor: 0.1                           
+           lr_decay_iters: 50                            
+      lr_decay_milestones: [25,50]                       	[default: [500,1000]]
+                lr_policy: multistep                     	[default: lambda]
+               max_epochs: 100                           	[default: None]
+                max_steps: None                          
+        max_token_seq_len: 1024                          
+               min_epochs: None                          
+                min_steps: None                          
+                    model: residualflower                	[default: transformer]
+                 momentum: 0                             
+      move_metrics_to_cpu: False                         
+multiple_trainloader_mode: max_size_cycle                
+             nepoch_decay: 100                           
+                    nhead: 10                            	[default: 8]
+                  nlayers: 6                             
+ num_glow_coupling_blocks: 2                             	[default: 10]
+           num_heads_flow: 8                             
+   num_mixture_components: 0                             
+                num_nodes: 1                             
+            num_processes: 1                             
+     num_sanity_val_steps: 2                             
+        num_train_samples: 0                             
+              num_windows: 1                             	[default: 16]
+                optimizer: adam                          
+          output_channels: 1                             
+            output_length: 1                             
+           output_lengths: 10                            	[default: None]
+        output_modalities: expmap_scaled_20              	[default: mp3_mel_100]
+      output_time_offsets: 60                            	[default: 1]
+          overfit_batches: 0.0                           
+                    phase: train                         
+                  plugins: None                          
+                precision: 32                            
+         predicted_inputs: 0,0                           	[default: 0]
+    prepare_data_per_node: True                          
+         process_position: 0                             
+                 profiler: None                          
+progress_bar_refresh_rate: None                          
+reload_dataloaders_every_epoch: False                         
+      replace_sampler_ddp: True                          
+   resume_from_checkpoint: None                          
+            sampling_rate: 44100                         
+                   scales: [[4,0], [4,0]]                	[default: [[10,0]]]
+    stochastic_weight_avg: False                         
+           sync_batchnorm: False                         
+         terminate_on_nan: False                         
+          track_grad_norm: -1                            
+     truncated_bptt_steps: None                          
+     use_pos_emb_coupling: True                          	[default: False]
+       use_pos_emb_output: True                          	[default: False]
+       use_transformer_nn: True                          	[default: False]
+           val_batch_size: 1                             
+       val_check_interval: 1.0                           
+                  verbose: False                         
+             weight_decay: 0                             
+        weights_save_path: None                          
+          weights_summary: top                           
+                  workers: 16                            	[default: 0]
+----------------- End -------------------
+HIII
+model [Transflower] was created
+HIII
+120
+initializing ddp: GLOBAL_RANK: 0, MEMBER: 1/4
+model [Transflower] was created
+HIII
+120
+Traceback (most recent call last):
+  File "/gpfsdswork/projects/rech/imi/usc19dv/mt-lightning/training/train.py", line 25, in <module>
+    train_dataset = create_dataset(opt)
+  File "/gpfsdswork/projects/rech/imi/usc19dv/mt-lightning/training/datasets/__init__.py", line 47, in create_dataset
+    instance = dataset(opt,*args,**kwargs)
+  File "/gpfsdswork/projects/rech/imi/usc19dv/mt-lightning/training/datasets/multimodal_dataset.py", line 174, in __init__
+    self.output_features[mod][base_filename] = np.load(self.output_features_filenames[mod][base_filename])
+  File "/gpfslocalsup/pub/anaconda-py3/2020.02/envs/pytorch-gpu-1.8.0/lib/python3.7/site-packages/numpy/lib/npyio.py", line 440, in load
+    pickle_kwargs=pickle_kwargs)
+  File "/gpfslocalsup/pub/anaconda-py3/2020.02/envs/pytorch-gpu-1.8.0/lib/python3.7/site-packages/numpy/lib/format.py", line 768, in read_array
+    array.shape = shape[::-1]
+ValueError: cannot reshape array of size 0 into shape (72,213)
+Traceback (most recent call last):
+  File "/gpfsdswork/projects/rech/imi/usc19dv/mt-lightning/training/train.py", line 25, in <module>
+    train_dataset = create_dataset(opt)
+  File "/gpfsdswork/projects/rech/imi/usc19dv/mt-lightning/training/datasets/__init__.py", line 47, in create_dataset
+    instance = dataset(opt,*args,**kwargs)
+  File "/gpfsdswork/projects/rech/imi/usc19dv/mt-lightning/training/datasets/multimodal_dataset.py", line 174, in __init__
+    self.output_features[mod][base_filename] = np.load(self.output_features_filenames[mod][base_filename])
+  File "/gpfslocalsup/pub/anaconda-py3/2020.02/envs/pytorch-gpu-1.8.0/lib/python3.7/site-packages/numpy/lib/npyio.py", line 440, in load
+    pickle_kwargs=pickle_kwargs)
+  File "/gpfslocalsup/pub/anaconda-py3/2020.02/envs/pytorch-gpu-1.8.0/lib/python3.7/site-packages/numpy/lib/format.py", line 768, in read_array
+    array.shape = shape[::-1]
+ValueError: cannot reshape array of size 1008 into shape (72,160)
+sequences added: 1162
+dataset [MultiModalDataset] was created 
+#training sequences = 177612
+LOCAL_RANK: 3 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+initializing ddp: GLOBAL_RANK: 3, MEMBER: 4/4
+Traceback (most recent call last):
+  File "/gpfsdswork/projects/rech/imi/usc19dv/mt-lightning/training/train.py", line 66, in <module>
+    trainer.fit(model, train_dataloader)
+  File "/linkhome/rech/genini01/usc19dv/.local/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 496, in fit
+    self.pre_dispatch()
+  File "/linkhome/rech/genini01/usc19dv/.local/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 525, in pre_dispatch
+    self.accelerator.pre_dispatch()
+  File "/linkhome/rech/genini01/usc19dv/.local/lib/python3.7/site-packages/pytorch_lightning/accelerators/accelerator.py", line 83, in pre_dispatch
+    self.training_type_plugin.pre_dispatch()
+  File "/linkhome/rech/genini01/usc19dv/.local/lib/python3.7/site-packages/pytorch_lightning/plugins/training_type/ddp.py", line 243, in pre_dispatch
+    self.init_ddp_connection(self.global_rank, self.world_size)
+  File "/linkhome/rech/genini01/usc19dv/.local/lib/python3.7/site-packages/pytorch_lightning/plugins/training_type/ddp.py", line 226, in init_ddp_connection
+    torch_distrib.init_process_group(self.torch_distributed_backend, rank=global_rank, world_size=world_size)
+  File "/gpfslocalsup/pub/anaconda-py3/2020.02/envs/pytorch-gpu-1.8.0/lib/python3.7/site-packages/torch/distributed/distributed_c10d.py", line 525, in init_process_group
+    _store_based_barrier(rank, store, timeout)
+  File "/gpfslocalsup/pub/anaconda-py3/2020.02/envs/pytorch-gpu-1.8.0/lib/python3.7/site-packages/torch/distributed/distributed_c10d.py", line 215, in _store_based_barrier
+    rank, store_key, world_size, worker_count, timeout))
+RuntimeError: Timed out initializing process group in store based barrier on rank: 3, for key: store_based_barrier_key:1 (world_size=4, worker_count=2, timeout=0:30:00)
+slurmstepd: error: *** JOB 796160 ON r10i7n2 CANCELLED AT 2021-04-09T22:05:52 ***
