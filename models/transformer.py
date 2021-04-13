@@ -87,6 +87,7 @@ class BasicTransformerModel(nn.Module):
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, src, src_mask=None):
+        # import pdb;pdb.set_trace()
         src = self.encoder1(src)
         #src *= math.sqrt(self.dhid)
         #src = self.pos_encoder(src)

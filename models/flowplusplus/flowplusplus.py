@@ -251,6 +251,8 @@ class _FlowStep(nn.Module):
                 for flow in self.channels:
                     # import pdb;pdb.set_trace()
                     x, sldj = flow(x, cond, sldj, reverse)
+                    # print(type(flow).__name__)
+                    # print(x[0].std())
                 x = channelwise(x, reverse=True)
 
             if self.checkers:
@@ -269,5 +271,6 @@ class _FlowStep(nn.Module):
                 x = torch.cat((x, x_split), dim=1)
                 x = unsqueeze(x)
 
+        # print(x.std())
         return x, sldj
         

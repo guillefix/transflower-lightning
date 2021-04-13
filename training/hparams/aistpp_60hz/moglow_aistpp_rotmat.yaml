@@ -1,0 +1,16 @@
+model: moglow
+lr_policy: "multistep"
+lr_decay_milestones: "[5000,10000]"
+learning_rate: 6e-5
+dins: "219,103"
+douts: "219"
+input_modalities: "joint_angles_scaled,mel_ddcpca_scaled"
+output_modalities: "joint_angles_scaled"
+input_lengths: "119,120"
+output_lengths: "80"
+output_time_offset: "40"
+input_seq_lens: "40,41"
+glow_K: 16
+dropout: 0
+gradient_clip_val: 0.5
+batch_size: 64
