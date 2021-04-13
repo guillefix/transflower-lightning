@@ -17,15 +17,31 @@ class BaseModel(LightningModule):
         super().__init__()
         self.save_hyperparameters(vars(opt))
         self.opt = opt
-        self.input_mods = input_mods = self.opt.input_modalities.split(",")
-        self.output_mods = output_mods = self.opt.output_modalities.split(",")
-        self.dins = dins = [int(x) for x in self.opt.dins.split(",")]
-        self.input_lengths = input_lengths = [int(x) for x in self.opt.input_lengths.split(",")]
-        self.output_lengths = output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
-        self.output_time_offsets = output_time_offsets = [int(x) for x in self.opt.output_time_offsets.split(",")]
-        self.input_time_offsets = input_time_offsets = [int(x) for x in self.opt.input_time_offsets.split(",")]
+        self.parse_base_arguments()
         self.optimizers = []
         self.schedulers = []
+
+    def parse_base_arguments(self):
+        self.input_mods = str(self.opt.input_modalities).split(",")
+        self.output_mods = str(self.opt.output_modalities).split(",")
+        self.dins = [int(x) for x in str(self.opt.dins).split(",")]
+        self.douts = [int(x) for x in str(self.opt.douts).split(",")]
+        self.input_lengths = [int(x) for x in str(self.opt.input_lengths).split(",")]
+        self.output_lengths = [int(x) for x in str(self.opt.output_lengths).split(",")]
+        self.output_time_offsets = [int(x) for x in str(self.opt.output_time_offsets).split(",")]
+        self.input_time_offsets = [int(x) for x in str(self.opt.input_time_offsets).split(",")]
+
+        if len(self.output_time_offsets) < len(self.output_mods):
+            if len(self.output_time_offsets) == 1:
+                self.output_time_offsets = self.output_time_offsets*len(self.output_mods)
+            else:
+                raise Exception("number of output_time_offsets doesnt match number of output_mods")
+
+        if len(self.input_time_offsets) < len(self.input_mods):
+            if len(self.input_time_offsets) == 1:
+                self.input_time_offsets = self.input_time_offsets*len(self.input_mods)
+            else:
+                raise Exception("number of input_time_offsets doesnt match number of input_mods")
 
     def name(self):
         return 'BaseModel'
@@ -67,4 +83,16 @@ class BaseModel(LightningModule):
         :return:
         """
         return parser
+
+    def test_step(self, batch, batch_idx):
+        self.eval()
+        loss = self.training_step(batch, batch_idx)
+        # print(loss)
+        return {"test_loss": loss}
+
+    def test_epoch_end(self, outputs):
+        avg_loss = torch.stack([x['test_loss'] for x in outputs]).mean()
+        logs = {'test_loss': avg_loss}
+
+        return {'log': logs}
 

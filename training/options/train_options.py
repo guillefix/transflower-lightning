@@ -7,7 +7,6 @@ class TrainOptions(BaseOptions):
         super(TrainOptions, self).__init__()
         parser = self.parser
         parser.add_argument('--continue_train', action='store_true', help='continue training: load the latest model')
-        # parser.add_argument('--nepoch', type=int, default=100, help='# of epochs at starting learning rate')
         parser.add_argument('--nepoch_decay', type=int, default=100, help='# of epochs to linearly decay learning rate to zero')
         parser.add_argument('--epoch_count', type=int, default=1, help='the starting epoch count, we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>, ...')
         parser.add_argument('--optimizer', type=str, default='adam', help='the optimizer to use')

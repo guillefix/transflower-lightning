@@ -99,6 +99,7 @@ class BatchNorm(nn.Module):
         if self.training:
             # print("HI")
             self._get_moments(x)
+        # print(self.running_var[0])
         inv_std = 1. / (self.running_var.sqrt() + self.eps)
         if reverse:
             x = self._center(x, self.beta, reverse)

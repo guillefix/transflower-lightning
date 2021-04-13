@@ -13,6 +13,7 @@ ones_to_check.txt
 ones_to_check2.txt
 !training/experiments/block_placement_ddc2
 !training/experiments/block_placement_ddc2/opt.json
+*.out
 #data
 data/features/*
 data/aistpp/videos/*
