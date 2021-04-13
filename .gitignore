@@ -26,3 +26,4 @@ data/scaled_features/*
 data/music/*
 data/scaled_features.tar.gz
 test_data/*
+data/features_20/*
