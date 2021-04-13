@@ -41,11 +41,10 @@ def get_option_setter(dataset_name):
     return dataset_class.modify_commandline_options
 
 
-def create_dataset(opt, phase="train", *args, **kwargs):
+def create_dataset(opt, split="train", *args, **kwargs):
     dataset = find_dataset_using_name(opt.dataset_name)
-    opt.phase = phase
-    instance = dataset(opt,*args,**kwargs)
-    print('dataset [{}] was created {}'.format(instance.name(), "(val)" if opt.phase=="val" else ''))
+    instance = dataset(opt, split, *args,**kwargs)
+    print('dataset [{}] was created {}'.format(instance.name(), "(val)" if split=="val" else ''))
     return instance
 
 def paired_collate_fn(insts,tgt_dim=2):
@@ -90,11 +89,11 @@ def meta_collate_fn(pad_batches, model):
         return default_collate
 
 from torch.utils.data.dataloader import default_collate
-def create_dataloader(dataset):
-    is_val = dataset.opt.phase == "val"
+def create_dataloader(dataset, split="train"):
+    is_eval = (split == "val" or split == "test")
     return DataLoader(dataset,
-                      batch_size=dataset.opt.batch_size if not is_val else dataset.opt.val_batch_size,
-                      shuffle=not is_val,
+                      batch_size=dataset.opt.batch_size if not is_eval else dataset.opt.val_batch_size,
+                      shuffle=not is_eval,
                       # collate_fn=meta_collate_fn(dataset.opt.pad_batches,dataset.opt.model),
                       collate_fn=None,
                       #pin_memory=True,

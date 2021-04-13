@@ -3,9 +3,10 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import os, glob
+import os
+import glob
 root_dir = os.path.dirname(os.path.realpath(__file__))
-from convert_mat_to_euler import rot_mats_to_eulers
+from analysis.visualization.convert_mat_to_euler import rot_mats_to_eulers
 from .utils import generate_video_from_images, join_video_and_audio
 
 def delete_images():
