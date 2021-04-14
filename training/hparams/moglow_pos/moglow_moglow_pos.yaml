@@ -1,7 +1,7 @@
 model: moglow
 lr_policy: "multistep"
 network_model: "LSTM"
-lr_decay_milestones: "[25,50]"
+lr_decay_milestones: "[1000,1500]"
 learning_rate: 2e-4
 dins: "63,3"
 douts: "63"

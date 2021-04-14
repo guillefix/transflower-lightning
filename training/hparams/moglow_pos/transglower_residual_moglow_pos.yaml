@@ -1,7 +1,7 @@
 model: transglower
 residual: True
 lr_policy: "multistep"
-lr_decay_milestones: "[25,50]"
+lr_decay_milestones: "[1000,1500]"
 learning_rate: 1e-4
 dins: "63,3"
 douts: "63"

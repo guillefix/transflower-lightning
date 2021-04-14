@@ -35,10 +35,10 @@ class TransglowerModel(BaseModel):
             self.module_names.append(name)
         def func1(x):
             return self.input_mod_nets[0].forward(x)
-        func1 = torch.vmap(func1)
+        #func1 = torch.vmap(func1)
         def func2(x):
             return self.input_mod_nets[1].forward(x)
-        func2 = torch.vmap(func2)
+        #func2 = torch.vmap(func2)
         self.input_mod_funcs = [func1, func2]
         # should only be one output_mod
         for i, mod in enumerate(output_mods):
@@ -54,7 +54,7 @@ class TransglowerModel(BaseModel):
                 def func3(x):
                     return self.output_mod_nets[i].forward(x)[:self.conditioning_seq_lens[i]]
 
-            func3 = torch.vmap(func3)
+            #func3 = torch.vmap(func3)
             self.output_mod_funcs.append(func3)
             if opt.residual:
                 net = nn.Linear(opt.dhid,douts[i])
@@ -162,11 +162,11 @@ class TransglowerModel(BaseModel):
         outputs = []
         if self.opt.residual:
             for i, mod in enumerate(self.output_mods):
-                trans_output = self.output_mod_funcs[i](latent).permute(2,1,3,0)
-                # trans_output = []
-                # for lat in latent:
-                #     trans_output.append(self.output_mod_funcs[i](lat))
-                # trans_output = torch.stack(trans_output).permute(2,1,3,0)
+                #trans_output = self.output_mod_funcs[i](latent).permute(2,1,3,0)
+                trans_output = []
+                for lat in latent:
+                    trans_output.append(self.output_mod_funcs[i](lat))
+                trans_output = torch.stack(trans_output).permute(2,1,3,0)
                 latents = trans_output[:self.conditioning_seq_lens[i]]
                 trans_predicted_mean_latents = trans_output[self.conditioning_seq_lens[i]:self.conditioning_seq_lens[i]+self.output_lengths[i]]
                 latents = latents.reshape(latents.shape[0], latents.shape[1] * latents.shape[2], latents.shape[3])
@@ -175,11 +175,11 @@ class TransglowerModel(BaseModel):
                 outputs.append(output.permute(0,2,1)+predicted_mean)
         else:
             for i, mod in enumerate(self.output_mods):
-                trans_output = self.output_mod_funcs[i](latent).permute(2,1,3,0)
-                # trans_output = []
-                # for lat in latent:
-                #     trans_output.append(self.output_mod_funcs[i](lat))
-                # trans_output = torch.stack(trans_output).permute(2,1,3,0)
+                #trans_output = self.output_mod_funcs[i](latent).permute(2,1,3,0)
+                trans_output = []
+                for lat in latent:
+                    trans_output.append(self.output_mod_funcs[i](lat))
+                trans_output = torch.stack(trans_output).permute(2,1,3,0)
                 trans_output = trans_output.reshape(trans_output.shape[0], trans_output.shape[1] * trans_output.shape[2], trans_output.shape[3])
                 output = glow(x=None, cond=trans_output, reverse=True)
                 outputs.append(output.permute(0,2,1))
@@ -261,11 +261,11 @@ class TransglowerModel(BaseModel):
         latents = []
         for i, mod in enumerate(self.input_mods):
             # import pdb;pdb.set_trace()
-            result = self.input_mod_funcs[i](self.inputs[i])
-            # result = []
-            # for inp in self.inputs[i]:
-            #     result.append(self.input_mod_funcs[i](inp))
-            # result = torch.stack(result)
+            #result = self.input_mod_funcs[i](self.inputs[i])
+            result = []
+            for inp in self.inputs[i]:
+                result.append(self.input_mod_funcs[i](inp))
+            result = torch.stack(result)
             latents.append(result)
 
         latent = torch.cat(latents,dim=1)
@@ -273,11 +273,11 @@ class TransglowerModel(BaseModel):
             nll_loss = 0
             mse_loss = 0
             for i, mod in enumerate(self.output_mods):
-                trans_output = self.output_mod_funcs[i](latent)
-                # trans_output = []
-                # for lat in latent:
-                #     trans_output.append(self.output_mod_funcs[i](lat))
-                # trans_output = torch.stack(trans_output)
+                #trans_output = self.output_mod_funcs[i](latent)
+                trans_output = []
+                for lat in latent:
+                    trans_output.append(self.output_mod_funcs[i](lat))
+                trans_output = torch.stack(trans_output)
                 latents = trans_output[:,:self.conditioning_seq_lens[i]].permute(2,1,3,0)
                 trans_predicted_mean_latents = trans_output[:,self.conditioning_seq_lens[i]:self.conditioning_seq_lens[i]+self.output_seq_lens[i]]
                 latents = latents.reshape(latents.shape[0], latents.shape[1] * latents.shape[2], latents.shape[3])
@@ -296,11 +296,11 @@ class TransglowerModel(BaseModel):
         else:
             loss = 0
             for i, mod in enumerate(self.output_mods):
-                output = self.output_mod_funcs[i](latent).permute(2,1,3,0)
-                # output = []
-                # for lat in latent:
-                #     output.append(self.output_mod_funcs[i](lat))
-                # output = torch.stack(output).permute(2,1,3,0)
+                #output = self.output_mod_funcs[i](latent).permute(2,1,3,0)
+                output = []
+                for lat in latent:
+                    output.append(self.output_mod_funcs[i](lat))
+                output = torch.stack(output).permute(2,1,3,0)
                 output = output.reshape(output.shape[0], output.shape[1] * output.shape[2], output.shape[3])
                 glow = self.output_mod_glows[i]
                 # import pdb;pdb.set_trace()

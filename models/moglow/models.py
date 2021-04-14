@@ -35,7 +35,7 @@ def f(in_channels, out_channels, hidden_channels, cond_channels, network_model, 
 
 class FlowStep(nn.Module):
     FlowCoupling = ["additive", "affine"]
-    NetworkModel = ["LSTM", "GRU", "FF"]
+    NetworkModel = ["transformer","LSTM", "GRU", "FF"]
     FlowPermutation = {
         "reverse": lambda obj, z, logdet, rev: (obj.reverse(z, rev), logdet),
         "shuffle": lambda obj, z, logdet, rev: (obj.shuffle(z, rev), logdet),
