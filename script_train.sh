@@ -11,8 +11,8 @@ module load pytorch-gpu/py3/1.8.0
 
 py=python3
 
-#root_dir=$SCRATCH/data
-root_dir=data
+root_dir=$SCRATCH/data
+#root_dir=data
 
 ####aistpp_60hz
 #data_dir=${root_dir}/scaled_features
@@ -20,32 +20,33 @@ root_dir=data
 #hparams_file=aistpp_60hz/transglower_aistpp_expmap
 
 ####aistpp_20hz
-data_dir=${root_dir}/features_20
-exp=$1
+#data_dir=${root_dir}/features_20
+#exp=$1
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
 #exp=transflower_residual_aistpp_expmap
 #exp=transflower_aistpp_expmap
 #exp=residualflower2_transflower_aistpp_expmap
 #exp=moglow_aistpp_expmap
-hparams_file=aistpp_20hz/${exp}
+#hparams_file=aistpp_20hz/${exp}
 
 ## Fix: needs vmapped version of transformer:
 #hparams_file=aistpp_20hz/residualflower2_moglow_aistpp_expmap
 
 ####moglow_pos
 data_dir=${root_dir}/moglow_pos
-#exp=$1
+exp=$1
 #exp=transglower_moglow_pos
 #exp=transglower_residual_moglow_pos
 #exp=transflower_residual_moglow_pos
 #exp=transflower_moglow_pos
 #exp=residualflower2_transflower_moglow_pos
-exp=moglow_moglow_pos
+#exp=moglow_moglow_pos
 
 hparams_file=moglow_pos/${exp}
-exp=testing
+#exp=testing
 #exp=${exp}_pos_emb
+exp=${exp}
 
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=2000\

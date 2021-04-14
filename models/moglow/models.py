@@ -22,7 +22,8 @@ def nan_throw(tensor, name="tensor"):
 
 def f(in_channels, out_channels, hidden_channels, cond_channels, network_model, num_layers):
     if network_model=="transformer":
-        return BasicTransformerModel(out_channels, in_channels + cond_channels, 10, hidden_channels, num_layers, use_pos_emb=True)
+        #return BasicTransformerModel(out_channels, in_channels + cond_channels, 10, hidden_channels, num_layers, use_pos_emb=True)
+        return BasicTransformerModel(out_channels, in_channels + cond_channels, 10, hidden_channels, num_layers, use_pos_emb=True, input_length=70)
     if network_model=="LSTM":
         return modules.LSTM(in_channels + cond_channels, hidden_channels, out_channels, num_layers)
     if network_model=="GRU":
