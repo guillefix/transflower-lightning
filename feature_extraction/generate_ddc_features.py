@@ -64,7 +64,7 @@ from pathlib import Path
 #%%
 
 ##loading opt object from experiment
-opt = json.loads(open(ROOT_DIR.__str__()+"/training/experiments/"+experiment_name+"opt.json","r").read())
+opt = json.loads(open(ROOT_DIR.__str__()+"/feature_extraction/"+experiment_name+"opt.json","r").read())
 # we assume we have 1 GPU in generating machine :P
 if args.cuda:
     opt["gpu_ids"] = [0]
