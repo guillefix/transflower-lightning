@@ -105,8 +105,12 @@ class FlowStep(nn.Module):
         z1_cond = torch.cat((z1, cond), dim=1)
         if self.flow_coupling == "additive":
             z2 = z2 + self.f(z1_cond)
-        elif self.flow_coupling == "affine":        
-            h = self.f(z1_cond.permute(0, 2, 1)).permute(0, 2, 1)
+        elif self.flow_coupling == "affine":
+            # import pdb;pdb.set_trace()
+            if self.network_model=="transformer":
+                h = self.f(z1_cond.permute(2,0,1)).permute(1,2,0)
+            else:
+                h = self.f(z1_cond.permute(0, 2, 1)).permute(0, 2, 1)
             shift, scale = thops.split_feature(h, "cross")
             scale = torch.sigmoid(scale + 2.)+1e-6
             z2 = z2 + shift

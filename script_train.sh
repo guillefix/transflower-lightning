@@ -42,6 +42,7 @@ exp=$1
 #exp=transflower_moglow_pos
 #exp=residualflower2_transflower_moglow_pos
 #exp=moglow_moglow_pos
+#exp=moglow_trans_moglow_pos
 
 hparams_file=moglow_pos/${exp}
 #exp=testing
@@ -56,7 +57,7 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --batch_size=32 \
     --experiment_name=$exp\
     --workers=$(nproc) \
-    --gpus=2 \
+    --gpus=1 \
     --accelerator=ddp \
     #--use_pos_emb_output \
 #    --continue_train \
