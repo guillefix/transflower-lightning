@@ -5,11 +5,11 @@ douts: "63"
 input_modalities: "position_scaled,moglow_control_scaled"
 output_modalities: "position_scaled"
 input_lengths: "79,80"
-output_lengths: "10"
+output_lengths: "1"
 output_time_offsets: "79"
-n_layer: 6
+nlayers: 6
 nhead: 10
-scales: "[[8,0],[8,0]]"
+scales: "[[16,0]]"
 num_glow_coupling_blocks: 2
 glow_use_attn: True
 use_transformer_nn: True
@@ -23,7 +23,7 @@ dropout: 0
 lr_policy: multistep
 lr_decay_milestones: [1000,1500]
 learning_rate: 5e-5
-gradient_clip_vale: 0.5
+gradient_clip_val: 0.5
 batch_size: 64
 
 
