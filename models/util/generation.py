@@ -8,6 +8,7 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
         input_ = features["in_"+mod]
         input_ = torch.from_numpy(input_).float().to(model.device)
         inputs_.append(input_)
+    output_time_offsets = model.output_time_offsets
     input_time_offsets = model.input_time_offsets
     input_lengths = model.input_lengths
     input_mods = model.input_mods
@@ -28,7 +29,7 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
     print(sequence_length)
     with torch.no_grad():
         # for t in range(min(512, sequence_length-max(input_lengths)-1)):
-        for t in range(sequence_length-max(input_lengths)-1):
+        for t in range(sequence_length-max(input_lengths)+1):
             print(t)
             inputs = [x.clone().cuda() for x in input_tmp]
             outputs = model.forward(inputs)
@@ -55,8 +56,8 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
                         else:
                             # import pdb;pdb.set_trace()
                             input_tmp[i] = torch.cat([input_tmp[i][1:],output[:1].detach().clone()],0)
-                        # print(torch.mean((inputs_[i][t+input_time_offsets[i]+input_lengths[i]-predicted_inputs[i]+1:t+input_time_offsets[i]+input_lengths[i]-predicted_inputs[i]+1+1]-outputs[j][:1].detach().clone())**2))
-                        print(torch.mean((inputs_[i][t+input_time_offsets[i]+input_lengths[i]+1:t+input_time_offsets[i]+input_lengths[i]+1+1]-outputs[j][:1].detach().clone())**2))
+                        # print(torch.mean((inputs_[i][t+input_time_offsets[i]+input_lengths[i]+1:t+input_time_offsets[i]+input_lengths[i]+1+1]-outputs[j][:1].detach().clone())**2))
+                        print(torch.mean((inputs_[i][t+output_time_offsets[i]:t+output_time_offsets[i]+1]-outputs[j][:1].detach().clone())**2))
                     else:
                         input_tmp[i] = torch.cat([input_tmp[i][1:],inputs_[i][input_time_offsets[i]+input_lengths[i]+t:input_time_offsets[i]+input_lengths[i]+t+1]],0)
 

@@ -50,15 +50,15 @@ class BaseOptions:
         else:
             opt, _ = self.parser.parse_known_args()
 
-        if opt.hparams_file is not None:
-            if opt.hparams_file.endswith(".json"):
-                hparams_json = json.loads(jsmin(open(opt.hparams_file).read()))
-            elif opt.hparams_file.endswith(".yaml"):
-                hparams_json = yaml.load(open(opt.hparams_file))
+        #if opt.hparams_file is not None:
+        #    if opt.hparams_file.endswith(".json"):
+        #        hparams_json = json.loads(jsmin(open(opt.hparams_file).read()))
+        #    elif opt.hparams_file.endswith(".yaml"):
+        #        hparams_json = yaml.load(open(opt.hparams_file))
 
-            vars_tmp = vars(opt)
-            vars_tmp.update(hparams_json)
-            opt = Namespace(**vars_tmp)
+        #    vars_tmp = vars(opt)
+        #    vars_tmp.update(hparams_json)
+        #    opt = Namespace(**vars_tmp)
 
         # load task module and task-specific options
         # task_name = opt.task
