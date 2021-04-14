@@ -10,7 +10,7 @@ output_modalities: "position_scaled"
 input_lengths: "79,80"
 output_lengths: "70"
 input_seq_lens: "10,11"
-output_time_offset: "10"
+output_time_offsets: "10"
 nlayers: 4
 nhead: 10
 use_pos_emb_output: True

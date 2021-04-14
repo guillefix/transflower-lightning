@@ -8,7 +8,7 @@ input_modalities: "position_scaled,moglow_control_scaled"
 output_modalities: "position_scaled"
 input_lengths: "79,80"
 output_lengths: "10"
-output_time_offset: "79"
+output_time_offsets: "79"
 scales: "[[8,0],[8,0]]"
 nlayers: 6
 nhead: 10
