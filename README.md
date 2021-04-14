@@ -64,6 +64,8 @@ Within the normalizing flow there are a series of different architectural choice
 * There's also an implementation of the original `MoGlow` model itselft to be used as a baseline
 * The `ResidualFlower` model is a new experiment I'm trying now where the mean of output is predicted by a (deterministic) MT, and the NF models only the deviation (residal) from the mean.
 
+You can see some more details in [this post](https://openlab-flowers.inria.fr/t/transflower-high-dim-continuous-probabilistic-models-with-attention-and-their-applications/909)
+
 ### Normalizing flows
 
 A very quick summary of normalizing flows. Normalizing flows are implicit generative models, which also allow computation of the exact probability (so they are explicit at the same time? I find the nomenclature confusing). This is done because the function mapping the stochastic latent to the output is reversible. We usually define the following
