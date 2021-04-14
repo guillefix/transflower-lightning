@@ -11,7 +11,8 @@ module load pytorch-gpu/py3/1.8.0
 
 py=python3
 
-root_dir=$SCRATCH/data
+#root_dir=$SCRATCH/data
+root_dir=data
 
 ####aistpp_60hz
 #data_dir=${root_dir}/scaled_features
@@ -32,15 +33,16 @@ root_dir=$SCRATCH/data
 
 ####moglow_pos
 data_dir=${root_dir}/moglow_pos
-exp=$1
+#exp=$1
 #exp=transglower_moglow_pos
 #exp=transglower_residual_moglow_pos
 #exp=transflower_residual_moglow_pos
 #exp=transflower_moglow_pos
 #exp=residualflower2_transflower_moglow_pos
-#exp=moglow_moglow_pos
+exp=moglow_moglow_pos
 
 hparams_file=moglow_pos/${exp}
+exp=testing
 
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=2000\

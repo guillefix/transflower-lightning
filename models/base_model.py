@@ -22,6 +22,7 @@ class BaseModel(LightningModule):
         self.schedulers = []
 
     def parse_base_arguments(self):
+        # import pdb;pdb.set_trace()
         self.input_mods = str(self.opt.input_modalities).split(",")
         self.output_mods = str(self.opt.output_modalities).split(",")
         self.dins = [int(x) for x in str(self.opt.dins).split(",")]

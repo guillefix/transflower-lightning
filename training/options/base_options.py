@@ -50,15 +50,20 @@ class BaseOptions:
         else:
             opt, _ = self.parser.parse_known_args()
 
-        #if opt.hparams_file is not None:
-        #    if opt.hparams_file.endswith(".json"):
-        #        hparams_json = json.loads(jsmin(open(opt.hparams_file).read()))
-        #    elif opt.hparams_file.endswith(".yaml"):
-        #        hparams_json = yaml.load(open(opt.hparams_file))
+        defaults = vars(self.parser.parse_args([]))
 
-        #    vars_tmp = vars(opt)
-        #    vars_tmp.update(hparams_json)
-        #    opt = Namespace(**vars_tmp)
+        if opt.hparams_file is not None:
+            if opt.hparams_file.endswith(".json"):
+                hparams_json = json.loads(jsmin(open(opt.hparams_file).read()))
+            elif opt.hparams_file.endswith(".yaml"):
+                hparams_json = yaml.load(open(opt.hparams_file))
+            hparams_json2 = {k:v for k,v in hparams_json.items() if (v != False and k in defaults)}
+            self.parser.set_defaults(**hparams_json2)
+
+        if parse_args is not None:
+            opt, _ = self.parser.parse_known_args(parse_args)
+        else:
+            opt, _ = self.parser.parse_known_args()
 
         # load task module and task-specific options
         # task_name = opt.task
@@ -92,7 +97,13 @@ class BaseOptions:
                 parser.add_argument("--no-"+key, dest=key, action="store_false")
 
         if opt.hparams_file is not None:
-            hparams_json2 = {k:v for k,v in hparams_json.items() if v != False}
+            hparams_json2 = {}
+            for k,v in hparams_json.items():
+                if k in defaults:
+                    if v!= False:
+                        hparams_json2[k] = v
+                else:
+                    raise Exception("Hparam "+k+" not recognized!")
             parser.set_defaults(**hparams_json2)
 
         self.parser = parser
