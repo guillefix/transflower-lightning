@@ -10,7 +10,7 @@ input_modalities: "expmap_scaled_20,mel_ddcpca_scaled_20"
 output_modalities: "expmap_scaled_20"
 input_lengths: "59,60"
 output_lengths: "20"
-output_time_offset: "40"
+output_time_offsets: "40"
 mean_nlayers: 6
 mean_nhead: 10
 mean_use_pos_emb_output: True
