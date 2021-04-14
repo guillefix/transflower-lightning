@@ -9,13 +9,14 @@ It is structured on folders which hold the code or assets for different parts of
   * `Datasets` holds the pytorch datasets and also convenience utilities to create the datasets and dataloaders. A dataset is defined as a class inheriting from BaseDataset, with a class name which should be "DatasetNameDataset" where "DatasetName" (but lowercased) will be the name used to refer to the dataset in the options.
   * `experiments` holds the results of training runs, in folders given by the experiment id. Its contents are .gitignored
   * `options` holds utilities to set up general argument options, as well as collect the options specific to the model, or dataset, specified for the experiment
+  * `hparams` holds the configuration files with hyperparameters that I'm using to run different experiments
 * `models` defines the models as Lightning modules (actually they inherit from BaseModel, for some convenient common functions). A model is defined as a class inheriting from BaseModel, with a class name which should be "ModelNameModel" where "ModelName" (but lowercased) will be the name used to refer to the model in the options.
 * `inference` holds the code and results for testing the model at inference time. In our case, this means generation, as we are working with generative models. Note that this is just a skeleton, and it relies on a `generate` function defined on each model.
 * `feature_extraction` holds code to extract features. At the moment functions to process features for audio and motion data are available
 * `data` holds the actual data, and a couple of scripts to download data
 * `analysis` holds code to analyze and explore the data, as well as visualizing results. Beware of files named "sandbox", as they are used by me using [Hydrogen](https://nteract.io/atom), so the outside observer would look like a jumbled mess of code (which it is). It is literally a sandbox of code, to play around.
 
-The scripts in the root folder are for running the common high level tasks, mostly training tasks, using different models, with different hyperparameters. You can run `python training/train.py --help` to get some explanation of what the options do. This won't tell you about the data or model specific options, which you can find by looking at the dataset or model definition files.
+The scripts in the root folder are for running the common high level tasks. `script_generate.sh` generates samples for the model of a particular experiment. `script_train.sh` trains a model on some data, as specified by a particular hyperparameters file, though any of the hparams can be overriden as argparse arguments. You can add `--help` to to get some explanation of what the different options/hparams do. Note that the options parser (in `training/options/base_options.py`) gathers the set of available options by aggregating the base options with the options defined in the particular model and dataset you have specified in the `model` and `dataset_name` options.
 
 Next we explain in some more detail the dataset and models available
 
@@ -62,6 +63,8 @@ Within the normalizing flow there are a series of different architectural choice
 * The `Transglower` model is an attempt at combining the MT with the original MoGlow model (which feeds an LSTM into the coupling layers of the Glow model, which is very similar to the Flow++ one we are using, given our simplified hyperparameters).
 * There's also an implementation of the original `MoGlow` model itselft to be used as a baseline
 * The `ResidualFlower` model is a new experiment I'm trying now where the mean of output is predicted by a (deterministic) MT, and the NF models only the deviation (residal) from the mean.
+
+You can see some more details in [this post](https://openlab-flowers.inria.fr/t/transflower-high-dim-continuous-probabilistic-models-with-attention-and-their-applications/909)
 
 ### Normalizing flows
 
