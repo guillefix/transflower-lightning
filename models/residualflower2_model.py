@@ -54,8 +54,8 @@ class Residualflower2Model(BaseModel):
         parser.add_argument('--dropout', type=float, default=0.1)
         parser.add_argument('--mean_model', type=str, default="transformer")
         parser.add_argument('--residual_model', type=str, default="transflower")
-        # opt, _ = parser.parse_known_args()
-        mean_vars = Residualflower2Model.get_argvars(opt.mean_model, opt)
+        opt2, _ = parser.parse_known_args()
+        mean_vars = Residualflower2Model.get_argvars(opt2.mean_model, opt)
         for k,v in mean_vars.items():
             # print(k)
             if type(v) != type(True):
@@ -65,7 +65,7 @@ class Residualflower2Model(BaseModel):
                     parser.add_argument('--mean_'+k, default=v)
             else:
                 parser.add_argument('--mean_'+k, action="store_true")
-        residual_vars = Residualflower2Model.get_argvars(opt.residual_model, opt)
+        residual_vars = Residualflower2Model.get_argvars(opt2.residual_model, opt)
         for k,v in residual_vars.items():
             if type(v) != type(True):
                 if type(v) != type(None):

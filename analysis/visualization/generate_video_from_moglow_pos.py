@@ -31,10 +31,8 @@ def pre_process_motion_data(clip, init_rot=None, init_trans=None, fps=30, axis_s
 
     return joints, translation, rot, translations
 
-def generate_video_from_moglow_loc(features_file, control_file, output_folder, audio_file, fps, trim_audio=0):
-    data = np.load(features_file)
-    control = np.load(control_file)
-
+def generate_video_from_moglow_loc(data, control, output_folder, audio_file, fps, trim_audio=0):
+    # import pdb;pdb.set_trace()
     clip = np.concatenate([data,control], axis=1)
 
     joints, translation, rot, translations = pre_process_motion_data(clip, fps=20, axis_scale=50, elev=45, azim=45)

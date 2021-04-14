@@ -83,7 +83,7 @@ if __name__ == '__main__':
     model.cuda()
     # import pdb;pdb.set_trace()
     predicted_mods = model.generate(features)
-    # import pdb;pdb.set_trace()
+    import pdb;pdb.set_trace()
     for i, mod in enumerate(output_mods):
         predicted_mod = predicted_mods[i].cpu().numpy()
         if len(scalers)>0:
@@ -110,8 +110,14 @@ if __name__ == '__main__':
                 pipeline_file = f'{data_dir}/motion_{mod}_data_pipe.sav'
                 generate_video_from_expmaps(predicted_features_file,pipeline_file,output_folder,audio_file,trim_audio,args.generate_bvh)
             elif mod == "position_scaled":
-                control_file = f'{data_dir}/{seq_id}.moglow_control.npy'
-                generate_video_from_moglow_loc(predicted_features_file,control_file,output_folder,audio_file,fps,trim_audio)
+                control_file = f'{data_dir}/{seq_id}.moglow_control_scaled.npy'
+                data = np.load(predicted_features_file)[:,0,:]
+                control = np.load(control_file)
+                if args.use_scalers:
+                    transform = pickle.load(open(data_dir+"/moglow_control_scaled_scaler.pkl", "rb"))
+                    control = transform.inverse_transform(predicted_mod)
+                control = control[int(opt.output_time_offsets.split(",")[0]):]
+                generate_video_from_moglow_loc(data,control,output_folder,audio_file,fps,trim_audio)
             else:
                 print("Warning: mod "+mod+" not supported")
                 # raise NotImplementedError(f'Feature type {feature_type} not implemented')

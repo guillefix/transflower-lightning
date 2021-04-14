@@ -6,14 +6,13 @@ export XRT_DEVICE_MAP="CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0
 
 py=python3
 
-exp=testing
+exp=moglow_moglow_pos
 
 mkdir inference/generated/${exp}
 mkdir inference/generated/${exp}/predicted_mods
 mkdir inference/generated/${exp}/videos
 fps=20
-#data_dir=data/moglow_loc
-data_dir=data/scaled_features
+data_dir=data/moglow_pos
 
 # if we don't pass seq_id it will choose a random one from the test set
 $py inference/generate.py --data_dir=$data_dir --output_folder=inference/generated --experiment_name=$exp \

@@ -198,7 +198,7 @@ class MultimodalDataset(BaseDataset):
         parser.add_argument('--output_modalities', default='mp3_mel_100')
         parser.add_argument('--input_lengths', help='input sequence length')
         parser.add_argument('--output_lengths', help='output sequence length')
-        parser.add_argument('--output_time_offsets', default="1", help='time shift between the last read input, and the output predicted. The default value of 1 corresponds to predicting the next output')
+        parser.add_argument('--output_time_offsets', default=None, help='time shift between the last read input, and the output predicted. The default value of 1 corresponds to predicting the next output')
         parser.add_argument('--input_time_offsets', default="0", help='time shift between the beginning of each modality and the first modality')
         parser.add_argument('--max_token_seq_len', type=int, default=1024)
         parser.add_argument('--fix_lengths', action='store_true', help='fix unmatching length of sequences')
