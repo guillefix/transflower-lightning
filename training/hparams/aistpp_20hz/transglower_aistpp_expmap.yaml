@@ -6,10 +6,10 @@ dins: "72,23"
 douts: "72"
 input_modalities: "expmap_scaled_20,mel_ddcpca_scaled_20"
 output_modalities: "expmap_scaled_20"
-input_lengths: "59,60"
-input_seq_lens: "40,41"
+input_lengths: "79,139"
+input_seq_lens: "60,120"
 output_lengths: "20"
-output_time_offset: "40"
+output_time_offsets: "60"
 nlayers: 4
 nhead: 10
 use_pos_emb_output: True

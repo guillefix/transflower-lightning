@@ -19,28 +19,30 @@ root_dir=$SCRATCH/data
 #hparams_file=aistpp_60hz/transglower_aistpp_expmap
 
 ####aistpp_20hz
-#data_dir=${root_dir}/features_20
-#hparams_file=aistpp_20hz/transglower_aistpp_expmap
-#hparams_file=aistpp_20hz/transglower_residual_aistpp_expmap
-#hparams_file=aistpp_20hz/transflower_residual_aistpp_expmap
-#hparams_file=aistpp_20hz/transflower_aistpp_expmap
-#hparams_file=aistpp_20hz/residualflower2_transflower_aistpp_expmap
-#hparams_file=aistpp_20hz/moglow_aistpp_expmap
+data_dir=${root_dir}/features_20
+exp=$1
+#exp=transglower_aistpp_expmap
+#exp=transglower_residual_aistpp_expmap
+#exp=transflower_residual_aistpp_expmap
+#exp=transflower_aistpp_expmap
+#exp=residualflower2_transflower_aistpp_expmap
+#exp=moglow_aistpp_expmap
+hparams_file=aistpp_20hz/${exp}
 
 ## Fix: needs vmapped version of transformer:
 #hparams_file=aistpp_20hz/residualflower2_moglow_aistpp_expmap
 
 ####moglow_pos
-data_dir=${root_dir}/moglow_pos
-exp=$1
+#data_dir=${root_dir}/moglow_pos
+#exp=$1
 #exp=transglower_moglow_pos
 #exp=transglower_residual_moglow_pos
 #exp=transflower_residual_moglow_pos
 #exp=transflower_moglow_pos
 #exp=residualflower2_transflower_moglow_pos
 #exp=moglow_moglow_pos
-
-hparams_file=moglow_pos/${exp}
+#hparams_file=moglow_pos/${exp}
+#exp=${exp}_pos_emb
 
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
@@ -52,5 +54,6 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --workers=$(nproc) \
     --gpus=2 \
     --accelerator=ddp \
+    #--use_pos_emb_output \
 #    --continue_train \
 #    --tpu_cores=8 \
