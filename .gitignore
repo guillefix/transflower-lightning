@@ -29,3 +29,6 @@ data/scaled_features.tar.gz
 test_data/*
 data/features_20/*
 data/features_20.tar.gz
+data/aistpp_20hz/*
+data/aistpp_60hz/*
+data/moglow_pos/*
