@@ -6,7 +6,7 @@ output_modalities: expmap_scaled_20
 input_lengths: 80,140
 output_lengths: 10
 output_time_offsets: 120
-n_layer: 12
+nlayers: 12
 nhead: 10
 scales: "[[8,0],[8,0]]"
 num_glow_coupling_blocks: 2
@@ -22,7 +22,7 @@ dropout: 0
 lr_policy: multistep
 lr_decay_milestones: [1000,1500]
 learning_rate: 5e-5
-gradient_clip_vale: 0.5
+gradient_clip_val: 0.5
 batch_size: 64
 
 

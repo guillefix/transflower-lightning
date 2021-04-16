@@ -20,22 +20,22 @@ root_dir=$SCRATCH/data
 #hparams_file=aistpp_60hz/transglower_aistpp_expmap
 
 ####aistpp_20hz
-#data_dir=${root_dir}/features_20
-#exp=$1
+data_dir=${root_dir}/aistpp_20hz
+exp=$1
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
 #exp=transflower_residual_aistpp_expmap
 #exp=transflower_aistpp_expmap
 #exp=residualflower2_transflower_aistpp_expmap
 #exp=moglow_aistpp_expmap
-#hparams_file=aistpp_20hz/${exp}
+hparams_file=aistpp_20hz/${exp}
 
 ## Fix: needs vmapped version of transformer:
 #hparams_file=aistpp_20hz/residualflower2_moglow_aistpp_expmap
 
 ####moglow_pos
-data_dir=${root_dir}/moglow_pos
-exp=$1
+#data_dir=${root_dir}/moglow_pos
+#exp=$1
 #exp=transglower_moglow_pos
 #exp=transglower_residual_moglow_pos
 #exp=transflower_residual_moglow_pos
@@ -43,22 +43,27 @@ exp=$1
 #exp=residualflower2_transflower_moglow_pos
 #exp=moglow_moglow_pos
 #exp=moglow_trans_moglow_pos
-
-hparams_file=moglow_pos/${exp}
+#hparams_file=moglow_pos/${exp}
 #exp=testing
 #exp=${exp}_pos_emb
-exp=${exp}
+
+exp=${exp}_noLSTM
+
+echo $exp
 
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
-    --do_testing \
+    --do_validation \
     --hparams_file=training/hparams/${hparams_file}.yaml \
     --val_batch_size=8 \
     --batch_size=32 \
     --experiment_name=$exp\
     --workers=$(nproc) \
-    --gpus=1 \
+    --gpus=2 \
     --accelerator=ddp \
-    #--use_pos_emb_output \
+    --output_lengths="1" \
+    --network_model="FF" \
+    #--scales="[[16,0]]"
 #    --continue_train \
+    #--use_pos_emb_output \
 #    --tpu_cores=8 \
