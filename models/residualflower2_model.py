@@ -85,16 +85,16 @@ class Residualflower2Model(BaseModel):
             outputs.append(predicted_means[i]+predicted_residuals[i])
         return outputs
 
-    def generate(self,features, teacher_forcing=False):
-        inputs_ = []
-        for i,mod in enumerate(self.input_mods):
-            input_ = features["in_"+mod]
-            input_ = torch.from_numpy(input_).float().cuda()
-            input_shape = input_.shape
-            input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3])).permute(2,0,1).to(self.device)
-            inputs_.append(input_)
-        output_seq = autoregressive_generation_multimodal(inputs_, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
-        return output_seq
+    #def generate(self,features, teacher_forcing=False):
+    #    inputs_ = []
+    #    for i,mod in enumerate(self.input_mods):
+    #        input_ = features["in_"+mod]
+    #        input_ = torch.from_numpy(input_).float().cuda()
+    #        input_shape = input_.shape
+    #        input_ = input_.reshape((input_shape[0]*input_shape[1], input_shape[2], input_shape[3])).permute(2,0,1).to(self.device)
+    #        inputs_.append(input_)
+    #    output_seq = autoregressive_generation_multimodal(inputs_, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
+    #    return output_seq
 
     def training_step(self, batch, batch_idx):
         self.set_inputs(batch)
