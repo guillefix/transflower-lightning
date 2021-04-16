@@ -10,10 +10,11 @@ from models import create_model
 from training.options.train_options import TrainOptions
 import pytorch_lightning as pl
 import numpy as np
-import pickle, json
+import pickle, json, yaml
 import sklearn
 import argparse
 import os, glob
+from pathlib import Path
 
 from analysis.visualization.generate_video_from_mats import generate_video_from_mats
 from analysis.visualization.generate_video_from_expmaps import generate_video_from_expmaps
@@ -28,10 +29,10 @@ if __name__ == '__main__':
     parser.add_argument('--output_folder', type=str)
     parser.add_argument('--experiment_name', type=str)
     parser.add_argument('--seq_id', type=str)
-    parser.add_argument('--use_scalers', action='store_true')
+    parser.add_argument('--no-use_scalers', dest='use_scalers', action='store_false')
     parser.add_argument('--generate_video', action='store_true')
     parser.add_argument('--generate_bvh', action='store_true')
-    parser.add_argument('--fps', type=int, default=None)
+    parser.add_argument('--fps', type=int, default=20)
     args = parser.parse_args()
     data_dir = args.data_dir
     fps = args.fps
@@ -42,8 +43,14 @@ if __name__ == '__main__':
         temp_base_filenames = [x[:-1] for x in open(data_dir + "/base_filenames_test.txt", "r").readlines()]
         seq_id = np.random.choice(temp_base_filenames)
 
-    #TODO: change this to load hparams from the particular version folder, that we load the model from, coz the opts could differ between versions potentially.
-    exp_opt = json.loads(open("training/experiments/"+args.experiment_name+"/opt.json","r").read())
+    #load hparams file
+    default_save_path = "training/experiments/"+args.experiment_name
+    logs_path = default_save_path
+    latest_checkpoint = get_latest_checkpoint(logs_path)
+    print(latest_checkpoint)
+    checkpoint_dir = Path(latest_checkpoint).parent.parent.absolute()
+    # exp_opt = json.loads(open("training/experiments/"+args.experiment_name+"/opt.json","r").read())
+    exp_opt = yaml.load(open(str(checkpoint_dir)+"/hparams.yaml","r").read())
     opt = vars(TrainOptions().parse(parse_args=["--model", exp_opt["model"]]))
     print(opt)
     opt.update(exp_opt)
@@ -66,12 +73,8 @@ if __name__ == '__main__':
         scalers = []
 
     # Load latest trained checkpoint from experiment
-    default_save_path = opt.checkpoints_dir+"/"+opt.experiment_name
-    logs_path = default_save_path
-    latest_file = get_latest_checkpoint(logs_path)
-    print(latest_file)
     model = create_model(opt)
-    model = model.load_from_checkpoint(latest_file, opt=opt)
+    model = model.load_from_checkpoint(latest_checkpoint, opt=opt)
 
     # Load input features (sequences must have been processed previously into features)
     features = {}
@@ -83,7 +86,7 @@ if __name__ == '__main__':
     model.cuda()
     # import pdb;pdb.set_trace()
     predicted_mods = model.generate(features)
-    import pdb;pdb.set_trace()
+    # import pdb;pdb.set_trace()
     for i, mod in enumerate(output_mods):
         predicted_mod = predicted_mods[i].cpu().numpy()
         if len(scalers)>0:
@@ -95,8 +98,6 @@ if __name__ == '__main__':
         predicted_features_file += ".npy"
 
         if args.generate_video:
-            if fps is None:
-                fps = 20
             trim_audio = output_time_offsets[i] / fps #converting trim_audio from being in frames (which is more convenient as thats how we specify the output_shift in the models), to seconds
             print("trim_audio: ",trim_audio)
 
@@ -106,7 +107,7 @@ if __name__ == '__main__':
 
             if mod == "joint_angles_scaled":
                 generate_video_from_mats(predicted_features_file,output_folder,audio_file,trim_audio,fps,plot_mats)
-            elif mod == "expmap_scaled" or mod == "expmap_20_scaled":
+            elif mod == "expmap_scaled" or mod == "expmap_scaled_20":
                 pipeline_file = f'{data_dir}/motion_{mod}_data_pipe.sav'
                 generate_video_from_expmaps(predicted_features_file,pipeline_file,output_folder,audio_file,trim_audio,args.generate_bvh)
             elif mod == "position_scaled":

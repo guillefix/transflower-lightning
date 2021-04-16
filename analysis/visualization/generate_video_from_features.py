@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     if feature_type == "rot_mat":
         generate_video_from_mats(features_file,output_folder,audio_file,trim_audio,fps,plot_mats)
-    elif feature_type == "expmap" or feature_type == "expmap_20":
+    elif feature_type == "expmap_scaled" or feature_type == "expmap_scaled_20":
         assert pipeline_file is not None #Need to supply pipeline file to process exmaps
         generate_video_from_expmaps(features_file,pipeline_file,output_folder,audio_file,trim_audio,generate_bvh)
     elif feature_type == "moglow_loc":
