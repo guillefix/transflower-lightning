@@ -4,6 +4,7 @@
 #SBATCH --qos=qos_gpu-t4
 #SBATCH --ntasks=1 --cpus-per-task=16 --gres=gpu:2
 #SBATCH -A imi@gpu
+##SBATCH -C v100-32g
 
 #export PYTHONPATH=$SCRATCH/:${PYTHONPATH}
 
