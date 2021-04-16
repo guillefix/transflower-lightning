@@ -32,6 +32,7 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
         for t in range(sequence_length-max(input_lengths)+1):
             print(t)
             inputs = [x.clone().cuda() for x in input_tmp]
+            # import pdb;pdb.set_trace()
             outputs = model.forward(inputs)
             if t == 0:
                 for i, mod in enumerate(output_mods):
