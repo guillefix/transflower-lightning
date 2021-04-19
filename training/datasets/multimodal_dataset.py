@@ -203,8 +203,6 @@ class MultimodalDataset(BaseDataset):
         parser.add_argument('--max_token_seq_len', type=int, default=1024)
         parser.add_argument('--fix_lengths', action='store_true', help='fix unmatching length of sequences')
         parser.add_argument('--num_train_samples', type=int, default=0, help='if 0 then use all of them')
-        parser.set_defaults(output_length=1)
-        parser.set_defaults(output_channels=1)
 
         return parser
 
