@@ -31,7 +31,7 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
         # for t in range(min(512, sequence_length-max(input_lengths)-1)):
         for t in range(sequence_length-max(input_lengths)+1):
             print(t)
-            inputs = [x.clone().cuda() for x in input_tmp]
+            inputs = [x.clone().to(model.device) for x in input_tmp]
             # import pdb;pdb.set_trace()
             outputs = model.forward(inputs)
             if t == 0:
@@ -39,10 +39,10 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
                     output = outputs[i]
                     # output[:,0,:-3] = torch.clamp(output[:,0,:-3],-3,3)
                     output_seq.append(output[:1].detach().clone())
-                    # output_seq.append(inputs_[i][t+input_time_offsets[i]+input_lengths[i]:t+input_time_offsets[i]+input_lengths[i]+1]+0.15*torch.randn(1,219).cuda())
+                    # output_seq.append(inputs_[i][t+input_time_offsets[i]+input_lengths[i]:t+input_time_offsets[i]+input_lengths[i]+1]+0.15*torch.randn(1,219).to(model.device))
             else:
                 for i, mod in enumerate(output_mods):
-                    # output_seq[i] = torch.cat([output_seq[i], inputs_[i][t+input_time_offsets[i]+input_lengths[i]:t+input_time_offsets[i]+input_lengths[i]+1]+0.15*torch.randn(1,219).cuda()])
+                    # output_seq[i] = torch.cat([output_seq[i], inputs_[i][t+input_time_offsets[i]+input_lengths[i]:t+input_time_offsets[i]+input_lengths[i]+1]+0.15*torch.randn(1,219).to(model.device)])
                     output = outputs[i]
                     output_seq[i] = torch.cat([output_seq[i], output[:1].detach().clone()])
                     # output[:,0,:-3] = torch.clamp(output[:,0,:-3],-3,3)

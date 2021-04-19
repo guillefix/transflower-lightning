@@ -1,3 +1,8 @@
+import sys
+import os
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
+sys.path.append(ROOT_DIR)
 import numpy as np; import scipy.linalg
 # LUL
 w_shape = [219,219]
@@ -8,6 +13,7 @@ from training.datasets import create_dataset, create_dataloader
 
 from models import create_model
 from training.options.train_options import TrainOptions
+import torch
 import pytorch_lightning as pl
 import numpy as np
 import pickle, json, yaml
@@ -83,7 +89,8 @@ if __name__ == '__main__':
         features["in_"+mod] = np.expand_dims(feature,0).transpose((1,0,2))
 
     # Generate prediction
-    model.cuda()
+    if torch.cuda.is_available():
+        model.cuda()
     # import pdb;pdb.set_trace()
     predicted_mods = model.generate(features)
     # import pdb;pdb.set_trace()
@@ -116,9 +123,9 @@ if __name__ == '__main__':
                 control = np.load(control_file)
                 if args.use_scalers:
                     transform = pickle.load(open(data_dir+"/moglow_control_scaled_scaler.pkl", "rb"))
-                    control = transform.inverse_transform(predicted_mod)
+                    control = transform.inverse_transform(control)
                 control = control[int(opt.output_time_offsets.split(",")[0]):]
-                generate_video_from_moglow_loc(data,control,output_folder,audio_file,fps,trim_audio)
+                generate_video_from_moglow_loc(data,control,output_folder,seq_id,audio_file,fps,trim_audio)
             else:
                 print("Warning: mod "+mod+" not supported")
                 # raise NotImplementedError(f'Feature type {feature_type} not implemented')

@@ -5,7 +5,7 @@ from sklearn.pipeline import Pipeline
 import joblib as jl
 from .utils import generate_video_from_images, join_video_and_audio
 import os
-root_dir = os.path.dirname(os.path.realpath(__file__))
+#root_dir = os.path.dirname(os.path.realpath(__file__))
 
 import matplotlib
 matplotlib.use("Agg")
@@ -31,7 +31,7 @@ def pre_process_motion_data(clip, init_rot=None, init_trans=None, fps=30, axis_s
 
     return joints, translation, rot, translations
 
-def generate_video_from_moglow_loc(data, control, output_folder, audio_file, fps, trim_audio=0):
+def generate_video_from_moglow_loc(data, control, output_folder, seq_id, audio_file, fps, trim_audio=0):
     # import pdb;pdb.set_trace()
     clip = np.concatenate([data,control], axis=1)
 
@@ -45,13 +45,17 @@ def generate_video_from_moglow_loc(data, control, output_folder, audio_file, fps
 
     ax.scatter(keypoints3d[0,:,0],keypoints3d[0,:,1],keypoints3d[0,:,2])
 
+    imgs_folder="analysis/visualization/img/"+seq_id
+    if not os.path.exists(imgs_folder):
+        os.mkdir(imgs_folder)
+
     plt.xlim([-10,10])
     plt.ylim([0,20])
     ax.set_zlim([-10,10])
     ax.view_init(90,-90)
     plt.draw()
     plt.pause(0.001)
-    plt.savefig(root_dir+"/img/img_"+str(0)+".png")
+    plt.savefig(imgs_folder+"/img_"+str(0)+".png")
 
     for i in range(1,len(keypoints3d)):
         print(i)
@@ -63,10 +67,10 @@ def generate_video_from_moglow_loc(data, control, output_folder, audio_file, fps
         ax.view_init(90,-90)
         plt.draw()
         plt.pause(0.001)
-        plt.savefig(root_dir+"/img/img_"+str(i)+".png")
+        plt.savefig(imgs_folder+"/img_"+str(i)+".png")
 
     video_file = f'{output_folder}/{seq_id}.mp4'
-    generate_video_from_images(root_dir+"/img", video_file, fps)
+    generate_video_from_images(imgs_folder, video_file, fps)
     if audio_file is not None:
         join_video_and_audio(video_file, audio_file, trim_audio)
 
