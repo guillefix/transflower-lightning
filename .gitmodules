@@ -1,3 +1,0 @@
-[submodule "models/x-transformers"]
-	path = models/x-transformers
-	url = https://github.com/guillefix/x-transformers.git
