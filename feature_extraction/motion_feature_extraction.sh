@@ -29,8 +29,7 @@ param=expmap
 param=position
 #mpirun -n 1 $py feature_extraction/extract_transform2.py $1 --feature_name moglow_loc --transforms scaler
 #mpirun -n $n $py feature_extraction/apply_transforms.py $@ --feature_name moglow_loc --transform_name scaler --new_feature_name ${param}_scaled
-#cp $1/bvh_expmap_scaler.pkl $1/${param}_scaled_scaler.pkl
-#cp $1/motion_expmap_data_pipe.sav $1/motion_${param}_scaled_${fps}_data_pipe.sav
+cp $1/moglow_loc_scaler.pkl $1/moglow_position_scaled_scaler.pkl
 mpirun -n 1 $py feature_extraction/extract_transform2.py $1 --feature_name moglow_loc_control --transforms scaler
 mpirun -n $n $py feature_extraction/apply_transforms.py $@ --feature_name moglow_loc_control --transform_name scaler --new_feature_name moglow_control_scaled
-cp $1/moglow_control_scaler.pkl $1/moglow_control_scaled_scaler.pkl
+cp $1/moglow_loc_control_scaler.pkl $1/moglow_control_scaled_scaler.pkl
