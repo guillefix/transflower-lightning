@@ -11,8 +11,8 @@ module load pytorch-gpu/py3/1.8.0
 
 py=python3
 
-root_dir=$SCRATCH/data
-#root_dir=data
+#root_dir=$SCRATCH/data
+root_dir=data
 
 ####aistpp_60hz
 #data_dir=${root_dir}/scaled_features
@@ -21,11 +21,11 @@ root_dir=$SCRATCH/data
 
 ####aistpp_20hz
 data_dir=${root_dir}/aistpp_20hz
-exp=$1
+#exp=$1
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
 #exp=transflower_residual_aistpp_expmap
-#exp=transflower_aistpp_expmap
+exp=transflower_aistpp_expmap
 #exp=residualflower2_transflower_aistpp_expmap
 #exp=moglow_aistpp_expmap
 hparams_file=aistpp_20hz/${exp}
@@ -49,7 +49,7 @@ hparams_file=aistpp_20hz/${exp}
 
 #exp=${exp}_future3_actnorm
 #exp=${exp}_future3
-exp=${exp}_future3
+exp=testing
 
 echo $exp
 
@@ -57,10 +57,10 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --do_validation \
     --hparams_file=training/hparams/${hparams_file}.yaml \
     --val_batch_size=8 \
-    --batch_size=32 \
+    --batch_size=8 \
     --experiment_name=$exp\
     --workers=$(nproc) \
-    --gpus=2 \
+    --gpus=1 \
     --accelerator=ddp \
     --output_lengths="3" \
     --scales="[[16,0]]" \
