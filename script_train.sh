@@ -48,6 +48,7 @@ hparams_file=aistpp_20hz/${exp}
 #exp=${exp}_pos_emb
 
 #exp=${exp}_future3_actnorm
+#exp=${exp}_future3
 exp=${exp}_future3
 
 echo $exp
@@ -64,7 +65,8 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --accelerator=ddp \
     --output_lengths="3" \
     --scales="[[16,0]]"
-    #--glow_norm_layer="actnorm" \
+    #--residual_scales="[[16,0]]"
+#    --glow_norm_layer="actnorm" \
 #    --continue_train \
     #--use_pos_emb_output \
 #    --tpu_cores=8 \
