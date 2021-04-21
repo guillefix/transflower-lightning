@@ -14,7 +14,6 @@ from pytorch_lightning.loggers import TensorBoardLogger
 print("HIII")
 from pytorch_lightning.plugins import DDPPlugin
 
-ddpplugin = DDPPlugin(find_unused_parameters=False)
 
 from training.utils import get_latest_checkpoint
 
@@ -23,6 +22,7 @@ if __name__ == '__main__':
     print("loaded options")
     model = create_model(opt)
     print("loaded model")
+    ddpplugin = DDPPlugin(find_unused_parameters=opt.find_unused_parameters)
 
     ##Datasets and dataloaders
     train_dataset = create_dataset(opt)

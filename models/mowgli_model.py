@@ -1,5 +1,6 @@
 import torch
-from .transformer import BasicTransformerModel
+import numpy as np
+from models.transformer import BasicTransformerModel
 from models import BaseModel
 from models.flowplusplus import FlowPlusPlus
 import ast
@@ -7,7 +8,9 @@ from torch import nn
 
 from .util.generation import autoregressive_generation_multimodal
 
-class TransflowerModel(BaseModel):
+from models.cdvae import ConditionalDiscreteVAE
+
+class MowgliModel(BaseModel):
     def __init__(self, opt):
         super().__init__(opt)
         input_mods = self.input_mods
@@ -16,15 +19,16 @@ class TransflowerModel(BaseModel):
         douts = self.douts
         input_lengths = self.input_lengths
         output_lengths = self.output_lengths
-        if self.opt.conditioning_seq_lens is not None:
-            self.conditioning_seq_lens = [int(x) for x in str(self.opt.conditioning_seq_lens).split(",")]
-        else:
-            self.conditioning_seq_lens = [int(x) for x in str(self.opt.output_lengths).split(",")]
+        # if self.opt.conditioning_seq_lens is not None:
+        #     self.conditioning_seq_lens = [int(x) for x in str(self.opt.conditioning_seq_lens).split(",")]
+        # else:
+        #     self.conditioning_seq_lens = [int(x) for x in str(self.opt.output_lengths).split(",")]
 
         self.input_mod_nets = []
         self.output_mod_nets = []
         self.output_mod_mean_nets = []
-        self.output_mod_glows = []
+        self.output_mod_vaes = []
+        self.conditioning_seq_lens = []
         self.module_names = []
         for i, mod in enumerate(input_mods):
             net = BasicTransformerModel(opt.dhid, dins[i], opt.nhead, opt.dhid, 2, opt.dropout, self.device, use_pos_emb=True, input_length=input_lengths[i], use_x_transformers=opt.use_x_transformers, opt=opt)
@@ -33,10 +37,34 @@ class TransflowerModel(BaseModel):
             self.input_mod_nets.append(net)
             self.module_names.append(name)
         for i, mod in enumerate(output_mods):
-            if self.opt.cond_concat_dims:
-                net = BasicTransformerModel(opt.dhid, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths), use_x_transformers=opt.use_x_transformers, opt=opt)
-            else:
-                net = BasicTransformerModel(douts[i]//2, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths), use_x_transformers=opt.use_x_transformers, opt=opt)
+
+            # import pdb;pdb.set_trace()
+            vae = ConditionalDiscreteVAE(
+                input_shape = (output_lengths[i], 1),
+                channels = douts[i],
+                num_layers = opt.vae_num_layers,           # number of downsamples - ex. 256 / (2 ** 3) = (32 x 32 feature map)
+                num_tokens = opt.vae_num_tokens,        # number of visual tokens. in the paper, they used 8192, but could be smaller for downsized projects
+                codebook_dim = opt.vae_codebook_dim,       # codebook dimension
+                hidden_dim = opt.vae_dhid,          # hidden dimension
+                num_resnet_blocks = opt.vae_num_resnet_blocks,    # number of resnet blocks
+                temperature = opt.vae_temp,        # gumbel softmax temperature, the lower this is, the harder the discretization
+                straight_through = opt.vae_hard, # straight-through for gumbel softmax. unclear if it is better one way or the other
+                cond_dim = opt.dhid,
+                prior_nhead = opt.prior_nhead,
+                prior_dhid = opt.prior_dhid,
+                prior_nlayers = opt.prior_nlayers,
+                prior_dropout = opt.prior_dropout,
+                prior_use_pos_emb = not opt.prior_no_use_pos_emb,
+                prior_use_x_transformers = opt.prior_use_x_transformers,
+                opt = opt
+            )
+
+            name = "_output_vae_"+mod
+            setattr(self, "net"+name, vae)
+            self.output_mod_vaes.append(vae)
+
+            self.conditioning_seq_lens.append(np.prod(vae.codebook_layer_shape))
+            net = BasicTransformerModel(opt.dhid, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths), use_x_transformers=opt.use_x_transformers, opt=opt)
             name = "_output_"+mod
             setattr(self, "net"+name, net)
             self.output_mod_nets.append(net)
@@ -50,80 +78,45 @@ class TransflowerModel(BaseModel):
                 setattr(self, "net"+name, net)
                 self.output_mod_mean_nets.append(net)
 
-            # import pdb;pdb.set_trace()
-            glow = FlowPlusPlus(scales=ast.literal_eval(opt.scales),
-                                     in_shape=(douts[i], output_lengths[i], 1),
-                                     cond_dim=opt.dhid,
-                                     mid_channels=opt.dhid_flow,
-                                     num_blocks=opt.num_glow_coupling_blocks,
-                                     num_components=opt.num_mixture_components,
-                                     use_attn=opt.glow_use_attn,
-                                     use_logmix=opt.num_mixture_components>0,
-                                     drop_prob=opt.dropout,
-                                     num_heads=opt.num_heads_flow,
-                                     use_transformer_nn=opt.use_transformer_nn,
-                                     use_pos_emb=opt.use_pos_emb_coupling,
-                                     norm_layer = opt.glow_norm_layer,
-                                     bn_momentum = opt.glow_bn_momentum,
-                                     cond_concat_dims=opt.cond_concat_dims,
-                                     cond_seq_len=self.conditioning_seq_lens[i],
-                                )
-            name = "_output_glow_"+mod
-            setattr(self, "net"+name, glow)
-            self.output_mod_glows.append(glow)
 
         self.mean_loss = nn.MSELoss()
-        #This is feature creep. Will remove soon
-        # self.generate_full_masks()
         self.inputs = []
         self.targets = []
         self.mse_loss = 0
         self.nll_loss = 0
 
     def name(self):
-        return "Transflower"
+        return "mowgli"
 
     @staticmethod
     def modify_commandline_options(parser, opt):
         parser.add_argument('--dhid', type=int, default=512)
-        parser.add_argument('--dhid_flow', type=int, default=512)
-        parser.add_argument('--conditioning_seq_lens', type=str, default=None, help="the number of outputs of the conditioning transformers to feed (meaning the number of elements along the sequence dimension)")
+        # parser.add_argument('--conditioning_seq_lens', type=str, default=None, help="the number of outputs of the conditioning transformers to feed (meaning the number of elements along the sequence dimension)")
         parser.add_argument('--nlayers', type=int, default=6)
         parser.add_argument('--nhead', type=int, default=8)
-        parser.add_argument('--num_heads_flow', type=int, default=8)
+        parser.add_argument('--vae_num_layers', type=int, default=3)
+        parser.add_argument('--vae_num_tokens', type=int, default=2048)
+        parser.add_argument('--vae_codebook_dim', type=int, default=512)
+        parser.add_argument('--vae_dhid', type=int, default=64)
+        parser.add_argument('--prior_dhid', type=int, default=512)
+        parser.add_argument('--prior_nhead', type=int, default=8)
+        parser.add_argument('--prior_nlayers', type=int, default=8)
+        parser.add_argument('--prior_dropout', type=float, default=0)
+        parser.add_argument('--vae_num_resnet_blocks', type=int, default=1)
+        parser.add_argument('--vae_temp', type=float, default=0.9)
+        parser.add_argument('--vae_hard', action='store_true', help="whether to use the hard one-hot vector as output and use the straight through gradient estimator, for discrete latents")
         parser.add_argument('--dropout', type=float, default=0.1)
         parser.add_argument('--scales', type=str, default="[[10,0]]")
-        parser.add_argument('--glow_norm_layer', type=str, default=None)
-        parser.add_argument('--glow_bn_momentum', type=float, default=0.1)
-        parser.add_argument('--num_glow_coupling_blocks', type=int, default=10)
-        parser.add_argument('--num_mixture_components', type=int, default=0)
-        parser.add_argument('--glow_use_attn', action='store_true', help="whether to use the internal attention for the FlowPlusPLus model")
-        parser.add_argument('--use_transformer_nn', action='store_true', help="whether to use the internal attention for the FlowPlusPLus model")
+        parser.add_argument('--residual', action='store_true', help="whether to use the vae to predict the residual around a determnisitic mean")
         parser.add_argument('--use_pos_emb_output', action='store_true', help="whether to use positional embeddings for output modality transformers")
-        parser.add_argument('--use_pos_emb_coupling', action='store_true', help="whether to use positional embeddings for the coupling layer transformers")
-        parser.add_argument('--cond_concat_dims', action='store_true', help="if set we concatenate along the channel dimension with with the x for the coupling layer; otherwise we concatenate along the sequence dimesion")
-        parser.add_argument('--residual', action='store_true', help="whether to use the flow to predict the residual around a determnisitic mean")
         parser.add_argument('--use_rotary_pos_emb', action='store_true', help="whether to use rotary position embeddings")
         parser.add_argument('--use_x_transformers', action='store_true', help="whether to use rotary position embeddings")
+        parser.add_argument('--prior_use_x_transformers', action='store_true', help="whether to use rotary position embeddings")
+        parser.add_argument('--prior_no_use_pos_emb', action='store_true', help="dont use positional embeddings for the prior transformer")
+        parser.add_argument('--stage2', action='store_true', help="stage2: train the prior, rather than the VAE")
         return parser
 
-    # def generate_full_masks(self):
-    #     input_mods = self.input_mods
-    #     output_mods = self.output_mods
-    #     input_lengths = self.input_lengths
-    #     self.src_masks = []
-    #     for i, mod in enumerate(input_mods):
-    #         mask = torch.zeros(input_lengths[i],input_lengths[i])
-    #         self.register_buffer('src_mask_'+str(i), mask)
-    #         self.src_masks.append(mask)
-    #
-    #     self.output_masks = []
-    #     for i, mod in enumerate(output_mods):
-    #         mask = torch.zeros(sum(input_lengths),sum(input_lengths))
-    #         self.register_buffer('out_mask_'+str(i), mask)
-    #         self.output_masks.append(mask)
-
-    def forward(self, data):
+    def forward(self, data, temp=1.0):
         # in lightning, forward defines the prediction/inference actions
         latents = []
         for i, mod in enumerate(self.input_mods):
@@ -135,15 +128,16 @@ class TransflowerModel(BaseModel):
                 trans_output = self.output_mod_nets[i].forward(latent)[:self.conditioning_seq_lens[i]]
                 trans_predicted_mean_latents = self.output_mod_nets[i].forward(latent)[self.conditioning_seq_lens[i]:self.conditioning_seq_lens[i]+self.output_lengths[i]]
                 predicted_mean = self.output_mod_mean_nets[i](trans_predicted_mean_latents)
-                residual, _ = self.output_mod_glows[i](x=None, cond=trans_output.permute(1,0,2), reverse=True)
+                # residual, _ = self.output_mod_glows[i](x=None, cond=trans_output.permute(1,0,2), reverse=True)
+                residual = self.output_mod_vaes[i].generate(trans_output.permute(1,2,0), temp=temp)
                 output = predicted_mean + residual.permute(1,0,2)
                 outputs.append(output)
         else:
             for i, mod in enumerate(self.output_mods):
                 trans_output = self.output_mod_nets[i].forward(latent)[:self.conditioning_seq_lens[i]]
                 output, _ = self.output_mod_glows[i](x=None, cond=trans_output.permute(1,0,2), reverse=True)
+                output = self.output_mod_vaes[i].generate(output.permute(1,2,0), temp=temp)
                 outputs.append(output.permute(1,0,2))
-
         return outputs
 
     def training_step(self, batch, batch_idx):
@@ -164,9 +158,11 @@ class TransflowerModel(BaseModel):
                 latents = trans_output[:self.conditioning_seq_lens[i]]
                 trans_predicted_mean_latents = trans_output[self.conditioning_seq_lens[i]:self.conditioning_seq_lens[i]+self.output_lengths[i]]
                 predicted_mean = self.output_mod_mean_nets[i](trans_predicted_mean_latents)
-                glow = self.output_mod_glows[i]
-                z, sldj = glow(x=self.targets[i].permute(1,0,2) - predicted_mean.permute(1,0,2), cond=latents.permute(1,0,2)) #time, batch, features -> batch, time, features
-                nll_loss += glow.loss_generative(z, sldj)
+                vae = self.output_mod_vaes[i]
+                if not self.opt.stage2:
+                    nll_loss += vae((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents.permute(1,2,0), return_loss=True) #time, batch, features -> batch, features, time
+                else:
+                    nll_loss += vae.prior_logp((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents.permute(1,2,0))
                 mse_loss += 100*self.mean_loss(predicted_mean[i], self.targets[i])
             loss = nll_loss + mse_loss
             self.mse_loss = mse_loss
@@ -177,14 +173,12 @@ class TransflowerModel(BaseModel):
             loss = 0
             for i, mod in enumerate(self.output_mods):
                 output = self.output_mod_nets[i].forward(latent)[:self.conditioning_seq_lens[i]]
-                glow = self.output_mod_glows[i]
+                vae = self.output_mod_vaes[i]
                 # import pdb;pdb.set_trace()
-                # print(output)
-                z, sldj = glow(x=self.targets[i].permute(1,0,2), cond=output.permute(1,0,2)) #time, batch, features -> batch, time, features
-                # print(z)
-                #print(sldj)
-                # n_timesteps = self.targets[i].shape[1]
-                loss += glow.loss_generative(z, sldj)
+                if not self.opt.stage2:
+                    loss += vae(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_loss=True) #time, batch, features -> batch, features, time
+                else:
+                    loss += vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0))
 
         self.log('loss', loss)
         # print(loss)

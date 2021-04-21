@@ -25,7 +25,8 @@ data_dir=${root_dir}/aistpp_20hz
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
 #exp=transflower_residual_aistpp_expmap
-exp=transflower_aistpp_expmap
+exp=mowgli_aistpp_expmap
+#exp=transflower_aistpp_expmap
 #exp=residualflower2_transflower_aistpp_expmap
 #exp=moglow_aistpp_expmap
 hparams_file=aistpp_20hz/${exp}
@@ -56,16 +57,18 @@ echo $exp
 $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --do_validation \
     --hparams_file=training/hparams/${hparams_file}.yaml \
-    --val_batch_size=8 \
+    --val_batch_size=2 \
     --batch_size=8 \
     --experiment_name=$exp\
     --workers=$(nproc) \
     --gpus=1 \
     --accelerator=ddp \
     --output_lengths="3" \
-    --scales="[[16,0]]" \
-    --use_x_transformers \
-    --use_rotary_pos_emb \
+    --stage2 \
+#    --scales="[[16,0]]" \
+#    --use_x_transformers \
+#    --use_rotary_pos_emb \
+#    --learning_rate=1e-5 \
     #--residual_scales="[[16,0]]"
 #    --glow_norm_layer="actnorm" \
 #    --continue_train \
