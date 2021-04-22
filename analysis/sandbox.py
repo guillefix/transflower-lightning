@@ -302,3 +302,6 @@ bvh_data=data_pipe.inverse_transform(out_data)
 writer = BVHWriter()
 with open('analysis/tmp/test.bvh','w') as f:
     writer.write(bvh_data[0], f)
+
+
+##################

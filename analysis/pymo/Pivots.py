@@ -1,6 +1,6 @@
 import numpy as np
 
-from pymo.Quaternions import Quaternions
+from analysis.pymo.Quaternions import Quaternions
 
 class Pivots:    
     """

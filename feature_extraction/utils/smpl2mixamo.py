@@ -45,6 +45,8 @@ def convert_smpl(filepath, dest_dir, result_filename, framerate):
 
     smpl_angs = data["smpl_poses"].reshape(-1,24*3)
     smpl_trans = data["smpl_trans"]
+    # print(data)
+    smpl_scale = data["smpl_scaling"]
 
     smpl_joints = ["Pelvis", "L_Hip", "R_Hip", "Spine1", "L_Knee", "R_Knee", "Spine2", "L_Ankle", "R_Ankle",
                    "Spine3", "L_Foot", "R_Foot", "Neck", "L_Collar", "R_Collar", "Head", "L_Shoulder", "R_Shoulder",
@@ -87,8 +89,10 @@ def convert_smpl(filepath, dest_dir, result_filename, framerate):
         out_data[0,:,unity_joints_vals.get_loc(unity_joint+"_gamma")] = smpl_angs[:,smpl_joints.index(smpl_joint)*3+2]
 
     # relative_scale=188.7
-    relative_scale=100
-    vertical_offset=-0.6
+    # relative_scale=100
+    smpl_scale = 100
+    relative_scale=smpl_scale
+    vertical_offset=-0.6*(smpl_scale/100)
     out_data[0,:,unity_joints_vals.get_loc("Hips_Xposition")] = smpl_trans[:,0]/relative_scale
     out_data[0,:,unity_joints_vals.get_loc("Hips_Yposition")] = smpl_trans[:,1]/relative_scale+vertical_offset
     out_data[0,:,unity_joints_vals.get_loc("Hips_Zposition")] = smpl_trans[:,2]/relative_scale

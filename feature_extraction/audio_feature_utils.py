@@ -8,6 +8,20 @@ ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
 DATA_DIR = os.path.join(ROOT_DIR, 'data')
 sys.path.append(ROOT_DIR)
 
+import feature_extraction.madmom as madmom
+from feature_extraction.madmom.audio.cepstrogram import MFCC
+
+def extract_features_spectral_flux(music_file,tgt_fps=20):
+    filtbank = madmom.audio.filters.MelFilterbank
+    spec = madmom.audio.spectrogram.Spectrogram(music_file, fps=tgt_fps, filterbank=filtbank, num_channels = 1)
+    spectralflux = madmom.features.onsets.spectral_flux(spec)
+    return np.expand_dims(spectralflux, dim=1)
+
+def extract_features_madmombeat(music_file,tgt_fps=20):
+    proc_dwn = madmom.features.RNNDownBeatProcessor()
+    beats = proc_dwn(music_file, fps=20)
+    return beats
+
 def extract_features_multi_mel(y, sr=44100.0, hop=512, nffts=[1024, 2048, 4096], mel_dim=100):
     featuress = []
     for nfft in nffts:
@@ -36,7 +50,7 @@ def extract_features_mel(y, sr, hop,mel_dim=100):
 
 def extract_features_envelope(y, sr, hop,mel_dim=100):
     envelope = librosa.onset.onset_strength(y=y,hop_length=hop, n_mels=mel_dim)
-    return envelope
+    return np.expand_dims(envelope,1)
 
 def extract_features_chroma(y,sr, state_times):
     #hop = #int((44100 * 60 * beat_discretization) / bpm) Hop length must be a multiple of 2^6

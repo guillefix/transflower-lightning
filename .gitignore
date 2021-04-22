@@ -33,3 +33,6 @@ data/features_20.tar.gz
 data/aistpp_20hz/*
 data/aistpp_60hz/*
 data/moglow_pos/*
+data/dance_full/*
+data/testing/*
+data/aistpp_ddcpca/*
