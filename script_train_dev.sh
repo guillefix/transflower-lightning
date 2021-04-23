@@ -30,6 +30,7 @@ exp=mowgli_aistpp_expmap
 #exp=residualflower2_transflower_aistpp_expmap
 #exp=moglow_aistpp_expmap
 hparams_file=aistpp_20hz/${exp}
+exp=mowgli_aistpp_expmap_future3
 
 ## Fix: needs vmapped version of transformer:
 #hparams_file=aistpp_20hz/residualflower2_moglow_aistpp_expmap
@@ -50,7 +51,7 @@ hparams_file=aistpp_20hz/${exp}
 
 #exp=${exp}_future3_actnorm
 #exp=${exp}_future3
-exp=testing
+#exp=testing
 
 echo $exp
 
@@ -64,13 +65,15 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --gpus=1 \
     --accelerator=ddp \
     --output_lengths="3" \
-    --stage2 \
+#    --stage2 \
+#    --continue_train \
+#    --load_weights_only \
+#    --prior_use_x_transformers \
 #    --scales="[[16,0]]" \
 #    --use_x_transformers \
 #    --use_rotary_pos_emb \
 #    --learning_rate=1e-5 \
     #--residual_scales="[[16,0]]"
 #    --glow_norm_layer="actnorm" \
-#    --continue_train \
     #--use_pos_emb_output \
 #    --tpu_cores=8 \

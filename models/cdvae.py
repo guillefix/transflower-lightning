@@ -335,6 +335,7 @@ class ConditionalDiscreteVAE(nn.Module):
         self.normalization = normalization
 
         if cond_dim > 0:
+            # import pdb;pdb.set_trace()
             self.prior_transformer = BasicTransformerModel(num_tokens, cond_dim, prior_nhead, prior_dhid, prior_nlayers, prior_dropout,
                                                            use_pos_emb=prior_use_pos_emb,
                                                            input_length=codebook_layer_shape1*codebook_layer_shape2,
@@ -394,7 +395,8 @@ class ConditionalDiscreteVAE(nn.Module):
     def prior_logp(
             self,
             inputs,
-            cond = None
+            cond = None,
+            return_accuracy = False
        ):
         if cond is None: raise NotImplementedError("Haven't implemented non-conditional DVAEs")
         if len(inputs.shape) == 3:
@@ -404,8 +406,16 @@ class ConditionalDiscreteVAE(nn.Module):
         with torch.no_grad():
             labels = self.get_codebook_indices(inputs, cond)
         # import pdb;pdb.set_trace()
+        cond = cond.detach()
         logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1)).permute(1,2,0)
-        return F.cross_entropy(logits, labels)
+        loss = F.cross_entropy(logits, labels)
+        if not return_accuracy:
+            return loss
+        # import pdb;pdb.set_trace()
+        predicted = logits.argmax(dim = 1).flatten(1)
+        accuracy = (predicted == labels).sum()/predicted.nelement()
+        return loss, accuracy
+
 
     def generate(self, cond, temp=1.0):
         if cond is None: raise NotImplementedError("Haven't implemented non-conditional DVAEs")

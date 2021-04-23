@@ -22,7 +22,7 @@ if __name__ == '__main__':
     print("loaded options")
     model = create_model(opt)
     print("loaded model")
-    if opt.tpu_cores > 0:
+    if "tpu_cores" in vars(opt) and opt.tpu_cores > 0:
         ddpplugin = None
     else:
         ddpplugin = DDPPlugin(find_unused_parameters=opt.find_unused_parameters)
@@ -53,7 +53,11 @@ if __name__ == '__main__':
         print(latest_file)
         if opt.load_weights_only:
             state_dict = torch.load(latest_file)
-            model.load_state_dict(state_dict['state_dict'])
+            state_dict = state_dict['state_dict']
+            # state_dict = {k:v for k,v in state_dict.items() if not ("prior_transformer" in k)}
+            # import pdb;pdb.set_trace()
+            # model.load_state_dict(state_dict, strict=False)
+            model.load_state_dict(state_dict)
             trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=ddpplugin)
         else:
             trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file, plugins=ddpplugin)

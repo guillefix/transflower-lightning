@@ -10,10 +10,12 @@ nlayers: 12
 nhead: 10
 use_pos_emb_output: True
 dhid: 800
+#prior_nlayers: 24
+prior_dropout: 0.2
 dropout: 0
 lr_policy: multistep
 lr_decay_milestones: [500,750]
-learning_rate: 5e-5
+learning_rate: 1e-5
 gradient_clip_val: 0.5
 batch_size: 64
 find_unused_parameters: True

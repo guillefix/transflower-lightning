@@ -5,7 +5,7 @@ import uuid
 import numpy as np
 
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
-from x_transformers import ContinuousTransformerWrapper, Decoder
+from x_transformers import ContinuousTransformerWrapper, Decoder, Encoder
 
 class PositionalEncoding(nn.Module):
 
@@ -72,6 +72,8 @@ class BasicTransformerModel(nn.Module):
             if use_pos_emb:
                 assert input_length > 0
                 self.pos_emb = nn.Parameter((torch.zeros(input_length, input_length)/np.sqrt(dinp)))
+                # self.pos_emb = nn.Parameter((torch.eye(input_length, input_length)))
+                # self.pos_emb = nn.Parameter((torch.randn(input_length, input_length))/np.sqrt(dinp))
 
             self.init_weights()
             #self.pos_encoder.init_weights()
@@ -81,11 +83,12 @@ class BasicTransformerModel(nn.Module):
                 dim_out = dout,
                 max_seq_len = 1024,
                 use_pos_emb = use_pos_emb,
-                attn_layers = Decoder(
+                attn_layers = Encoder(
                     dim = dhid,
                     depth = nlayers,
                     heads = nhead,
-                    rotary_pos_emb = opt.use_rotary_pos_emb
+                    rotary_pos_emb = opt.use_rotary_pos_emb,
+                    rel_pos_bias = True
                 )
             )
 
@@ -128,5 +131,8 @@ class BasicTransformerModel(nn.Module):
             return output
         else:
             assert src_mask == None
-            output = self.model(src.permute(1,0,2))
+            src = src.permute(1,0,2)
+            mask = torch.ones(src.shape[0], src.shape[1]).bool().cuda()
+            output = self.model(src, mask = mask)
+            # output = self.model(src.permute(1,0,2))
             return output.permute(1,0,2)
