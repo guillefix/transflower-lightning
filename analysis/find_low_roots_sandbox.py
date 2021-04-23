@@ -29,14 +29,16 @@ for i in tasks:
 data_pipe = Pipeline([
     # ('dwnsampl', DownSampler(tgt_fps=fps,  keep_all=False)),
     ('jtsel', JointSelector(['Spine', 'Spine1', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
-    ('exp', MocapParameterizer('position')),
+    ('pos', MocapParameterizer('position')),
 ])
 
 out_data = data_pipe.fit_transform(datas)
 
 yposs = list(filter(lambda x: x.split("_")[1]=="Yposition", out_data[0].values.columns))
 
-with open("to_check","w") as f:
+with open("to_check"+str(rank),"w") as f:
     for i,d in enumerate(out_data):
-        if d.values[yposs].min().min() < -10:
+        min_y = d.values[yposs].iloc[100:].mean().min()
+        if min_y < -10:
+            print(min_y, filenames[i].__str__())
             f.writelines(filenames[i].__str__()+"\n")
