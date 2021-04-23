@@ -8,6 +8,7 @@ analysis/aistplusplus_api/img/*
 inference/generated/*
 analysis/weight_mats/*
 analysis/tmp/*
+analysis/visualization/img/*
 ones_to_check.txt
 ones_to_check2.txt
 !training/experiments/block_placement_ddc2
@@ -26,3 +27,5 @@ data/music/*
 data/scaled_features.tar.gz
 test_data/*
 data/aistpp_mixamo_bvh.tar.gz
+data/features_20/*
+data/features_20.tar.gz

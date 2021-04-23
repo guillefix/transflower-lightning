@@ -90,7 +90,6 @@ class ResidualflowerModel(BaseModel):
 
         self.mean_model = TransformerModel(opt)
 
-        #This is feature creep. Will remove soon
         self.inputs = []
         self.targets = []
         self.criterion = nn.MSELoss()
