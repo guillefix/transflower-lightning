@@ -58,6 +58,7 @@ for i in tasks:
     if replace_existing or not os.path.isfile(new_feature_file):
         features = np.load(feature_file)
         transform = pickle.load(open(data_path.joinpath(feature_name+'_'+transform_name+'.pkl'), "rb"))
+        pickle.dump(transform, open(data_path.joinpath(new_feature_name+'_scaler.pkl'), "wb"))
         features = transform.transform(features)
         if transform_name == "pca_transform":
             features = features[:,:pca_dims]

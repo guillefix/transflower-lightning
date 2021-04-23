@@ -21,27 +21,24 @@ def find_example_idx(n, cum_sums, idx = 0):
 
 class MultimodalDataset(BaseDataset):
 
-    def __init__(self, opt):
+    def __init__(self, opt, split="train"):
         super().__init__()
         self.opt = opt
         data_path = Path(opt.data_dir)
         if not data_path.is_dir():
             raise ValueError('Invalid directory:'+opt.data_dir)
 
-        if opt.phase == "train":
-            temp_base_filenames = [x[:-1] for x in open(data_path.joinpath("base_filenames_train.txt"), "r").readlines()]
-        elif opt.phase == "test":
-            temp_base_filenames = [x[:-1] for x in open(data_path.joinpath("base_filenames_test.txt"), "r").readlines()]
+        temp_base_filenames = [x[:-1] for x in open(data_path.joinpath("base_filenames_"+split+".txt"), "r").readlines()]
         if opt.num_train_samples > 0:
             temp_base_filenames = np.random.choice(temp_base_filenames, size=opt.num_train_samples, replace=False)
         self.base_filenames = []
 
         input_mods = self.opt.input_modalities.split(",")
         output_mods = self.opt.output_modalities.split(",")
-        self.input_lengths = input_lengths = [int(x) for x in self.opt.input_lengths.split(",")]
-        self.output_lengths = output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
-        self.output_time_offsets = output_time_offsets = [int(x) for x in self.opt.output_time_offsets.split(",")]
-        self.input_time_offsets = input_time_offsets = [int(x) for x in self.opt.input_time_offsets.split(",")]
+        self.input_lengths = input_lengths = [int(x) for x in str(self.opt.input_lengths).split(",")]
+        self.output_lengths = output_lengths = [int(x) for x in str(self.opt.output_lengths).split(",")]
+        self.output_time_offsets = output_time_offsets = [int(x) for x in str(self.opt.output_time_offsets).split(",")]
+        self.input_time_offsets = input_time_offsets = [int(x) for x in str(self.opt.input_time_offsets).split(",")]
 
         if len(output_time_offsets) < len(output_mods):
             if len(output_time_offsets) == 1:
@@ -195,6 +192,8 @@ class MultimodalDataset(BaseDataset):
     @staticmethod
     def modify_commandline_options(parser, is_train):
         parser.add_argument('--sampling_rate', default=44100, type=float)
+        parser.add_argument('--dins', default=None)
+        parser.add_argument('--douts', default=None)
         parser.add_argument('--input_modalities', default='mp3_mel_100')
         parser.add_argument('--output_modalities', default='mp3_mel_100')
         parser.add_argument('--input_lengths', help='input sequence length')
@@ -204,8 +203,6 @@ class MultimodalDataset(BaseDataset):
         parser.add_argument('--max_token_seq_len', type=int, default=1024)
         parser.add_argument('--fix_lengths', action='store_true', help='fix unmatching length of sequences')
         parser.add_argument('--num_train_samples', type=int, default=0, help='if 0 then use all of them')
-        parser.set_defaults(output_length=1)
-        parser.set_defaults(output_channels=1)
 
         return parser
 
@@ -215,6 +212,8 @@ class MultimodalDataset(BaseDataset):
     def __getitem__(self, item):
         idx = find_example_idx(item, self.frame_cum_sums)
         base_filename = self.base_filenames[idx]
+        # print("base_filename")
+        # print(base_filename)
 
         input_lengths = self.input_lengths
         output_lengths = self.output_lengths
@@ -257,6 +256,7 @@ class MultimodalDataset(BaseDataset):
         ## CONSTRUCT TENSOR OF OUTPUT FEATURES ##
         output_windows = [torch.tensor(yy[index+output_time_offsets[j]:index+output_time_offsets[j]+output_lengths[j], :]).float() for j,yy in enumerate(y)]
 
+        # print(input_windows[i])
         return_dict = {}
         for i,mod in enumerate(input_mods):
             return_dict["in_"+mod] = input_windows[i]
@@ -268,6 +268,7 @@ class MultimodalDataset(BaseDataset):
     def __len__(self):
         # return len(self.base_filenames)
         return self.total_frames
+        # return 2
 
 
 def pairwise(iterable):

@@ -1,0 +1,32 @@
+model: residualflower2
+mean_model: transformer
+residual_model: moglow
+lr_policy: "multistep"
+lr_decay_milestones: "[25,50]"
+learning_rate: 5e-5
+dins: "72,23"
+douts: "72"
+input_modalities: "expmap_scaled_20,mel_ddcpca_scaled_20"
+output_modalities: "expmap_scaled_20"
+input_lengths: "59,60"
+output_lengths: "20"
+output_time_offsets: "40"
+mean_nlayers: 6
+mean_nhead: 10
+mean_use_pos_emb_output: True
+mean_dhid: 800
+dropout: 0
+gradient_clip_val: 0.5
+residual_input_seq_lens: "40,41"
+residual_glow_K: 16
+batch_size: 8
+#    --residual_dhid=800 \
+#    --residual_cond_concat_dims \
+#    --residual_glow_norm_layer="batchnorm" \
+#    --residual_glow_bn_momentum=0.1 \
+#    --residual_scales="[[4,0], [4,0]]" \
+#    --residual_num_glow_coupling_blocks=2 \
+#    --residual_glow_use_attn \
+#    --residual_use_transformer_nn \
+#    --residual_use_pos_emb_coupling \
+#    --residual_use_pos_emb_output \

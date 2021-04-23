@@ -1,3 +1,8 @@
+import sys
+import os
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
+sys.path.append(ROOT_DIR)
 import numpy as np; import scipy.linalg
 # LUL
 w_shape = [219,219]
@@ -8,12 +13,20 @@ from training.datasets import create_dataset, create_dataloader
 
 from models import create_model
 from training.options.train_options import TrainOptions
+import torch
 import pytorch_lightning as pl
 import numpy as np
-import pickle, json
+import pickle, json, yaml
 import sklearn
 import argparse
 import os, glob
+from pathlib import Path
+
+from analysis.visualization.generate_video_from_mats import generate_video_from_mats
+from analysis.visualization.generate_video_from_expmaps import generate_video_from_expmaps
+from analysis.visualization.generate_video_from_moglow_pos import generate_video_from_moglow_loc
+
+from training.utils import get_latest_checkpoint
 
 if __name__ == '__main__':
     print("Hi")
@@ -22,14 +35,28 @@ if __name__ == '__main__':
     parser.add_argument('--output_folder', type=str)
     parser.add_argument('--experiment_name', type=str)
     parser.add_argument('--seq_id', type=str)
-    parser.add_argument('--scalers', type=str, default="")
+    parser.add_argument('--no-use_scalers', dest='use_scalers', action='store_false')
+    parser.add_argument('--generate_video', action='store_true')
+    parser.add_argument('--generate_bvh', action='store_true')
+    parser.add_argument('--fps', type=int, default=20)
     args = parser.parse_args()
     data_dir = args.data_dir
+    fps = args.fps
     output_folder = args.output_folder
     seq_id = args.seq_id
 
-    #TODO: change this to load hparams from the particular version folder, that we load the model from, coz the opts could differ between versions potentially.
-    exp_opt = json.loads(open("training/experiments/"+args.experiment_name+"/opt.json","r").read())
+    if seq_id is None:
+        temp_base_filenames = [x[:-1] for x in open(data_dir + "/base_filenames_test.txt", "r").readlines()]
+        seq_id = np.random.choice(temp_base_filenames)
+
+    #load hparams file
+    default_save_path = "training/experiments/"+args.experiment_name
+    logs_path = default_save_path
+    latest_checkpoint = get_latest_checkpoint(logs_path)
+    print(latest_checkpoint)
+    checkpoint_dir = Path(latest_checkpoint).parent.parent.absolute()
+    # exp_opt = json.loads(open("training/experiments/"+args.experiment_name+"/opt.json","r").read())
+    exp_opt = yaml.load(open(str(checkpoint_dir)+"/hparams.yaml","r").read())
     opt = vars(TrainOptions().parse(parse_args=["--model", exp_opt["model"]]))
     print(opt)
     opt.update(exp_opt)
@@ -45,21 +72,15 @@ if __name__ == '__main__':
 
     input_mods = opt.input_modalities.split(",")
     output_mods = opt.output_modalities.split(",")
-    scalers = [x+"_scaler.pkl" for x in output_mods]
+    output_time_offsets = [int(x) for x in str(opt.output_time_offsets).split(",")]
+    if args.use_scalers:
+        scalers = [x+"_scaler.pkl" for x in output_mods]
+    else:
+        scalers = []
 
     # Load latest trained checkpoint from experiment
-    default_save_path = opt.checkpoints_dir+"/"+opt.experiment_name
-    # logs_path = default_save_path+"/lightning_logs"
-    logs_path = default_save_path
-    checkpoint_subdirs = [(d,int(d.split("_")[1])) for d in os.listdir(logs_path) if (os.path.isdir(logs_path+"/"+d) and d.split("_")[0]=="version")]
-    checkpoint_subdirs = sorted(checkpoint_subdirs,key=lambda t: t[1])
-    checkpoint_path=logs_path+"/"+checkpoint_subdirs[-1][0]+"/checkpoints/"
-    list_of_files = glob.glob(checkpoint_path+'/*') # * means all if need specific format then *.csv
-    latest_file = max(list_of_files, key=os.path.getctime)
-    print(latest_file)
     model = create_model(opt)
-    # model.setup(is_train=True)
-    model = model.load_from_checkpoint(latest_file, opt=opt)
+    model = model.load_from_checkpoint(latest_checkpoint, opt=opt)
 
     # Load input features (sequences must have been processed previously into features)
     features = {}
@@ -68,18 +89,44 @@ if __name__ == '__main__':
         features["in_"+mod] = np.expand_dims(feature,0).transpose((1,0,2))
 
     # Generate prediction
-    model.cuda()
+    if torch.cuda.is_available():
+        model.cuda()
     # import pdb;pdb.set_trace()
     predicted_mods = model.generate(features)
     # import pdb;pdb.set_trace()
-    # At the moment we are hardcoding the output mod. TODO: make more general
     for i, mod in enumerate(output_mods):
         predicted_mod = predicted_mods[i].cpu().numpy()
         if len(scalers)>0:
             transform = pickle.load(open(data_dir+"/"+scalers[i], "rb"))
             predicted_mod = transform.inverse_transform(predicted_mod)
         print(predicted_mod)
-        np.save(output_folder+"/"+args.experiment_name+"/predicted_mods/"+seq_id+"."+mod+".generated",predicted_mod)
+        predicted_features_file = output_folder+"/"+args.experiment_name+"/predicted_mods/"+seq_id+"."+mod+".generated"
+        np.save(predicted_features_file,predicted_mod)
+        predicted_features_file += ".npy"
 
-    with open(output_folder+"/"+args.experiment_name+"/predicted_mods/"+seq_id+"_audio_trim.txt", "w") as f:
-       f.writelines(str(opt.output_time_offsets.split(",")[0]))
+        if args.generate_video:
+            trim_audio = output_time_offsets[i] / fps #converting trim_audio from being in frames (which is more convenient as thats how we specify the output_shift in the models), to seconds
+            print("trim_audio: ",trim_audio)
+
+            audio_file = data_dir + "/" + seq_id + ".mp3"
+
+            output_folder = output_folder+"/"+args.experiment_name+"/videos/"
+
+            if mod == "joint_angles_scaled":
+                generate_video_from_mats(predicted_features_file,output_folder,audio_file,trim_audio,fps,plot_mats)
+            elif mod == "expmap_scaled" or mod == "expmap_scaled_20":
+                pipeline_file = f'{data_dir}/motion_{mod}_data_pipe.sav'
+                generate_video_from_expmaps(predicted_features_file,pipeline_file,output_folder,audio_file,trim_audio,args.generate_bvh)
+            elif mod == "position_scaled":
+                control_file = f'{data_dir}/{seq_id}.moglow_control_scaled.npy'
+                data = np.load(predicted_features_file)[:,0,:]
+                control = np.load(control_file)
+                if args.use_scalers:
+                    transform = pickle.load(open(data_dir+"/moglow_control_scaled_scaler.pkl", "rb"))
+                    control = transform.inverse_transform(control)
+                control = control[int(opt.output_time_offsets.split(",")[0]):]
+                generate_video_from_moglow_loc(data,control,output_folder,seq_id,audio_file,fps,trim_audio)
+            else:
+                print("Warning: mod "+mod+" not supported")
+                # raise NotImplementedError(f'Feature type {feature_type} not implemented')
+                pass

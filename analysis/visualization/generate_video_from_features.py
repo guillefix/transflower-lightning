@@ -9,7 +9,7 @@ sys.path.append(ROOT_DIR)
 
 from analysis.visualization.generate_video_from_mats import generate_video_from_mats
 from analysis.visualization.generate_video_from_expmaps import generate_video_from_expmaps
-
+from analysis.visualization.generate_video_from_moglow_pos import generate_video_from_moglow_loc
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate video from expmaps')
@@ -21,6 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--fps', type=float, default=60)
     parser.add_argument('--plot_mats', action="store_true")
     parser.add_argument('--pipeline_file', type=str)
+    parser.add_argument('--control_file', type=str)
     parser.add_argument('--generate_bvh', action="store_true")
     args = parser.parse_args()
     globals().update(vars(args))
@@ -31,8 +32,11 @@ if __name__ == '__main__':
 
     if feature_type == "rot_mat":
         generate_video_from_mats(features_file,output_folder,audio_file,trim_audio,fps,plot_mats)
-    elif feature_type == "expmap":
-        # assert pipeline_file is not None #Need to supply pipeline file to process exmaps
+    elif feature_type == "expmap_scaled" or feature_type == "expmap_scaled_20":
+        assert pipeline_file is not None #Need to supply pipeline file to process exmaps
         generate_video_from_expmaps(features_file,pipeline_file,output_folder,audio_file,trim_audio,generate_bvh)
+    elif feature_type == "moglow_loc":
+        assert control_file is not None
+        generate_video_from_moglow_loc(features_file,control_file,output_folder,audio_file,fps,trim_audio)
     else:
         raise NotImplementedError(f'Feature type {feature_type} not implemented')

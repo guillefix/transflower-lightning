@@ -6,10 +6,9 @@ import importlib
 import pkgutil
 import models
 import training.datasets as data
-import json
+import json, yaml
 import training.utils as utils
 from argparse import Namespace
-
 
 class BaseOptions:
     def __init__(self):
@@ -17,11 +16,14 @@ class BaseOptions:
                                          add_help=False)  # TODO - check that help is still displayed
         # parser.add_argument('--task', type=str, default='training', help="Module from which dataset and model are loaded")
         parser.add_argument('-d', '--data_dir', type=str, default='data/scaled_features')
+        parser.add_argument('--hparams_file', type=str, default=None)
         parser.add_argument('--dataset_name', type=str, default="multimodal")
         parser.add_argument('--phase', type=str, default='train', help='train, val, test, etc')
         parser.add_argument('--batch_size', default=1, type=int)
         parser.add_argument('--val_batch_size', default=1, type=int, help='batch size for validation data loader')
-        parser.add_argument('--num_windows', default=16, type=int)
+        parser.add_argument('--do_validation', action='store_true', help='whether to do validation steps during training')
+        parser.add_argument('--do_testing', action='store_true', help='whether to do evaluation on test set at the end of training')
+        parser.add_argument('--skip_training', action='store_true', help='whether to not do training (only useful when doing just testing)')
         # parser.add_argument('--augment', type=int, default=0)
         parser.add_argument('--model', type=str, default="transformer", help="The network model used for beatsaberification")
         # parser.add_argument('--init_type', type=str, default="normal")
@@ -31,10 +33,10 @@ class BaseOptions:
         # and here https://pytorch-lightning.readthedocs.io/_/downloads/en/latest/pdf/ (where they recommend to use accelerator=ddp rather than ddp_spawn)
         parser.add_argument('--experiment_name', default="experiment_name", type=str)
         parser.add_argument('--checkpoints_dir', default="training/experiments", type=str, help='checkpoint folder')
-        parser.add_argument('--do_validation', action='store_true', help='whether to do validation steps during training')
         parser.add_argument('--verbose', action='store_true', help='if specified, print more debugging information')
         parser.add_argument('--load_weights_only', action='store_true', help='if specified, we load the model weights from the last checkpoint for the specified experiment, WITHOUT loading the optimizer parameters! (allows to continue traning while changing the optimizer)')
         parser.add_argument('--fork_processes', action='store_true', help="Set method to create dataloader child processes to fork instead of spawn (could take up more memory)")
+        parser.add_argument('--find_unused_parameters', action='store_true', help="option used with DDP which allows having parameters which are not used for producing the loss. Setting it to false is more efficient, if this option is not needeed")
         # parser.add_argument('--override_optimizers', action='store_true', help='if specified, we will use the optimizer parameters set by the hparams, even if we are continuing from checkpoint')
         # maybe could override optimizer using this? https://github.com/PyTorchLightning/pytorch-lightning/issues/3095 but need to know the epoch at which to change it
 
@@ -44,6 +46,21 @@ class BaseOptions:
 
     def gather_options(self, parse_args=None):
         # get the basic options
+        if parse_args is not None:
+            opt, _ = self.parser.parse_known_args(parse_args)
+        else:
+            opt, _ = self.parser.parse_known_args()
+
+        defaults = vars(self.parser.parse_args([]))
+
+        if opt.hparams_file is not None:
+            if opt.hparams_file.endswith(".json"):
+                hparams_json = json.loads(jsmin(open(opt.hparams_file).read()))
+            elif opt.hparams_file.endswith(".yaml"):
+                hparams_json = yaml.load(open(opt.hparams_file))
+            hparams_json2 = {k:v for k,v in hparams_json.items() if (v != False and k in defaults)}
+            self.parser.set_defaults(**hparams_json2)
+
         if parse_args is not None:
             opt, _ = self.parser.parse_known_args(parse_args)
         else:
@@ -72,8 +89,25 @@ class BaseOptions:
         print(dataset_name)
         dataset_option_setter = data.get_option_setter(dataset_name)
         parser = dataset_option_setter(parser, self.is_train)
-        self.parser = parser
 
+        #add negation flags
+        defaults = vars(parser.parse_args([]))
+        # import pdb;pdb.set_trace()
+        for key,val in defaults.items():
+            if val == False:
+                parser.add_argument("--no-"+key, dest=key, action="store_false")
+
+        if opt.hparams_file is not None:
+            hparams_json2 = {}
+            for k,v in hparams_json.items():
+                if k in defaults:
+                    if v!= False:
+                        hparams_json2[k] = v
+                else:
+                    raise Exception("Hparam "+k+" not recognized!")
+            parser.set_defaults(**hparams_json2)
+
+        self.parser = parser
         if parse_args is not None:
             return parser.parse_args(parse_args)
         else:

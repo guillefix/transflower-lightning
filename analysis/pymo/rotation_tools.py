@@ -10,7 +10,7 @@ Adapted from that matlab file...
 import math
 import numpy as np
 import transforms3d as t3d
-from pymo.Quaternions import Quaternions
+from analysis.pymo.Quaternions import Quaternions
 
 def deg2rad(x):
     return x/180*math.pi

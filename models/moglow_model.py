@@ -4,42 +4,17 @@ from models import BaseModel
 from .util.generation import autoregressive_generation_multimodal
 from .moglow.models import Glow
 
-#TODO: IMPLEMENT THE AUTOREGRESSIVE FEATURE FLATTENING
-
 class MoglowModel(BaseModel):
     def __init__(self, opt):
         super().__init__(opt)
-        self.opt = opt
-        self.input_mods = input_mods = self.opt.input_modalities.split(",")
-        self.output_mods = output_mods = self.opt.output_modalities.split(",")
-        self.dins = dins = [int(x) for x in self.opt.dins.split(",")]
-        if opt.phase == "inference":
-            self.input_lengths = input_lengths = [int(x) for x in self.opt.input_seq_lens.split(",")]
-            self.output_lengths = output_lengths = [int(x) for x in self.opt.output_seq_lens.split(",")]
-        else:
-            self.input_lengths = input_lengths = [int(x) for x in self.opt.input_lengths.split(",")]
-            self.output_lengths = output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
-        self.output_time_offsets = output_time_offsets = [int(x) for x in self.opt.output_time_offsets.split(",")]
-        self.input_time_offsets = input_time_offsets = [int(x) for x in self.opt.input_time_offsets.split(",")]
-        self.input_seq_lens = input_seq_lens = [int(x) for x in self.opt.input_seq_lens.split(",")]
-        self.output_seq_lens = output_seq_lens = [int(x) for x in self.opt.output_seq_lens.split(",")]
-        # self.predicted_inputs = predicted_inputs = [int(x) for x in self.opt.predicted_inputs.split(",")]
 
-        if len(output_time_offsets) < len(output_mods):
-            if len(output_time_offsets) == 1:
-                self.output_time_offsets = output_time_offsets = output_time_offsets*len(output_mods)
-            else:
-                raise Exception("number of output_time_offsets doesnt match number of output_mods")
-
-        if len(input_time_offsets) < len(input_mods):
-            if len(input_time_offsets) == 1:
-                self.input_time_offsets = input_time_offsets = input_time_offsets*len(input_mods)
-            else:
-                raise Exception("number of input_time_offsets doesnt match number of input_mods")
+        input_seq_lens = self.input_seq_lens
+        dins = self.dins
+        douts = self.douts
 
         # import pdb;pdb.set_trace()
         cond_dim = dins[0]*input_seq_lens[0]+dins[1]*input_seq_lens[1]
-        output_dim = dins[0]
+        output_dim = douts[0]
         glow = Glow(output_dim, cond_dim, self.opt)
         setattr(self, "net"+"_glow", glow)
 
@@ -48,13 +23,35 @@ class MoglowModel(BaseModel):
         self.criterion = nn.MSELoss()
         # self.has_initialized = False
 
+    def parse_base_arguments(self):
+        super().parse_base_arguments()
+        self.input_seq_lens = [int(x) for x in str(self.opt.input_seq_lens).split(",")]
+        self.output_seq_lens = [int(x) for x in str(self.opt.output_seq_lens).split(",")]
+        if self.opt.phase == "inference":
+            self.input_lengths = [int(x) for x in self.opt.input_seq_lens.split(",")]
+            self.output_lengths = [int(x) for x in self.opt.output_seq_lens.split(",")]
+        else:
+            self.input_lengths = [int(x) for x in self.opt.input_lengths.split(",")]
+            self.output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
+
+        if len(self.output_time_offsets) < len(self.output_mods):
+            if len(self.output_time_offsets) == 1:
+                self.output_time_offsets = self.output_time_offsets*len(self.output_mods)
+            else:
+                raise Exception("number of output_time_offsets doesnt match number of output_mods")
+
+        if len(self.input_time_offsets) < len(self.input_mods):
+            if len(input_time_offsets) == 1:
+                self.input_time_offsets = self.input_time_offsets*len(self.input_mods)
+            else:
+                raise Exception("number of input_time_offsets doesnt match number of input_mods")
+
     def name(self):
         return "Moglow"
 
     @staticmethod
     def modify_commandline_options(parser, opt):
         parser.add_argument('--dhid', type=int, default=512)
-        parser.add_argument('--dins', default=None)
         parser.add_argument('--input_seq_lens', type=str, default="10,11")
         parser.add_argument('--output_seq_lens', type=str, default="1")
         parser.add_argument('--glow_K', type=int, default=16)
@@ -84,7 +81,13 @@ class MoglowModel(BaseModel):
         output_seq = autoregressive_generation_multimodal(features, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
         return output_seq
 
+    def on_test_start(self):
+        self.net_glow.init_lstm_hidden()
+
     def on_train_start(self):
+        self.net_glow.init_lstm_hidden()
+
+    def on_test_batch_start(self, batch, batch_idx, dataloader_idx):
         self.net_glow.init_lstm_hidden()
 
     def on_train_batch_start(self, batch, batch_idx, dataloader_idx):
@@ -146,16 +149,18 @@ class MoglowModel(BaseModel):
         self.set_inputs(batch)
         z, nll = self.net_glow(x=self.targets[0], cond=torch.cat(self.inputs, dim=1))
 
-        output = self.net_glow(z=None, cond=torch.cat(self.inputs, dim=1), eps_std=1.0, reverse=True, output_length=self.output_lengths[0])
+        # output = self.net_glow(z=None, cond=torch.cat(self.inputs, dim=1), eps_std=1.0, reverse=True, output_length=self.output_lengths[0])
 
         nll_loss = Glow.loss_generative(nll)
-        mse_loss = self.criterion(output, self.targets[0])
-        loss = 0.1*nll_loss + 100*mse_loss
+        # mse_loss = self.criterion(output, self.targets[0])
+        # loss = 0.1*nll_loss + 100*mse_loss
+        loss = nll_loss
         # loss = mse_loss
-        print(nll_loss)
-        print(mse_loss)
-        # self.log('nll_loss', nll_loss)
-        self.log('mse_loss', mse_loss)
+        # print(nll_loss)
+        # print(mse_loss)
+        self.log('nll_loss', nll_loss)
+        self.log('loss', loss)
+        # self.log('mse_loss', mse_loss)
         # import pdb;pdb.set_trace()
         # if not self.has_initialized:
         #     self.has_initialized=True

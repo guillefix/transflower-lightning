@@ -14,37 +14,16 @@ class ResidualflowerModel(BaseModel):
     def __init__(self, opt):
         super().__init__(opt)
         self.opt = opt
-        self.input_mods = input_mods = self.opt.input_modalities.split(",")
-        self.output_mods = output_mods = self.opt.output_modalities.split(",")
-        self.dins = dins = [int(x) for x in self.opt.dins.split(",")]
-        self.douts = douts = [int(x) for x in self.opt.douts.split(",")]
-        self.input_lengths = input_lengths = [int(x) for x in self.opt.input_lengths.split(",")]
-        self.predicted_inputs = predicted_inputs = [int(x) for x in self.opt.predicted_inputs.split(",")]
-        self.output_lengths = output_lengths = [int(x) for x in self.opt.output_lengths.split(",")]
+        input_mods = self.input_mods
+        output_mods = self.output_mods
+        input_lengths = self.input_lengths
+        output_lengths = self.output_lengths
+        dins = self.dins
+        douts = self.douts
         if self.opt.conditioning_seq_lens is not None:
-            self.conditioning_seq_lens = [int(x) for x in self.opt.conditioning_seq_lens.split(",")]
+            self.conditioning_seq_lens = [int(x) for x in str(self.opt.conditioning_seq_lens).split(",")]
         else:
-            self.conditioning_seq_lens = [int(x) for x in self.opt.output_lengths.split(",")]
-        self.output_time_offsets = output_time_offsets = [int(x) for x in self.opt.output_time_offsets.split(",")]
-        self.input_time_offsets = input_time_offsets = [int(x) for x in self.opt.input_time_offsets.split(",")]
-
-        if len(output_time_offsets) < len(output_mods):
-            if len(output_time_offsets) == 1:
-                self.output_time_offsets = output_time_offsets = output_time_offsets*len(output_mods)
-            else:
-                raise Exception("number of output_time_offsets doesnt match number of output_mods")
-
-        if len(input_time_offsets) < len(input_mods):
-            if len(input_time_offsets) == 1:
-                self.input_time_offsets = input_time_offsets = input_time_offsets*len(input_mods)
-            else:
-                raise Exception("number of input_time_offsets doesnt match number of input_mods")
-
-        if len(predicted_inputs) < len(input_mods):
-            if len(predicted_inputs) == 1:
-                self.predicted_inputs = predicted_inputs = predicted_inputs*len(input_mods)
-            else:
-                raise Exception("number of predicted_inputs doesnt match number of input_mods")
+            self.conditioning_seq_lens = [int(x) for x in str(self.opt.output_lengths).split(",")]
 
         self.input_mod_nets = []
         self.output_mod_nets = []
@@ -101,8 +80,6 @@ class ResidualflowerModel(BaseModel):
     def modify_commandline_options(parser, opt):
         parser.add_argument('--dhid', type=int, default=512)
         parser.add_argument('--dhid_flow', type=int, default=512)
-        parser.add_argument('--dins', default=None)
-        parser.add_argument('--douts', default=None)
         parser.add_argument('--predicted_inputs', default="0")
         parser.add_argument('--conditioning_seq_lens', type=str, default=None, help="the number of outputs of the conditioning transformers to feed (meaning the number of elements along the sequence dimension)")
         parser.add_argument('--nlayers', type=int, default=6)

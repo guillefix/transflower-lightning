@@ -45,35 +45,37 @@ data_pipe = Pipeline([
     ('dwnsampl', DownSampler(tgt_fps=fps,  keep_all=False)),
     ('root', RootTransformer('pos_rot_deltas')),
     # ('mir', Mirror(axis='X', append=True)),
-    ('jtsel', JointSelector(['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
+    # ('jtsel', JointSelector(['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
+    ('jtsel', JointSelector(['Spine', 'Spine1', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
     (param, MocapParameterizer(param)),
     # ('cnst', ConstantsRemover()),
     ('np', Numpyfier())
 ])
 
 def extract_joint_angles(files):
-    data_all = list()
-    for f in files:
-        data_all.append(p.parse(f))
+    if len(files)>0:
+        data_all = list()
+        for f in files:
+            data_all.append(p.parse(f))
 
-    out_data = data_pipe.fit_transform(data_all)
+        out_data = data_pipe.fit_transform(data_all)
 
-    # NO: the datapipe will append the mirrored files to the end
-    # assert len(out_data) == 2*len(filenames)
-    assert len(out_data) == len(files)
+        # NO: the datapipe will append the mirrored files to the end
+        # assert len(out_data) == 2*len(filenames)
+        assert len(out_data) == len(files)
 
-    if rank == 0:
-        jl.dump(data_pipe, os.path.join(data_path, 'motion_'+param+'_data_pipe.sav'))
+        if rank == 0:
+            jl.dump(data_pipe, os.path.join(data_path, 'motion_'+param+'_data_pipe.sav'))
 
-    fi=0
-    for f in files:
-        features_file = f + "_"+param+".npy"
-        if replace_existing or not os.path.isfile(features_file):
-            #print(features_file)
-            #print(out_data[fi].shape)
-            np.save(features_file, out_data[fi])
-            # np.savez(ff + "_mirrored.npz", clips=out_data[len(files)+fi])
-            fi=fi+1
+        fi=0
+        for f in files:
+            features_file = f + "_"+param+".npy"
+            if replace_existing or not os.path.isfile(features_file):
+                #print(features_file)
+                #print(out_data[fi].shape)
+                np.save(features_file, out_data[fi])
+                # np.savez(ff + "_mirrored.npz", clips=out_data[len(files)+fi])
+                fi=fi+1
 
 candidate_motion_files = sorted(data_path.glob('**/*.bvh'), key=lambda path: path.parent.__str__())
 #candidate_motion_files = candidate_motion_files[:32]

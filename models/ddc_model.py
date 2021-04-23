@@ -26,7 +26,7 @@ class DDCModel(nn.Module):
         ])]
         self.loss_ce = None
         self.humaneness_reg = None
-        self.save_dir="training/experiments/block_placement_ddc2"
+        self.save_dir=opt.checkpoints_dir+"/block_placement_ddc2"
         self.device="cpu"
 
     def name(self):

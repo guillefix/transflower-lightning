@@ -13,6 +13,8 @@ ones_to_check.txt
 ones_to_check2.txt
 !training/experiments/block_placement_ddc2
 !training/experiments/block_placement_ddc2/opt.json
+*.out
+analysis/aistplusplus_api/SMPL_python_v.1.1.0/*
 #data
 data/features/*
 data/aistpp/videos/*
@@ -29,3 +31,12 @@ test_data/*
 data/aistpp_mixamo_bvh.tar.gz
 data/features_20/*
 data/features_20.tar.gz
+data/aistpp_20hz/*
+data/aistpp_60hz/*
+data/moglow_pos/*
+data/dance_full/*
+data/testing/*
+data/aistpp_ddcpca/*
+to_check*
+data/dance_combined/*
+data/dance_full.zip
