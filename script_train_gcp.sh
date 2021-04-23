@@ -46,13 +46,14 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
     --experiment_name=$exp\
     --workers=$(nproc) \
     --output_lengths="3" \
+    --accelerator=ddp \
     --tpu_cores=8 \
-    #--accelerator=ddp \
+    --stage2 \
+    --continue_train \
     #--scales="[[16,0]]" \
 #    --use_x_transformers \
 #    --use_rotary_pos_emb \
     #--residual_scales="[[16,0]]"
 #    --glow_norm_layer="actnorm" \
-#    --continue_train \
     #--use_pos_emb_output \
     #--gpus=2 \
