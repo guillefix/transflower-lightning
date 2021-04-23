@@ -1,8 +1,8 @@
 
 folder=$1
 py=python3
-#n=$(nproc)
-n=6
+n=$(nproc)
+#n=6
 
 #target fps
 fps=20
