@@ -1,15 +1,15 @@
 #!/bin/bash
 
-#data_dir=.
-data_dir=$SCRATCH/data
-#gsutil=gsutil
-gsutil=$SCRATCH/google-cloud-sdk/bin/gsutil
+data_dir=.
+#data_dir=$SCRATCH/data
+gsutil=gsutil
+#gsutil=$SCRATCH/google-cloud-sdk/bin/gsutil
 
 #gsutil -m cp -r gs://metagen/data/moglow_pos $data_dir/
-#gsutil -m cp -r gs://metagen/data/aistpp_20hz $data_dir/
+gsutil -m cp -r gs://metagen/data/aistpp_20hz $data_dir/
 #gsutil -m cp -r gs://metagen/data/aistpp_60hz $data_dir/
 #$gsutil -m cp -r gs://metagen/data/aistpp/music/*.mp3 $data_dir/aistpp_20hz/
-$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp -r gs://metagen/data/aistpp/music/*.mp3 $data_dir/aistpp_20hz/
+#$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp -r gs://metagen/data/aistpp/music/*.mp3 $data_dir/aistpp_20hz/
 
 #gsutil -m cp gs://metagen/data/features_20/*mel_ddcpca_scaled_20* features/
 #gsutil -m cp gs://metagen/data/features_20/*scaler* features/

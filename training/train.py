@@ -22,7 +22,10 @@ if __name__ == '__main__':
     print("loaded options")
     model = create_model(opt)
     print("loaded model")
-    ddpplugin = DDPPlugin(find_unused_parameters=opt.find_unused_parameters)
+    if opt.tpu_cores > 0:
+        ddpplugin = None
+    else:
+        ddpplugin = DDPPlugin(find_unused_parameters=opt.find_unused_parameters)
 
     ##Datasets and dataloaders
     train_dataset = create_dataset(opt)
