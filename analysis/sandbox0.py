@@ -14,10 +14,16 @@ p = BVHParser()
 # f="data/dance_full/shadermotion_data2_retarget/bvh/VRChat_Dance_2.bvh"
 # f="data/dance_full/shadermotion_data2_retarget/bvh/VRChat_Dance_8.bvh"
 f="data/dance_full/kth_streetdance_data/bvh/Streetdance_001.bvh"
+f="data/dance_full/vibe_dance/bvh/Take1.bvh"
+# f="data/dance_full/shadermotion_data2_retarget/bvh/VRChat_Dance_0.bvh"
+f="data/dance_full/tmp/bvh/VRChat_Dance_0.bvh"
+f="data/dance_full/testing/VRChat_Dance_0.bvh"
+# f="data/dance_full/tmp/bvh/VRChat_Dance_0.bvh"
+# f="data/dance_full/testing/VRChat_Dance_0.bvh"
 
 data = p.parse(f)
 
-print_skel(data)
+# print_skel(data)
 
 # f="analysis/mixamo.bvh"
 #
@@ -41,9 +47,17 @@ data_pipe = Pipeline([
 
 out_data = data_pipe.fit_transform([data])
 
-video_file = "analysis/tmp/Streetdance_001.mp4"
+# video_file = "analysis/tmp/Streetdance_001.mp4"
+# video_file = "analysis/tmp/sm01.mp4"
+video_file = "analysis/tmp/sm01b.mp4"
 render_mp4(out_data[0], video_file, axis_scale=3, elev=45, azim=45)
-audio_file = "data/dance_full/kth_streetdance_data/music/Streetdance_001.wav"
+# render_mp4(out_data[0], video_file, axis_scale=100, elev=45, azim=45)
+# audio_file = "data/dance_full/kth_streetdance_data/music/Streetdance_001.wav"
+# audio_file = "data/dance_full/vibe_dance/audio/audio_001.wav"
+# audio_file = "data/dance_full/shadermotion_data2_retarget/audio/VRChat\ Dance_0.wav"
+audio_file = "data/dance_full/testing/VRChat_Dance_0.mp3"
+# audio_file = "data/dance_full/tmp/audio/VRChat\ Dance_0.wav"
+from analysis.visualization.utils import generate_video_from_images, join_video_and_audio
 join_video_and_audio(video_file, audio_file, 0)
 
 yposs = list(filter(lambda x: x.split("_")[1]=="Yposition", out_data[0].values.columns))
@@ -62,6 +76,12 @@ bvh_data=data_pipe.inverse_transform(out_data)
 writer = BVHWriter()
 with open('analysis/tmp/test.bvh','w') as f:
     writer.write(bvh_data[0], f)
+
+
+####
+last_index = data.values[(data.values["Hips_Xposition"] > 100000) | (data.values["Hips_Xposition"] < -100000)].index[-1]
+
+data.values.loc[last_index:].iloc[1:]
 
 
 ##################

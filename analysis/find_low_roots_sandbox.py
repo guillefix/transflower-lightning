@@ -7,6 +7,7 @@ from sklearn.pipeline import Pipeline
 from pathlib import Path
 import sys
 path = sys.argv[1]
+#cat to_check* | parallel -L 1 -I % python3 analysis/shift_bvh.py % -34
 
 from feature_extraction.utils import distribute_tasks
 from mpi4py import MPI
