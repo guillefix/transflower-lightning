@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import uuid
 import numpy as np
 
-from torch.nn import TransformerEncoder, TransformerEncoderLayer
+from torch.nn import TransformerEncoder, TransformerEncoderLayer, Transformer
 from x_transformers import ContinuousTransformerWrapper, Decoder, Encoder
 
 class PositionalEncoding(nn.Module):
@@ -32,8 +32,7 @@ class PositionalEncoding(nn.Module):
        return self.dropout(x)
 
 
-class LearnedPositionalEncoding(nn.Module):
-
+class LearnedPositionalEncoding(nn.Module): # emm this isn't learned lol
     def __init__(self, d_model, dropout=0.1, max_len=5000, device=None):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(p=dropout)
@@ -71,7 +70,7 @@ class BasicTransformerModel(nn.Module):
             self.use_pos_emb = use_pos_emb
             if use_pos_emb:
                 assert input_length > 0
-                self.pos_emb = nn.Parameter((torch.zeros(input_length, input_length)/np.sqrt(dinp)))
+                self.pos_emb = nn.Parameter((torch.zeros(input_length, input_length)))
                 # self.pos_emb = nn.Parameter((torch.eye(input_length, input_length)))
                 # self.pos_emb = nn.Parameter((torch.randn(input_length, input_length))/np.sqrt(dinp))
 
@@ -136,3 +135,62 @@ class BasicTransformerModel(nn.Module):
             output = self.model(src, mask = mask)
             # output = self.model(src.permute(1,0,2))
             return output.permute(1,0,2)
+
+class EncDecTransformerModel(nn.Module):
+
+    def __init__(self, dout, src_d, tgt_d, nhead, dhid, nlayers, dropout=0.5,device=None,use_pos_emb=False,src_length=0,tgt_length=0,use_x_transformers=False,opt=None):
+        super(EncDecTransformerModel, self).__init__()
+        self.device = device
+        self.model_type = 'Transformer'
+        self.use_x_transformers = use_x_transformers
+        if not use_x_transformers:
+            self.encoder1 = nn.Linear(src_d, dhid)
+            self.encoder2 = nn.Linear(tgt_d, dhid)
+            self.transformer = Transformer(d_model=dhid, nhead=nhead, num_encoder_layers=nlayers, num_decoder_layers=nlayers, dropout=dropout, activation="gelu")
+            # self.encoder = nn.Embedding(ntoken, dinp)
+            self.src_d = src_d
+            self.tgt_d = tgt_d
+            self.dhid = dhid
+            self.decoder = nn.Linear(dhid, dout)
+            self.use_pos_emb = use_pos_emb
+            if use_pos_emb:
+                assert src_length > 0
+                assert tgt_length > 0
+                self.src_pos_emb = nn.Parameter((torch.zeros(src_length, src_length)))
+                self.tgt_pos_emb = nn.Parameter((torch.zeros(tgt_length, tgt_length)))
+
+            tgt_mask = self.generate_square_subsequent_mask(tgt_length)
+            self.register_buffer("tgt_mask", tgt_mask)
+
+            self.init_weights()
+        else:
+            raise NotImplementedError("Haven't implemented integration with XTrasformers for encoder-decoder type of transformers")
+
+    def generate_square_subsequent_mask(self, sz):
+        mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
+        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
+        return mask
+
+    def init_weights(self):
+        initrange = 0.1
+        # self.encoder.weight.data.uniform_(-initrange, initrange)
+        self.decoder.bias.data.zero_()
+        self.decoder.weight.data.uniform_(-initrange, initrange)
+
+    def forward(self, src, tgt):
+        if not self.use_x_transformers:
+            # import pdb;pdb.set_trace()
+            src = self.encoder1(src)
+            tgt = self.encoder2(tgt)
+            tgt_mask = self.tgt_mask[:tgt.shape[0], :tgt.shape[0]]
+            tgt_pos_emb = self.tgt_pos_emb[:tgt.shape[0], :tgt.shape[0]]
+            if self.use_pos_emb:
+                # import pdb;pdb.set_trace()
+                output = self.transformer(src=src, tgt=tgt, src_mask=self.src_pos_emb, tgt_mask=tgt_pos_emb+tgt_mask)
+            else:
+                output = self.transformer(src=src, tgt=tgt, tgt_mask=tgt_mask)
+            output = self.decoder(output)
+            return output
+        else:
+            raise NotImplementedError("Haven't implemented integration with XTrasformers for encoder-decoder type of transformers")
+

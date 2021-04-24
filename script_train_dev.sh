@@ -65,9 +65,9 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --gpus=1 \
     --accelerator=ddp \
     --output_lengths="3" \
-#    --stage2 \
-#    --continue_train \
-#    --load_weights_only \
+    --stage2 \
+    --continue_train \
+    --load_weights_only \
 #    --prior_use_x_transformers \
 #    --scales="[[16,0]]" \
 #    --use_x_transformers \

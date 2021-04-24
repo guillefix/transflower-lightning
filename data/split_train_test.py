@@ -54,7 +54,7 @@ test_basenames += aistpp_test
 assert len(train_basenames) + len(test_basenames) + len(aistpp_bad_ones) == len(basenames)
 
 with open("dance_combined/base_filenames_train.txt", "w") as f:
-    f.writelines(train_basenames)
+    f.writelines([x+"\n" for x in train_basenames])
 
 with open("dance_combined/base_filenames_val.txt", "w") as f:
-    f.writelines(test_basenames)
+    f.writelines([x+"\n" for x in test_basenames])

@@ -105,6 +105,7 @@ class MowgliModel(BaseModel):
         parser.add_argument('--prior_dropout', type=float, default=0)
         parser.add_argument('--prior_loss_weight_initial', type=float, default=0)
         parser.add_argument('--prior_loss_weight_warmup_epochs', type=float, default=500)
+        parser.add_argument('--max_prior_loss_weight', type=float, default=0, help="max value of prior loss weight during stage 1 (e.g. 0.01 is a good value)")
         parser.add_argument('--vae_num_resnet_blocks', type=int, default=1)
         parser.add_argument('--vae_temp', type=float, default=0.9)
         parser.add_argument('--vae_hard', action='store_true', help="whether to use the hard one-hot vector as output and use the straight through gradient estimator, for discrete latents")
@@ -133,18 +134,20 @@ class MowgliModel(BaseModel):
                 predicted_mean = self.output_mod_mean_nets[i](trans_predicted_mean_latents)
                 # residual, _ = self.output_mod_glows[i](x=None, cond=trans_output.permute(1,0,2), reverse=True)
                 residual = self.output_mod_vaes[i].generate(trans_output.permute(1,2,0), temp=temp)
-                output = predicted_mean + residual.permute(1,0,2)
+                residual = residual.squeeze(-1)
+                output = predicted_mean + residual.permute(2,0,1)
                 outputs.append(output)
         else:
             for i, mod in enumerate(self.output_mods):
                 trans_output = self.output_mod_nets[i].forward(latent)[:self.conditioning_seq_lens[i]]
-                output, _ = self.output_mod_glows[i](x=None, cond=trans_output.permute(1,0,2), reverse=True)
-                output = self.output_mod_vaes[i].generate(output.permute(1,2,0), temp=temp)
-                outputs.append(output.permute(1,0,2))
+                output = self.output_mod_vaes[i].generate(trans_output.permute(1,2,0), temp=temp)
+                # import pdb;pdb.set_trace()
+                output = output.squeeze(-1)
+                outputs.append(output.permute(2,0,1))
         return outputs
 
     def on_train_epoch_start(self):
-        self.prior_loss_weight = min((self.opt.prior_loss_weight_warmup_epochs - self.current_epoch)/self.opt.prior_loss_weight_warmup_epochs, 1)
+        self.prior_loss_weight = self.opt.max_prior_loss_weight * min((self.opt.prior_loss_weight_warmup_epochs - self.current_epoch)/self.opt.prior_loss_weight_warmup_epochs, 1)
 
     def training_step(self, batch, batch_idx):
         self.set_inputs(batch)
@@ -168,18 +171,22 @@ class MowgliModel(BaseModel):
                 vae = self.output_mod_vaes[i]
                 if not self.opt.stage2:
                     nll_loss += vae((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents.permute(1,2,0), return_loss=True) #time, batch, features -> batch, features, time
-                    prior_loss, accuracy = vae.prior_logp((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents.permute(1,2,0), return_accuracy=True)
-                    accuracies.append(accuracy)
-                    nll_loss += self.prior_loss_weight * prior_loss
+                    if self.opt.max_prior_loss_weight > 0:
+                        prior_loss, accuracy = vae.prior_logp((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents.permute(1,2,0), return_accuracy=True)
+                        accuracies.append(accuracy)
+                        nll_loss += self.prior_loss_weight * prior_loss
                 else:
-                    nll_loss += vae.prior_logp((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents.permute(1,2,0))
+                    prior_loss, accuracy = vae.prior_logp((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents.permute(1,2,0), return_accuracy=True)
+                    nll_loss += prior_loss
+                    accuracies.append(accuracy)
                 mse_loss += 100*self.mean_loss(predicted_mean[i], self.targets[i])
             loss = nll_loss + mse_loss
             self.mse_loss = mse_loss
             self.nll_loss = nll_loss
             self.log('mse_loss', mse_loss)
             self.log('nll_loss', nll_loss)
-            self.log('accuracy', torch.mean(torch.stack(accuracies)))
+            if len(accuracies) > 0:
+                self.log('accuracy', torch.mean(torch.stack(accuracies)))
         else:
             loss = 0
             accuracies = []
@@ -189,14 +196,18 @@ class MowgliModel(BaseModel):
                 # import pdb;pdb.set_trace()
                 if not self.opt.stage2:
                     loss += vae(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_loss=True) #time, batch, features -> batch, features, time
-                    prior_loss, accuracy = vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_accuracy=True)
-                    loss += self.prior_loss_weight * prior_loss
-                    accuracies.append(accuracy)
+                    if self.opt.max_prior_loss_weight > 0:
+                        prior_loss, accuracy = vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_accuracy=True)
+                        loss += self.prior_loss_weight * prior_loss
+                        accuracies.append(accuracy)
                 else:
-                    loss += vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0))
+                    prior_loss, accuracy = vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_accuracy=True)
+                    loss += prior_loss
+                    accuracies.append(accuracy)
 
         self.log('loss', loss)
-        self.log('accuracy', torch.mean(torch.stack(accuracies)))
+        if len(accuracies) > 0:
+            self.log('accuracy', torch.mean(torch.stack(accuracies)))
         # print(loss)
         return loss
 
