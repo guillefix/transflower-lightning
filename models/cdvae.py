@@ -406,7 +406,7 @@ class ConditionalDiscreteVAE(nn.Module):
         with torch.no_grad():
             labels = self.get_codebook_indices(inputs, cond)
         # import pdb;pdb.set_trace()
-        cond = cond.detach()
+        # cond = cond.detach()
         logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1)).permute(1,2,0)
         loss = F.cross_entropy(logits, labels)
         if not return_accuracy:

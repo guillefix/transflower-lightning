@@ -179,7 +179,8 @@ class MowgliModel(BaseModel):
             self.nll_loss = nll_loss
             self.log('mse_loss', mse_loss)
             self.log('nll_loss', nll_loss)
-            self.log('accuracy', torch.mean(torch.stack(accuracies)))
+            if len(accuracies) > 0:
+                self.log('accuracy', torch.mean(torch.stack(accuracies)))
         else:
             loss = 0
             accuracies = []
@@ -193,10 +194,12 @@ class MowgliModel(BaseModel):
                     loss += self.prior_loss_weight * prior_loss
                     accuracies.append(accuracy)
                 else:
-                    loss += vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0))
+                    prior_loss, accuracy = vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_accuracy=True)
+                    loss += prior_loss
 
         self.log('loss', loss)
-        self.log('accuracy', torch.mean(torch.stack(accuracies)))
+        if len(accuracies) > 0:
+            self.log('accuracy', torch.mean(torch.stack(accuracies)))
         # print(loss)
         return loss
 
