@@ -48,7 +48,8 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
     --output_lengths="3" \
     --accelerator=ddp \
     --tpu_cores=8 \
-#    --continue_train \
+    --continue_train \
+    --stage2 \
     #--scales="[[16,0]]" \
 #    --use_x_transformers \
 #    --use_rotary_pos_emb \
