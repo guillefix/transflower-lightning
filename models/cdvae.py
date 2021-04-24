@@ -3,7 +3,7 @@ import torch
 from torch import nn, einsum
 import torch.nn.functional as F
 
-from models.transformer import BasicTransformerModel
+from models.transformer import BasicTransformerModel, EncDecTransformerModel
 
 from axial_positional_embedding import AxialPositionalEmbedding
 from einops import rearrange
@@ -334,14 +334,15 @@ class ConditionalDiscreteVAE(nn.Module):
         # take care of normalization within class
         self.normalization = normalization
 
+        latent_size = codebook_layer_shape1*codebook_layer_shape2
+        self.latent_size = latent_size
         if cond_dim > 0:
-            # import pdb;pdb.set_trace()
-            self.prior_transformer = BasicTransformerModel(num_tokens, cond_dim, prior_nhead, prior_dhid, prior_nlayers, prior_dropout,
-                                                           use_pos_emb=prior_use_pos_emb,
-                                                           input_length=codebook_layer_shape1*codebook_layer_shape2,
-                                                           use_x_transformers=prior_use_x_transformers,
-                                                           opt=opt,
-                                                           )
+            self.prior_transformer = ContDiscTransformer(cond_dim, num_tokens, prior_dhid, prior_nhead, prior_dhid, prior_nlayers, prior_dropout,
+                                                         use_pos_emb=prior_use_pos_emb,
+                                                         src_length=latent_size,
+                                                         tgt_length=latent_size,
+                                                         use_x_transformers=prior_use_x_transformers,
+                                                         opt=opt)
 
         # self._register_external_parameters()
 
@@ -407,25 +408,35 @@ class ConditionalDiscreteVAE(nn.Module):
             labels = self.get_codebook_indices(inputs, cond)
         # import pdb;pdb.set_trace()
         # cond = cond.detach()
-        logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1)).permute(1,2,0)
+        # logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1)).permute(1,2,0)
+        logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1), labels.permute(1,0)).permute(1,2,0)
         loss = F.cross_entropy(logits, labels)
         if not return_accuracy:
             return loss
         # import pdb;pdb.set_trace()
         predicted = logits.argmax(dim = 1).flatten(1)
         accuracy = (predicted == labels).sum()/predicted.nelement()
+        print(predicted)
+        print(labels)
+        print(accuracy)
         return loss, accuracy
 
-
-    def generate(self, cond, temp=1.0):
+    def generate(self, cond, temp=1.0, filter_thres = 0.5):
         if cond is None: raise NotImplementedError("Haven't implemented non-conditional DVAEs")
         if len(cond.shape) == 3:
             cond = cond.reshape(cond.shape[0], cond.shape[1],*self.codebook_layer_shape)
-        logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1)).permute(1,2,0)
-        temp = default(temp, self.temperature)
-        soft_one_hot = F.gumbel_softmax(logits, tau = temp, dim = 1, hard = self.straight_through)
-        sampled = einsum('b n h w, n d -> b d h w', soft_one_hot, self.codebook.weight)
-        sampled_cond = torch.cat([sampled,cond], dim=1)
+        dummy = torch.zeros(1,1).long().to(cond.device)
+        tokens = []
+        for i in range(self.latent_size):
+            # print(i)
+            logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1), torch.cat(tokens+[dummy], 0)).permute(1,2,0)[:,-1,:]
+            filtered_logits = top_k(logits, thres = filter_thres)
+            probs = F.softmax(filtered_logits / temp, dim = -1)
+            sampled = torch.multinomial(probs, 1)
+            tokens.append(sampled)
+        embs = self.codebook(torch.cat(tokens, 0))
+        # import pdb;pdb.set_trace()
+        sampled_cond = torch.cat([embs.permute(2,0,1).unsqueeze(0),cond], dim=1)
         out = self.decoder(sampled_cond)
         return out
 
@@ -488,3 +499,19 @@ class ConditionalDiscreteVAE(nn.Module):
             return loss
 
         return loss, out
+
+class ContDiscTransformer(nn.Module):
+
+    def __init__(self, src_d, tgt_num_tokens, tgt_emb_dim, nhead, dhid, nlayers, dropout=0.5,use_pos_emb=False,src_length=0,tgt_length=0,use_x_transformers=False,opt=None):
+        super(ContDiscTransformer, self).__init__()
+        self.transformer = EncDecTransformerModel(tgt_num_tokens, src_d, tgt_emb_dim, nhead, dhid, nlayers, dropout=dropout,use_pos_emb=use_pos_emb,src_length=src_length,tgt_length=tgt_length,use_x_transformers=use_x_transformers,opt=opt)
+        self.embedding = nn.Embedding(tgt_num_tokens, tgt_emb_dim)
+        self.first_input = nn.Parameter((torch.randn(1,1,tgt_emb_dim)))
+
+    def forward(self, src, tgt):
+        tgt = tgt[:-1]
+        embs = self.embedding(tgt)
+        # import pdb;pdb.set_trace()
+        embs = torch.cat([torch.tile(self.first_input, (1,embs.shape[1],1)), embs], 0)
+        output = self.transformer(src,embs)
+        return output
