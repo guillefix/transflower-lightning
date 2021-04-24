@@ -176,7 +176,7 @@ class MowgliModel(BaseModel):
                         accuracies.append(accuracy)
                         nll_loss += self.prior_loss_weight * prior_loss
                 else:
-                    prior_loss, accuracy = vae.prior_logp((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents.permute(1,2,0), return_accuracy=True)
+                    prior_loss, accuracy = vae.prior_logp((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents.permute(1,2,0), return_accuracy=True, detach_cond=True)
                     nll_loss += prior_loss
                     accuracies.append(accuracy)
                 mse_loss += 100*self.mean_loss(predicted_mean[i], self.targets[i])
@@ -201,7 +201,7 @@ class MowgliModel(BaseModel):
                         loss += self.prior_loss_weight * prior_loss
                         accuracies.append(accuracy)
                 else:
-                    prior_loss, accuracy = vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_accuracy=True)
+                    prior_loss, accuracy = vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_accuracy=True, detach_cond=True)
                     loss += prior_loss
                     accuracies.append(accuracy)
 

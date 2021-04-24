@@ -397,7 +397,8 @@ class ConditionalDiscreteVAE(nn.Module):
             self,
             inputs,
             cond = None,
-            return_accuracy = False
+            return_accuracy = False,
+            detach_cond = False
        ):
         if cond is None: raise NotImplementedError("Haven't implemented non-conditional DVAEs")
         if len(inputs.shape) == 3:
@@ -407,7 +408,8 @@ class ConditionalDiscreteVAE(nn.Module):
         with torch.no_grad():
             labels = self.get_codebook_indices(inputs, cond)
         # import pdb;pdb.set_trace()
-        # cond = cond.detach()
+        if detach_cond:
+            cond = cond.detach()
         # logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1)).permute(1,2,0)
         logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1), labels.permute(1,0)).permute(1,2,0)
         loss = F.cross_entropy(logits, labels)

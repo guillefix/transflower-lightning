@@ -50,6 +50,7 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
     --tpu_cores=8 \
     --continue_train \
     --stage2 \
+    --load_weights_only \
     #--scales="[[16,0]]" \
 #    --use_x_transformers \
 #    --use_rotary_pos_emb \
