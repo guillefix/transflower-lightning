@@ -144,7 +144,7 @@ class MowgliModel(BaseModel):
         return outputs
 
     def on_train_epoch_start(self):
-        self.prior_loss_weight = min((self.opt.prior_loss_weight_warmup_epochs - self.current_epoch)/self.opt.prior_loss_weight_warmup_epochs, 1)
+        self.prior_loss_weight = 0.01 * min((self.opt.prior_loss_weight_warmup_epochs - self.current_epoch)/self.opt.prior_loss_weight_warmup_epochs, 1)
 
     def training_step(self, batch, batch_idx):
         self.set_inputs(batch)
