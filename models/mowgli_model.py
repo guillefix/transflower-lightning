@@ -105,7 +105,7 @@ class MowgliModel(BaseModel):
         parser.add_argument('--prior_dropout', type=float, default=0)
         parser.add_argument('--prior_loss_weight_initial', type=float, default=0)
         parser.add_argument('--prior_loss_weight_warmup_epochs', type=float, default=500)
-        parser.add_argument('--max_prior_loss_weight', type=float, default=0.01, help="max value of prior loss weight during stage 1")
+        parser.add_argument('--max_prior_loss_weight', type=float, default=0, help="max value of prior loss weight during stage 1 (e.g. 0.01 is a good value)")
         parser.add_argument('--vae_num_resnet_blocks', type=int, default=1)
         parser.add_argument('--vae_temp', type=float, default=0.9)
         parser.add_argument('--vae_hard', action='store_true', help="whether to use the hard one-hot vector as output and use the straight through gradient estimator, for discrete latents")
@@ -176,7 +176,7 @@ class MowgliModel(BaseModel):
                         accuracies.append(accuracy)
                         nll_loss += self.prior_loss_weight * prior_loss
                 else:
-                    prior_loss, accuracy = vae.prior_logp((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents.permute(1,2,0), return_accuracy=True)
+                    prior_loss, accuracy = vae.prior_logp((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents.permute(1,2,0), return_accuracy=True, detach_cond=True)
                     nll_loss += prior_loss
                     accuracies.append(accuracy)
                 mse_loss += 100*self.mean_loss(predicted_mean[i], self.targets[i])
@@ -201,7 +201,7 @@ class MowgliModel(BaseModel):
                         loss += self.prior_loss_weight * prior_loss
                         accuracies.append(accuracy)
                 else:
-                    prior_loss, accuracy = vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_accuracy=True)
+                    prior_loss, accuracy = vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_accuracy=True, detach_cond=True)
                     loss += prior_loss
                     accuracies.append(accuracy)
 
