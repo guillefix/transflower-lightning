@@ -86,6 +86,13 @@ for i in tasks:
 
             featuress.append(features)
 
+        shortest_length = 99999999999
+        for feat in featuress:
+            if feat.shape[0] < shortest_length:
+                shortest_length = feat.shape[0]
+        for i in range(len(featuress)):
+            featuress[i] = featuress[i][:shortest_length]
+
         featuress = np.concatenate(featuress,1)
 
         np.save(features_file,featuress)

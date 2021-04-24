@@ -13,3 +13,4 @@ transforms3d
 x-transformers
 ftfy
 axial_positional_embedding
+madmom
