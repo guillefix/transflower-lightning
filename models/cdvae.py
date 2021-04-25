@@ -418,9 +418,9 @@ class ConditionalDiscreteVAE(nn.Module):
         # import pdb;pdb.set_trace()
         predicted = logits.argmax(dim = 1).flatten(1)
         accuracy = (predicted == labels).sum()/predicted.nelement()
-        print(predicted)
-        print(labels)
-        print(accuracy)
+        #print(predicted)
+        #print(labels)
+        #print(accuracy)
         return loss, accuracy
 
     def generate(self, cond, temp=1.0, filter_thres = 0.5):
