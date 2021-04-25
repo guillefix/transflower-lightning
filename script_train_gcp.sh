@@ -1,6 +1,7 @@
 #!/bin/bash
 
-export TPU_IP_ADDRESS=10.104.22.146;
+#export TPU_IP_ADDRESS=10.104.22.146;
+export TPU_IP_ADDRESS=10.95.66.34;
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
 export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
 #export XRT_WORKERS="localservice:0;grpc://localhost:40934"
@@ -53,14 +54,15 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
     --experiment_name=$exp\
     --workers=$(nproc) \
     --tpu_cores=8 \
-    #--stage2 \
+    --workers=$(nproc) \
     #--continue_train \
     #--load_weights_only \
+    #--stage2 \
+    #--prior_use_x_transformers \
     #--output_lengths="3" \
     #--max_prior_loss_weight=0.01 \
     #--accelerator=ddp \
     #--scales="[[16,0]]" \
-#    --use_x_transformers \
 #    --use_rotary_pos_emb \
     #--residual_scales="[[16,0]]"
 #    --glow_norm_layer="actnorm" \

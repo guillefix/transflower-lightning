@@ -207,7 +207,7 @@ class MowgliModel(BaseModel):
 
         self.log('loss', loss)
         if len(accuracies) > 0:
-            self.log('accuracy', torch.mean(torch.stack(accuracies)))
+           self.log('accuracy', torch.mean(torch.stack(accuracies)))
         # print(loss)
         return loss
 
