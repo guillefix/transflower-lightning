@@ -71,6 +71,7 @@ if args.cuda:
 else:
     opt["gpu_ids"] = []
 opt["checkpoints_dir"] = args.checkpoints_dir
+# print(opt["checkpoints_dir"])
 opt["load_iter"] = int(checkpoint)
 if args.cuda:
     opt["cuda"] = True

@@ -1,0 +1,3 @@
+#find dev_audio -type f -iname "*.mp3" -exec basename \{\} .mp3 \; > base_filenames.txt
+#find aist_plusplus_final/motions -type f -iname "*.pkl" -exec basename \{\} .pkl \; > base_filenames.txt
+find $1 -type f -iname "*."${2} -exec basename \{\} .${2} \; > ${1}/base_filenames.txt

@@ -7,8 +7,6 @@ from torch import nn
 
 from .util.generation import autoregressive_generation_multimodal
 
-#TODO: refactor a whole bunch of stuff
-
 class TransflowerModel(BaseModel):
     def __init__(self, opt):
         super().__init__(opt)

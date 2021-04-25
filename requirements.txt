@@ -10,5 +10,9 @@ sklearn
 joblib
 smplx
 transforms3d
-einops
-entmax
+x-transformers
+madmom
+#ftfy
+#axial_positional_embedding
+#einops
+#entmax
