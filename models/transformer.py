@@ -147,6 +147,9 @@ class EncDecTransformerModel(nn.Module):
             self.encoder1 = nn.Linear(src_d, dhid)
             self.encoder2 = nn.Linear(tgt_d, dhid)
             self.transformer = Transformer(d_model=dhid, nhead=nhead, num_encoder_layers=nlayers, num_decoder_layers=nlayers, dropout=dropout, activation="gelu")
+            #xdecoder = Decoder(dim=dhid, depth=nlayers, heads=nhead, cross_attend=True)
+            #self.transformer = Transformer(d_model=dhid, nhead=nhead, num_encoder_layers=nlayers, num_decoder_layers=nlayers, dropout=dropout, activation="gelu", custom_decoder=xdecoder)
+            #self.transformer = Transformer(d_model=dhid, nhead=nhead, num_encoder_layers=nlayers, num_decoder_layers=nlayers)
             # self.encoder = nn.Embedding(ntoken, dinp)
             self.src_d = src_d
             self.tgt_d = tgt_d
@@ -187,6 +190,7 @@ class EncDecTransformerModel(nn.Module):
             if self.use_pos_emb:
                 # import pdb;pdb.set_trace()
                 output = self.transformer(src=src, tgt=tgt, src_mask=self.src_pos_emb, tgt_mask=tgt_pos_emb+tgt_mask)
+                #output = self.transformer(src=src, tgt=tgt)
             else:
                 output = self.transformer(src=src, tgt=tgt, tgt_mask=tgt_mask)
             output = self.decoder(output)

@@ -22,7 +22,7 @@ if __name__ == '__main__':
     print("loaded options")
     model = create_model(opt)
     print("loaded model")
-    if "tpu_cores" in vars(opt) and opt.tpu_cores > 0:
+    if "tpu_cores" in vars(opt) and opt.tpu_cores is not None and opt.tpu_cores > 0:
         ddpplugin = None
     else:
         ddpplugin = DDPPlugin(find_unused_parameters=opt.find_unused_parameters)
