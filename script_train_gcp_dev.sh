@@ -22,14 +22,15 @@ root_dir=data
 ####aistpp_20hz
 data_dir=${root_dir}/aistpp_20hz
 #exp=$1
-exp=mowgli_aistpp_expmap
+exp=testing
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
 #exp=transflower_residual_aistpp_expmap
 #exp=transflower_aistpp_expmap
 #exp=residualflower2_transflower_aistpp_expmap
 #exp=moglow_aistpp_expmap
-hparams_file=aistpp_20hz/${exp}
+#hparams_file=aistpp_20hz/${exp}
+hparams_file=aistpp_20hz/mowgli_aistpp_expmap_testing
 
 ## Fix: needs vmapped version of transformer:
 #hparams_file=aistpp_20hz/residualflower2_moglow_aistpp_expmap
@@ -48,17 +49,16 @@ hparams_file=aistpp_20hz/${exp}
 echo $exp
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
-    --fix_lengths \
+    --model=mowgli2 \
     --do_validation \
-    --hparams_file=training/hparams/${hparams_file}.yaml \
     --val_batch_size=32 \
-    --batch_size=8 \
+    --batch_size=32 \
     --experiment_name=$exp\
     --workers=$(nproc) \
     --tpu_cores=8 \
-    --continue_train \
-    --load_weights_only \
-    #--use_x_transformers \
+    --hparams_file=training/hparams/${hparams_file}.yaml \
+    #--continue_train \
+    #--load_weights_only \
     #--stage2 \
     #--prior_use_x_transformers \
     #--output_lengths="3" \

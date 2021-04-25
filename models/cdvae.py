@@ -337,7 +337,7 @@ class ConditionalDiscreteVAE(nn.Module):
         latent_size = codebook_layer_shape1*codebook_layer_shape2
         self.latent_size = latent_size
         if cond_dim > 0:
-            self.prior_transformer = ContDiscTransformer(cond_dim, num_tokens, prior_dhid, prior_nhead, prior_dhid, prior_nlayers, prior_dropout,
+            self.prior_transformer = ContDiscTransformer(cond_dim, num_tokens, codebook_dim, prior_nhead, prior_dhid, prior_nlayers, prior_dropout,
                                                          use_pos_emb=prior_use_pos_emb,
                                                          src_length=latent_size,
                                                          tgt_length=latent_size,
@@ -400,6 +400,7 @@ class ConditionalDiscreteVAE(nn.Module):
             return_accuracy = False,
             detach_cond = False
        ):
+        # import pdb;pdb.set_trace()
         if cond is None: raise NotImplementedError("Haven't implemented non-conditional DVAEs")
         if len(inputs.shape) == 3:
             inputs = inputs.reshape(inputs.shape[0], inputs.shape[1],*self.input_shape)
@@ -407,26 +408,15 @@ class ConditionalDiscreteVAE(nn.Module):
             cond = cond.reshape(cond.shape[0], cond.shape[1],*self.codebook_layer_shape)
         with torch.no_grad():
             labels = self.get_codebook_indices(inputs, cond)
-        # import pdb;pdb.set_trace()
         if detach_cond:
             cond = cond.detach()
         logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1), labels.permute(1,0)).permute(1,2,0)
-        #self.prior_transformer(cond.squeeze(-1).permute(2,0,1), labels.permute(1,0))
         loss = F.cross_entropy(logits, labels)
-        #logits = torch.zeros(1)
-        #print(self.prior_transformer.first_input.shape)
-        #loss = torch.norm(self.prior_transformer.first_input)
-        #loss = self.prior_transformer.first_input[0,0,0]
         if not return_accuracy:
             return loss
         # import pdb;pdb.set_trace()
         predicted = logits.argmax(dim = 1).flatten(1)
         accuracy = (predicted == labels).sum()/predicted.nelement()
-        #accuracy = (predicted == predicted).sum()/predicted.nelement()
-        #accuracy = None
-        #print(predicted)
-        #print(labels)
-        #print(accuracy)
         return loss, accuracy
 
     def generate(self, cond, temp=1.0, filter_thres = 0.5):
@@ -512,8 +502,8 @@ class ContDiscTransformer(nn.Module):
 
     def __init__(self, src_d, tgt_num_tokens, tgt_emb_dim, nhead, dhid, nlayers, dropout=0.5,use_pos_emb=False,src_length=0,tgt_length=0,use_x_transformers=False,opt=None):
         super(ContDiscTransformer, self).__init__()
-        # self.transformer = EncDecTransformerModel(tgt_num_tokens, src_d, tgt_emb_dim, nhead, dhid, nlayers, dropout=dropout,use_pos_emb=use_pos_emb,src_length=src_length,tgt_length=tgt_length,use_x_transformers=use_x_transformers,opt=opt)
-        self.transformer = EncDecTransformerModel(tgt_num_tokens, src_d, tgt_emb_dim, nhead, dhid, nlayers, dropout=dropout,use_pos_emb=False,src_length=src_length,tgt_length=tgt_length,use_x_transformers=use_x_transformers,opt=opt)
+        self.transformer = EncDecTransformerModel(tgt_num_tokens, src_d, tgt_emb_dim, nhead, dhid, nlayers, dropout=dropout,use_pos_emb=use_pos_emb,src_length=src_length,tgt_length=tgt_length,use_x_transformers=use_x_transformers,opt=opt)
+        #self.transformer = EncDecTransformerModel(tgt_num_tokens, src_d, tgt_emb_dim, nhead, dhid, nlayers, dropout=dropout,use_pos_emb=False,src_length=src_length,tgt_length=tgt_length,use_x_transformers=use_x_transformers,opt=opt)
         # self.transformer = EncDecXTransformer(dim=dhid, dec_dim_out=tgt_num_tokens, enc_dim_in=src_d, enc_dim_out=tgt_emb_dim, dec_din_in=tgt_emb_dim, enc_heads=nhead, dec_heads=nhead, enc_depth=nlayers, dec_depth=nlayers, enc_dropout=dropout, dec_dropout=dropout, enc_max_seq_len=1024, dec_max_seq_len=1024)
         self.embedding = nn.Embedding(tgt_num_tokens, tgt_emb_dim)
         self.first_input = nn.Parameter((torch.randn(1,1,tgt_emb_dim)))
@@ -521,9 +511,6 @@ class ContDiscTransformer(nn.Module):
     def forward(self, src, tgt):
         tgt = tgt[:-1]
         embs = self.embedding(tgt)
-        # import pdb;pdb.set_trace()
         embs = torch.cat([torch.tile(self.first_input, (1,embs.shape[1],1)), embs], 0)
         output = self.transformer(src,embs)
         return output
-        #self.transformer(src,embs)
-        #return
