@@ -20,26 +20,26 @@ root_dir=data
 #hparams_file=aistpp_60hz/transglower_aistpp_expmap
 
 ####aistpp_20hz
-#data_dir=${root_dir}/aistpp_20hz
+data_dir=${root_dir}/aistpp_20hz
 #exp=$1
-#exp=mowgli_aistpp_expmap
+exp=mowgli_aistpp_expmap
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
 #exp=transflower_residual_aistpp_expmap
 #exp=transflower_aistpp_expmap
 #exp=residualflower2_transflower_aistpp_expmap
 #exp=moglow_aistpp_expmap
-#hparams_file=aistpp_20hz/${exp}
+hparams_file=aistpp_20hz/${exp}
 
 ## Fix: needs vmapped version of transformer:
 #hparams_file=aistpp_20hz/residualflower2_moglow_aistpp_expmap
 
 ####dance_combined
-data_dir=${root_dir}/dance_combined
+#data_dir=${root_dir}/dance_combined
 #exp=$1
 #exp=transflower_expmap
-exp=moglow_expmap
-hparams_file=dance_combined/${exp}
+#exp=moglow_expmap
+#hparams_file=dance_combined/${exp}
 
 #exp=${exp}_future3_actnorm
 #exp=${exp}_future3

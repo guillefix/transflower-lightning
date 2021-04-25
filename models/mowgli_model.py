@@ -189,7 +189,7 @@ class MowgliModel(BaseModel):
                 self.log('accuracy', torch.mean(torch.stack(accuracies)))
         else:
             loss = 0
-            accuracies = []
+            #accuracies = []
             for i, mod in enumerate(self.output_mods):
                 output = self.output_mod_nets[i].forward(latent)[:self.conditioning_seq_lens[i]]
                 vae = self.output_mod_vaes[i]
@@ -203,11 +203,11 @@ class MowgliModel(BaseModel):
                 else:
                     prior_loss, accuracy = vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_accuracy=True, detach_cond=True)
                     loss += prior_loss
-                    accuracies.append(accuracy)
+                    #accuracies.append(accuracy)
 
-        self.log('loss', loss)
-        if len(accuracies) > 0:
-           self.log('accuracy', torch.mean(torch.stack(accuracies)))
+        #self.log('loss', loss)
+        #if len(accuracies) > 0:
+        #   self.log('accuracy', torch.mean(torch.stack(accuracies)))
         # print(loss)
         return loss
 
