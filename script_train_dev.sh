@@ -68,7 +68,7 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --stage2 \
     --continue_train \
     --load_weights_only \
-#    --prior_use_x_transformers \
+    --prior_use_x_transformers \
 #    --scales="[[16,0]]" \
 #    --use_x_transformers \
 #    --use_rotary_pos_emb \
