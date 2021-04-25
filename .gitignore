@@ -13,6 +13,7 @@ ones_to_check.txt
 ones_to_check2.txt
 !training/experiments/block_placement_ddc2
 !training/experiments/block_placement_ddc2/opt.json
+outs/*
 *.out
 analysis/aistplusplus_api/SMPL_python_v.1.1.0/*
 #data
