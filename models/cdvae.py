@@ -410,17 +410,23 @@ class ConditionalDiscreteVAE(nn.Module):
         # import pdb;pdb.set_trace()
         if detach_cond:
             cond = cond.detach()
-        # logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1)).permute(1,2,0)
-        logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1), labels.permute(1,0)).permute(1,2,0)
-        loss = F.cross_entropy(logits, labels)
+        #logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1), labels.permute(1,0)).permute(1,2,0)
+        self.prior_transformer(cond.squeeze(-1).permute(2,0,1), labels.permute(1,0))
+        #loss = F.cross_entropy(logits, labels)
+        #logits = torch.zeros(1)
+        #print(self.prior_transformer.first_input.shape)
+        #loss = torch.norm(self.prior_transformer.first_input)
+        loss = self.prior_transformer.first_input[0,0,0]
         if not return_accuracy:
             return loss
         # import pdb;pdb.set_trace()
-        predicted = logits.argmax(dim = 1).flatten(1)
-        accuracy = (predicted == labels).sum()/predicted.nelement()
-        print(predicted)
-        print(labels)
-        print(accuracy)
+        #predicted = logits.argmax(dim = 1).flatten(1)
+        #accuracy = (predicted == labels).sum()/predicted.nelement()
+        #accuracy = (predicted == predicted).sum()/predicted.nelement()
+        accuracy = None
+        #print(predicted)
+        #print(labels)
+        #print(accuracy)
         return loss, accuracy
 
     def generate(self, cond, temp=1.0, filter_thres = 0.5):
@@ -515,5 +521,7 @@ class ContDiscTransformer(nn.Module):
         embs = self.embedding(tgt)
         # import pdb;pdb.set_trace()
         embs = torch.cat([torch.tile(self.first_input, (1,embs.shape[1],1)), embs], 0)
-        output = self.transformer(src,embs)
-        return output
+        #output = self.transformer(src,embs)
+        self.transformer(src,embs)
+        #return output
+        return
