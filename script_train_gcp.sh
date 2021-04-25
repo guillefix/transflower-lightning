@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #export TPU_IP_ADDRESS=10.104.22.146;
-export TPU_IP_ADDRESS=10.95.66.34;
+#export TPU_IP_ADDRESS=10.95.66.34;
+export TPU_IP_ADDRESS=10.65.226.162;
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
 export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
 #export XRT_WORKERS="localservice:0;grpc://localhost:40934"
@@ -20,26 +21,27 @@ root_dir=data
 #hparams_file=aistpp_60hz/transglower_aistpp_expmap
 
 ####aistpp_20hz
-data_dir=${root_dir}/aistpp_20hz
-#exp=$1
-exp=mowgli_aistpp_expmap
-#exp=transglower_aistpp_expmap
-#exp=transglower_residual_aistpp_expmap
-#exp=transflower_residual_aistpp_expmap
-#exp=transflower_aistpp_expmap
-#exp=residualflower2_transflower_aistpp_expmap
-#exp=moglow_aistpp_expmap
-hparams_file=aistpp_20hz/${exp}
+#data_dir=${root_dir}/aistpp_20hz
+##exp=$1
+#exp=mowgli_aistpp_expmap
+##exp=transglower_aistpp_expmap
+##exp=transglower_residual_aistpp_expmap
+##exp=transflower_residual_aistpp_expmap
+##exp=transflower_aistpp_expmap
+##exp=residualflower2_transflower_aistpp_expmap
+##exp=moglow_aistpp_expmap
+#hparams_file=aistpp_20hz/${exp}
 
 ## Fix: needs vmapped version of transformer:
 #hparams_file=aistpp_20hz/residualflower2_moglow_aistpp_expmap
 
 ####dance_combined
-#data_dir=${root_dir}/dance_combined
+data_dir=${root_dir}/dance_combined
 #exp=$1
 #exp=transflower_expmap
+exp=transflower_residual_expmap
 #exp=moglow_expmap
-#hparams_file=dance_combined/${exp}
+hparams_file=dance_combined/${exp}
 
 #exp=${exp}_future3_actnorm
 #exp=${exp}_future3
@@ -56,7 +58,6 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
     --experiment_name=$exp\
     --workers=$(nproc) \
     --tpu_cores=8 \
-    --workers=$(nproc) \
     #--continue_train \
     #--load_weights_only \
     #--stage2 \
