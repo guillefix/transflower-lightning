@@ -5,7 +5,7 @@ import uuid
 import numpy as np
 
 from torch.nn import TransformerEncoder, TransformerEncoderLayer, Transformer
-from x_transformers import ContinuousTransformerWrapper, Decoder, Encoder
+from models.x_transformers import ContinuousTransformerWrapper, Decoder, Encoder
 
 class PositionalEncoding(nn.Module):
 
