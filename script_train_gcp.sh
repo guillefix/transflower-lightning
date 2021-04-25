@@ -22,6 +22,7 @@ root_dir=data
 ####aistpp_20hz
 #data_dir=${root_dir}/aistpp_20hz
 #exp=$1
+#exp=mowgli_aistpp_expmap
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
 #exp=transflower_residual_aistpp_expmap
@@ -36,7 +37,8 @@ root_dir=data
 ####dance_combined
 data_dir=${root_dir}/dance_combined
 #exp=$1
-exp=transflower_expmap
+#exp=transflower_expmap
+exp=moglow_expmap
 hparams_file=dance_combined/${exp}
 
 #exp=${exp}_future3_actnorm
