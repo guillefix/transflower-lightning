@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export TPU_IP_ADDRESS=10.84.1.18;
+export TPU_IP_ADDRESS=10.95.66.34;
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
 export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
 #export XRT_WORKERS="localservice:0;grpc://localhost:40934"
@@ -50,9 +50,9 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
     --load_weights_only \
     --tpu_cores=8 \
     --stage2 \
+    --prior_use_x_transformers \
     #--accelerator=ddp \
     #--scales="[[16,0]]" \
-#    --use_x_transformers \
 #    --use_rotary_pos_emb \
     #--residual_scales="[[16,0]]"
 #    --glow_norm_layer="actnorm" \

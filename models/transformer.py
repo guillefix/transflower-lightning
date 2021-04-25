@@ -239,6 +239,7 @@ class EncDecTransformerModel(nn.Module):
             output = self.transformer(src=src, tgt=tgt)
             output = self.decoder(output)
             return output
+            #return
 
 
 class EncDecXTransformer(nn.Module):
@@ -284,5 +285,6 @@ class EncDecXTransformer(nn.Module):
 
     def forward(self, src, tgt, src_mask = None, tgt_mask = None):
         enc = self.encoder(src, mask = src_mask, return_embeddings = True)
-        out = self.decoder(tgt, context = enc, mask = tgt_mask, context_mask = src_mask)
+        #out = self.decoder(tgt, context = enc, mask = tgt_mask, context_mask = src_mask)
+        out = self.decoder(tgt, context = enc)
         return out
