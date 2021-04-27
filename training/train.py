@@ -5,6 +5,7 @@ ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
 sys.path.append(ROOT_DIR)
 import glob
 import torch
+print(torch.cuda.is_available())
 from training.datasets import create_dataset, create_dataloader
 print("HIII")
 from models import create_model

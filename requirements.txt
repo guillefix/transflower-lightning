@@ -2,7 +2,7 @@ numpy
 scipy
 librosa
 pytorch-lightning
-torch
+#torch
 pandas
 matplotlib
 mpi4py
