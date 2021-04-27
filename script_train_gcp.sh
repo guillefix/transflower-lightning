@@ -55,7 +55,7 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
     --workers=$(nproc) \
     --tpu_cores=8 \
     --workers=$(nproc) \
-    #--continue_train \
+    --continue_train \
     #--load_weights_only \
     #--stage2 \
     #--prior_use_x_transformers \

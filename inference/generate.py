@@ -33,6 +33,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate with model')
     parser.add_argument('--data_dir', type=str)
     parser.add_argument('--output_folder', type=str)
+    parser.add_argument('--audio_format', type=str, default="wav")
     parser.add_argument('--experiment_name', type=str)
     parser.add_argument('--seq_id', type=str)
     parser.add_argument('--no-use_scalers', dest='use_scalers', action='store_false')
@@ -41,12 +42,13 @@ if __name__ == '__main__':
     parser.add_argument('--fps', type=int, default=20)
     args = parser.parse_args()
     data_dir = args.data_dir
+    audio_format = args.audio_format
     fps = args.fps
     output_folder = args.output_folder
     seq_id = args.seq_id
 
     if seq_id is None:
-        temp_base_filenames = [x[:-1] for x in open(data_dir + "/base_filenames_test.txt", "r").readlines()]
+        temp_base_filenames = [x[:-1] for x in open(data_dir + "/base_filenames_val.txt", "r").readlines()]
         seq_id = np.random.choice(temp_base_filenames)
 
     #load hparams file
@@ -64,6 +66,7 @@ if __name__ == '__main__':
     # opt["bn_momentum"] = 0.0
     opt["batch_size"] = 1
     opt["phase"] = "inference"
+    opt["tpu_cores"] = 0
     class Struct:
         def __init__(self, **entries):
             self.__dict__.update(entries)
@@ -108,7 +111,7 @@ if __name__ == '__main__':
             trim_audio = output_time_offsets[i] / fps #converting trim_audio from being in frames (which is more convenient as thats how we specify the output_shift in the models), to seconds
             print("trim_audio: ",trim_audio)
 
-            audio_file = data_dir + "/" + seq_id + ".mp3"
+            audio_file = data_dir + "/" + seq_id + "."+audio_format
 
             output_folder = output_folder+"/"+args.experiment_name+"/videos/"
 
