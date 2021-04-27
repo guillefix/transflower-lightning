@@ -27,6 +27,7 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
     # sequence_length = inputs_[0].shape[0]
     sequence_length = inputs_[1].shape[0]
     print(sequence_length)
+    #import pdb;pdb.set_trace()
     with torch.no_grad():
         # for t in range(min(512, sequence_length-max(input_lengths)-1)):
         for t in range(sequence_length-max(input_lengths)+1):

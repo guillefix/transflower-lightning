@@ -66,6 +66,8 @@ class TransflowerModel(BaseModel):
                                      norm_layer = opt.glow_norm_layer,
                                      bn_momentum = opt.glow_bn_momentum,
                                      cond_concat_dims=opt.cond_concat_dims,
+                                     flow_dist=opt.flow_dist,
+                                     flow_dist_param=opt.flow_dist_param,
                                      cond_seq_len=self.conditioning_seq_lens[i],
                                 )
             name = "_output_glow_"+mod
@@ -93,6 +95,8 @@ class TransflowerModel(BaseModel):
         parser.add_argument('--num_heads_flow', type=int, default=8)
         parser.add_argument('--dropout', type=float, default=0.1)
         parser.add_argument('--scales', type=str, default="[[10,0]]")
+        parser.add_argument('--flow_dist', type=str, default="normal")
+        parser.add_argument('--flow_dist_param', type=int, default=50)
         parser.add_argument('--glow_norm_layer', type=str, default=None)
         parser.add_argument('--glow_bn_momentum', type=float, default=0.1)
         parser.add_argument('--num_glow_coupling_blocks', type=int, default=10)
@@ -167,7 +171,8 @@ class TransflowerModel(BaseModel):
                 glow = self.output_mod_glows[i]
                 z, sldj = glow(x=self.targets[i].permute(1,0,2) - predicted_mean.permute(1,0,2), cond=latents.permute(1,0,2)) #time, batch, features -> batch, time, features
                 nll_loss += glow.loss_generative(z, sldj)
-                mse_loss += 100*self.mean_loss(predicted_mean[i], self.targets[i])
+                # import pdb;pdb.set_trace()
+                mse_loss += 100*self.mean_loss(predicted_mean, self.targets[i])
             loss = nll_loss + mse_loss
             self.mse_loss = mse_loss
             self.nll_loss = nll_loss

@@ -215,6 +215,10 @@ class Glow(nn.Module):
         # assert hparams.Train.batch_size % num_device == 0
         # self.z_shape = [opt.batch_size // num_device, x_channels, 1]
         self.z_shape = [opt.batch_size, x_channels, 1]
+        if opt.flow_dist == "normal":
+            self.distribution = modules.GaussianDiag()
+        elif opt.flow_dist == "studentT":
+            self.distribution = modules.StudentT(opt.flow_dist_param, x_channels)
 
     def init_lstm_hidden(self):
         self.flow.init_lstm_hidden()
@@ -236,7 +240,7 @@ class Glow(nn.Module):
         z, objective = self.flow(x, cond, logdet=logdet, reverse=False)
 
         # prior
-        objective += modules.GaussianDiag.logp(z)
+        objective += self.distribution.logp(z)
 
         # return
         nll = (-objective) / float(np.log(2.) * n_timesteps)
@@ -248,7 +252,7 @@ class Glow(nn.Module):
             z_shape = self.z_shape
             z_shape[-1] = output_length
             if z is None:
-                z = modules.GaussianDiag.sample(z_shape, eps_std, device=cond.device)
+                z = self.distribution.sample(z_shape, eps_std, device=cond.device)
 
             x = self.flow(z, cond, eps_std=eps_std, reverse=True)
         return x
