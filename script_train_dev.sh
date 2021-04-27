@@ -24,8 +24,8 @@ data_dir=${root_dir}/aistpp_20hz
 #exp=$1
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
-#exp=transflower_residual_aistpp_expmap
-exp=mowgli_aistpp_expmap
+exp=transflower_residual_aistpp_expmap
+#exp=mowgli_aistpp_expmap
 #exp=transflower_aistpp_expmap
 #exp=residualflower2_transflower_aistpp_expmap
 #exp=moglow_aistpp_expmap
@@ -65,11 +65,11 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --gpus=1 \
     --accelerator=ddp \
     --output_lengths="3" \
-    --stage2 \
-    --continue_train \
-    --load_weights_only \
-    --prior_use_x_transformers \
-#    --scales="[[16,0]]" \
+    --scales="[[16,0]]" \
+#    --stage2 \
+#    --continue_train \
+#    --load_weights_only \
+#    --prior_use_x_transformers \
 #    --use_x_transformers \
 #    --use_rotary_pos_emb \
 #    --learning_rate=1e-5 \
