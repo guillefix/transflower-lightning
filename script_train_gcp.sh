@@ -2,6 +2,8 @@
 
 #export TPU_IP_ADDRESS=10.104.22.146;
 #export TPU_IP_ADDRESS=10.95.66.34;
+#export TPU_IP_ADDRESS=10.65.226.162;
+#export TPU_IP_ADDRESS=10.122.100.162;
 #export TPU_IP_ADDRESS=10.104.22.146;
 #export TPU_IP_ADDRESS=10.95.66.34;
 export TPU_IP_ADDRESS=10.93.151.138;
@@ -42,13 +44,14 @@ data_dir=${root_dir}/dance_combined
 #exp=$1
 #exp=transflower_expmap
 #exp=transflower_residual_expmap
-exp=transformer
+exp=transformer_expmap
 #exp=moglow_expmap
 hparams_file=dance_combined/${exp}
 
 #exp=${exp}_future3_actnorm
 #exp=${exp}_future3
 #exp=${exp}_future3
+exp=${exp}_no_pos_emb_output
 
 echo $exp
 
@@ -57,12 +60,13 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
     --do_validation \
     --hparams_file=training/hparams/${hparams_file}.yaml \
     --val_batch_size=32 \
-    --batch_size=8 \
+    --batch_size=64 \
     --experiment_name=$exp\
     --workers=$(nproc) \
     --tpu_cores=8 \
-    --continue_train \
-    --load_weights_only \
+    --no-use_pos_emb_output \
+    #--continue_train \
+    #--load_weights_only \
     #--use_x_transformers \
     #--stage2 \
     #--prior_use_x_transformers \
