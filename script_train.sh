@@ -65,16 +65,16 @@ hparams_file=dance_combined/${exp}
 echo $exp
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
-    --fix_lengths \
     --do_validation \
     --hparams_file=training/hparams/${hparams_file}.yaml \
     --val_batch_size=8 \
-    --batch_size=32 \
+    --batch_size=128 \
     --experiment_name=$exp\
     --workers=$(nproc) \
     --gpus=4 \
     --accelerator=ddp \
-    --continue_train \
+    #--fix_lengths \
+    #--continue_train \
     #--use_x_transformers \
     #--use_rotary_pos_emb \
     #--output_lengths="3" \
