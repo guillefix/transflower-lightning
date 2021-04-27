@@ -24,6 +24,7 @@
 #for exp in transglower_aistpp_expmap transglower_residual_aistpp_expmap
 #for exp in transflower_residual_aistpp_expmap transflower_aistpp_expmap
 for exp in transflower_aistpp_expmap
+#for exp in transflower_residual_aistpp_expmap
 do
 	sbatch slurm_script.slurm $exp
 done

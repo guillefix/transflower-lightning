@@ -128,9 +128,10 @@ class MultimodalDataset(BaseDataset):
                             first_match = False
                         else:
                             if np.abs(length-shortest_length) > 2:
+                                print("sequence length difference")
                                 print(np.abs(length-shortest_length))
                                 print(base_filename)
-                            assert np.abs(length-shortest_length) <= 2
+                            #assert np.abs(length-shortest_length) <= 2
                         shortest_length = length
                 for mod in input_mods:
                     np.save(self.input_features_filenames[mod][base_filename],self.input_features[mod][base_filename][:shortest_length])
@@ -160,9 +161,10 @@ class MultimodalDataset(BaseDataset):
                             first_match = False
                         else:
                             if np.abs(length-shortest_length) > 2:
+                                print("sequence length difference")
                                 print(base_filename)
                                 print(np.abs(length-shortest_length))
-                            assert np.abs(length-shortest_length) <= 2
+                            #assert np.abs(length-shortest_length) <= 2
                         shortest_length = length
                 for mod in output_mods:
                     if mod not in input_mods:

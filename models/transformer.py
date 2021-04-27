@@ -1,3 +1,9 @@
+import sys
+import os
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
+sys.path.append(ROOT_DIR)
+sys.path.append(THIS_DIR)
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -168,9 +174,12 @@ class EncDecTransformerModel(nn.Module):
         self.encoder1 = nn.Linear(src_d, dhid)
         self.encoder2 = nn.Linear(tgt_d, dhid)
         if not use_x_transformers:
-            self.transformer = Transformer(d_model=dhid, nhead=nhead, num_encoder_layers=nlayers, num_decoder_layers=nlayers, dropout=dropout, activation="gelu")
+            self.transformer = Transformer(d_model=dhid, nhead=nhead, num_encoder_layers=nlayers, num_decoder_layers=nlayers, dropout=0, activation="relu")
+            #enc_layer = TransformerEncoderLayer(d_model=dhid, nhead=nhead, dropout=0, activation="relu")
+            #self.transformerEnc = TransformerEncoder(enc_layer, nlayers)
         else:
             self.transformer = EncDecXTransformer(enc_dim_in=src_d, enc_dim_out=tgt_d, dec_din_in=tgt_d, edec_dim_out=dout, enc_dim=dhid, dec_dim=dhid, nc_heads=nhead, dec_heads=nhead, enc_depth=nlayers, dec_depth=nlayers, enc_dropout=dropout, dec_dropout=dropout, enc_max_seq_len=1024, dec_max_seq_len=1024)
+
         #xdecoder = Decoder(dim=dhid, depth=nlayers, heads=nhead, cross_attend=True)
         #self.transformer = Transformer(d_model=dhid, nhead=nhead, num_encoder_layers=nlayers, num_decoder_layers=nlayers, dropout=dropout, activation="gelu", custom_decoder=xdecoder)
         #self.transformer = Transformer(d_model=dhid, nhead=nhead, num_encoder_layers=nlayers, num_decoder_layers=nlayers)
@@ -191,6 +200,11 @@ class EncDecTransformerModel(nn.Module):
         else:
             tgt_mask = self.generate_square_subsequent_mask_bool(tgt_length)
         self.register_buffer("tgt_mask", tgt_mask)
+        #a = torch.randn(32,3,512)
+        #b = torch.randn(32,3,512)
+        #self.register_buffer('a', a)
+        #self.register_buffer('b', b)
+
 
         self.init_weights()
 
@@ -222,12 +236,14 @@ class EncDecTransformerModel(nn.Module):
                 #output = self.transformer(src=src, tgt=tgt)
             else:
                 output = self.transformer(src=src, tgt=tgt, tgt_mask=tgt_mask)
+            #output = self.transformer(src=self.a, tgt=self.b)
+            #output = self.transformerEnc(src=self.a)
             output = self.decoder(output)
             return output
         else:
             src = self.encoder1(src)
             tgt = self.encoder2(tgt)
-            tgt_mask = self.tgt_mask[:tgt.shape[0], :tgt.shape[0]]
+            #tgt_mask = self.tgt_mask[:tgt.shape[0], :tgt.shape[0]]
             # if self.use_pos_emb:
             #     tgt_pos_emb = self.tgt_pos_emb[:tgt.shape[0], :tgt.shape[0]]
             #     # import pdb;pdb.set_trace()
@@ -237,8 +253,11 @@ class EncDecTransformerModel(nn.Module):
             # output = self.transformer(src=src.permute(1,0,2), tgt=tgt.permute(1,0,2), tgt_mask=tgt_mask)
             # output = self.transformer(src=src, tgt=tgt, tgt_mask=tgt_mask)
             output = self.transformer(src=src, tgt=tgt)
+            #output = self.transformer(src=self.a, tgt=self.b)
+            #output = self.transformer(src=tgt, tgt=tgt) #hmm thats an interesting way of residual attention
             output = self.decoder(output)
             return output
+            #return
 
 
 class EncDecXTransformer(nn.Module):
@@ -284,5 +303,6 @@ class EncDecXTransformer(nn.Module):
 
     def forward(self, src, tgt, src_mask = None, tgt_mask = None):
         enc = self.encoder(src, mask = src_mask, return_embeddings = True)
-        out = self.decoder(tgt, context = enc, mask = tgt_mask, context_mask = src_mask)
+        #out = self.decoder(tgt, context = enc, mask = tgt_mask, context_mask = src_mask)
+        out = self.decoder(tgt, context = enc)
         return out

@@ -11,6 +11,8 @@ joblib
 smplx
 transforms3d
 x-transformers
-ftfy
-axial_positional_embedding
 madmom
+#ftfy
+#axial_positional_embedding
+#einops
+#entmax
