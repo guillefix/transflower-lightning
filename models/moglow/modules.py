@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import scipy.linalg
+import scipy.special
 from . import thops
 
 def nan_throw(tensor, name="tensor"):
@@ -401,6 +402,55 @@ class GaussianDiag:
         eps = eps.to(device)
         return eps
 
+class StudentT:
+
+    def __init__(self, df, d):
+        self.df=df
+        self.d=d
+        self.norm_const = scipy.special.loggamma(0.5*(df+d))-scipy.special.loggamma(0.5*df)-0.5*d*np.log(np.pi*df)
+
+    def logp(self,x):
+        '''
+        Multivariate t-student density:
+        output:
+            the sum density of the given element
+        '''
+        #df=100
+        #d=x.shape[1]
+        #norm_const = scipy.special.loggamma(0.5*(df+d))-scipy.special.loggamma(0.5*df)-0.5*d*np.log(np.pi*df)
+        #import pdb; pdb.set_trace()
+        x_norms = thops.sum(((x) ** 2), dim=[1])
+        likelihood = self.norm_const-0.5*(self.df+self.d)*torch.log(1+(1/self.df)*x_norms)
+        return thops.sum(likelihood, dim=[1])
+
+    def sample(self,z_shape, eps_std=None, device=None):
+        '''generate random variables of multivariate t distribution
+        Parameters
+        ----------
+        m : array_like
+            mean of random variable, length determines dimension of random variable
+        S : array_like
+            square array of covariance  matrix
+        df : int or float
+            degrees of freedom
+        n : int
+            number of observations, return random array will be (n, len(m))
+        Returns
+        -------
+        rvs : ndarray, (n, len(m))
+            each row is an independent draw of a multivariate t distributed
+            random variable
+        '''
+        #df=100
+        # import pdb; pdb.set_trace()
+        x_shape = torch.Size((z_shape[0], 1, z_shape[2]))
+        x = np.random.chisquare(self.df, x_shape)/self.df
+        x = np.tile(x, (1,z_shape[1],1))
+        x = torch.Tensor(x.astype(np.float32))
+        z = torch.normal(mean=torch.zeros(z_shape),std=torch.ones(z_shape) * eps_std)
+
+        # import pdb; pdb.set_trace()
+        return (z/torch.sqrt(x)).to(device)
 
 class Split2d(nn.Module):
     def __init__(self, num_channels):

@@ -10,6 +10,7 @@ from models.flowplusplus.nn import GatedConv
 from models.flowplusplus.coupling import Coupling
 from models.util import channelwise, checkerboard, Flip, safe_log, squeeze, unsqueeze
 
+from models.moglow.modules import GaussianDiag, StudentT
 
 class FlowPlusPlus(nn.Module):
     """Flow++ Model
@@ -46,6 +47,8 @@ class FlowPlusPlus(nn.Module):
                  norm_layer=None,
                  cond_concat_dims=True,
                  cond_seq_len=1,
+                 flow_dist="normal",
+                 flow_dist_param=50,
                  bn_momentum=0.1):
         super(FlowPlusPlus, self).__init__()
         # Register bounds to pre-process images, not learnable
@@ -66,6 +69,11 @@ class FlowPlusPlus(nn.Module):
                                cond_concat_dims=cond_concat_dims,
                                cond_seq_len=cond_seq_len,
                                bn_momentum=bn_momentum)
+        if flow_dist == "normal":
+            self.distribution = GaussianDiag()
+        elif flow_dist == "studentT":
+            in_channels, in_height, in_width = in_shape
+            self.distribution = StudentT(flow_dist_param, in_channels)
 
     def forward(self, x, cond, reverse=False):
         if cond is not None:
@@ -76,8 +84,14 @@ class FlowPlusPlus(nn.Module):
                 x = x.permute(0,2,1).unsqueeze(3)
         else:
             c, h, w = self.flows.z_dim()
-            x = 1.0*torch.randn((cond.size(0), c, h, w), dtype=torch.float32).type_as(cond)
-            
+            # x = 1.0*torch.randn((cond.size(0), c, h, w), dtype=torch.float32).type_as(cond)
+            eps_std=1.0
+            # x = self.distribution.sample((cond.size(0), c, h, w), eps_std, device=cond.device).type_as(cond)
+            assert w==1
+            x = self.distribution.sample((cond.size(0), c, h), eps_std, device=cond.device).type_as(cond)
+            x = x.unsqueeze(-1)
+            # import pdb;pdb.set_trace()
+
         sldj = torch.zeros(x.size(0), device=x.device)
         x, sldj = self.flows(x, cond, sldj, reverse)
         
@@ -98,8 +112,11 @@ class FlowPlusPlus(nn.Module):
             Equation (3) in the RealNVP paper: https://arxiv.org/abs/1605.08803
         """
         # print(z)
-        prior_ll = -0.5 * (z ** 2 + np.log(2 * np.pi))
+        # prior_ll = -0.5 * (z ** 2 + np.log(2 * np.pi))
+        # prior_ll = prior_ll.flatten(1).sum(-1)# \
+        prior_ll = self.distribution.logp(z)
         prior_ll = prior_ll.flatten(1).sum(-1)# \
+        # import pdb;pdb.set_trace()
 #            - np.log(k) * np.prod(z.size()[1:])
         ll = prior_ll + sldj
         # print(sldj.mean())
