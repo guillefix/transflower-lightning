@@ -1,12 +1,7 @@
 #!/bin/bash
 
-#export TPU_IP_ADDRESS=10.104.22.146;
+export TPU_IP_ADDRESS=10.104.22.146;
 #export TPU_IP_ADDRESS=10.95.66.34;
-#export TPU_IP_ADDRESS=10.65.226.162;
-#export TPU_IP_ADDRESS=10.122.100.162;
-#export TPU_IP_ADDRESS=10.104.22.146;
-#export TPU_IP_ADDRESS=10.95.66.34;
-export TPU_IP_ADDRESS=10.65.226.162;
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
 export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
 #export XRT_WORKERS="localservice:0;grpc://localhost:40934"
@@ -25,28 +20,27 @@ root_dir=data
 #hparams_file=aistpp_60hz/transglower_aistpp_expmap
 
 ####aistpp_20hz
-#data_dir=${root_dir}/aistpp_20hz
-##exp=$1
-#exp=mowgli_aistpp_expmap
-##exp=transglower_aistpp_expmap
-##exp=transglower_residual_aistpp_expmap
-##exp=transflower_residual_aistpp_expmap
-##exp=transflower_aistpp_expmap
-##exp=residualflower2_transflower_aistpp_expmap
-##exp=moglow_aistpp_expmap
+data_dir=${root_dir}/aistpp_20hz
+#exp=$1
+exp=testing
+#exp=transglower_aistpp_expmap
+#exp=transglower_residual_aistpp_expmap
+#exp=transflower_residual_aistpp_expmap
+#exp=transflower_aistpp_expmap
+#exp=residualflower2_transflower_aistpp_expmap
+#exp=moglow_aistpp_expmap
 #hparams_file=aistpp_20hz/${exp}
+hparams_file=aistpp_20hz/mowgli_aistpp_expmap_testing
 
 ## Fix: needs vmapped version of transformer:
 #hparams_file=aistpp_20hz/residualflower2_moglow_aistpp_expmap
 
 ####dance_combined
-data_dir=${root_dir}/dance_combined
+#data_dir=${root_dir}/dance_combined
 #exp=$1
 #exp=transflower_expmap
-#exp=transflower_residual_expmap
-exp=transformer_expmap
 #exp=moglow_expmap
-hparams_file=dance_combined/${exp}
+#hparams_file=dance_combined/${exp}
 
 #exp=${exp}_future3_actnorm
 #exp=${exp}_future3
@@ -55,17 +49,16 @@ hparams_file=dance_combined/${exp}
 echo $exp
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
-    --fix_lengths \
+    --model=mowgli2 \
     --do_validation \
-    --hparams_file=training/hparams/${hparams_file}.yaml \
     --val_batch_size=32 \
-    --batch_size=64 \
+    --batch_size=32 \
     --experiment_name=$exp\
     --workers=$(nproc) \
     --tpu_cores=8 \
-    --continue_train \
+    --hparams_file=training/hparams/${hparams_file}.yaml \
+    #--continue_train \
     #--load_weights_only \
-    #--use_x_transformers \
     #--stage2 \
     #--prior_use_x_transformers \
     #--output_lengths="3" \

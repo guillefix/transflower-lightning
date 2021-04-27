@@ -167,7 +167,7 @@ class TransflowerModel(BaseModel):
                 glow = self.output_mod_glows[i]
                 z, sldj = glow(x=self.targets[i].permute(1,0,2) - predicted_mean.permute(1,0,2), cond=latents.permute(1,0,2)) #time, batch, features -> batch, time, features
                 nll_loss += glow.loss_generative(z, sldj)
-                mse_loss += 100*self.mean_loss(predicted_mean[i], self.targets[i])
+                mse_loss += 100*self.mean_loss(predicted_mean, self.targets[i])
             loss = nll_loss + mse_loss
             self.mse_loss = mse_loss
             self.nll_loss = nll_loss

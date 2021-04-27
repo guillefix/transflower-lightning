@@ -4,7 +4,7 @@ douts: 72
 input_modalities: "expmap_scaled_20,mel_ddcpca_scaled_20"
 output_modalities: expmap_scaled_20
 input_lengths: 120,140
-output_lengths: 10
+output_lengths: 3
 output_time_offsets: 120
 nlayers: 12
 nhead: 10
@@ -19,6 +19,9 @@ learning_rate: 1e-5
 gradient_clip_val: 0.5
 batch_size: 64
 find_unused_parameters: True
+#load_weights_only: True
+#continue_train: True
+stage2: True
 
 
 
