@@ -1,13 +1,10 @@
 #!/bin/bash
 
-<<<<<<< HEAD
-export TPU_IP_ADDRESS=10.104.22.146;
+#export TPU_IP_ADDRESS=10.104.22.146;
 #export TPU_IP_ADDRESS=10.95.66.34;
-=======
 #export TPU_IP_ADDRESS=10.104.22.146;
 #export TPU_IP_ADDRESS=10.95.66.34;
 export TPU_IP_ADDRESS=10.65.226.162;
->>>>>>> a7e008b1d490cd4b84f0344454ca69ada7a5074f
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
 export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
 #export XRT_WORKERS="localservice:0;grpc://localhost:40934"
