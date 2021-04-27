@@ -19,10 +19,6 @@ class MowgliModel(BaseModel):
         douts = self.douts
         input_lengths = self.input_lengths
         output_lengths = self.output_lengths
-        # if self.opt.conditioning_seq_lens is not None:
-        #     self.conditioning_seq_lens = [int(x) for x in str(self.opt.conditioning_seq_lens).split(",")]
-        # else:
-        #     self.conditioning_seq_lens = [int(x) for x in str(self.opt.output_lengths).split(",")]
 
         self.input_mod_nets = []
         self.output_mod_nets = []
@@ -189,11 +185,11 @@ class MowgliModel(BaseModel):
                 self.log('accuracy', torch.mean(torch.stack(accuracies)))
         else:
             loss = 0
-            #accuracies = []
+            accuracies = []
+            # import pdb;pdb.set_trace()
             for i, mod in enumerate(self.output_mods):
                 output = self.output_mod_nets[i].forward(latent)[:self.conditioning_seq_lens[i]]
                 vae = self.output_mod_vaes[i]
-                # import pdb;pdb.set_trace()
                 if not self.opt.stage2:
                     loss += vae(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_loss=True) #time, batch, features -> batch, features, time
                     if self.opt.max_prior_loss_weight > 0:
@@ -202,12 +198,13 @@ class MowgliModel(BaseModel):
                         accuracies.append(accuracy)
                 else:
                     prior_loss, accuracy = vae.prior_logp(self.targets[i].permute(1,2,0), cond=output.permute(1,2,0), return_accuracy=True, detach_cond=True)
+                    ##prior_loss, accuracy = vae.prior_logp(self.targets[i].permute(1,2,0), return_accuracy=True, detach_cond=True)
                     loss += prior_loss
-                    #accuracies.append(accuracy)
+                    accuracies.append(accuracy)
 
-        #self.log('loss', loss)
-        #if len(accuracies) > 0:
-        #   self.log('accuracy', torch.mean(torch.stack(accuracies)))
+        self.log('loss', loss)
+        if len(accuracies) > 0:
+           self.log('accuracy', torch.mean(torch.stack(accuracies)))
         # print(loss)
         return loss
 
