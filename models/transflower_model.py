@@ -4,6 +4,7 @@ from models import BaseModel
 from models.flowplusplus import FlowPlusPlus
 import ast
 from torch import nn
+import torch.nn.functional as F
 
 from .util.generation import autoregressive_generation_multimodal
 
@@ -150,6 +151,10 @@ class TransflowerModel(BaseModel):
 
         return outputs
 
+    # def on_train_epoch_start(self):
+    #     if self.opt.residual:
+    #         self.residual_loss_weight = self.opt.max_residual_loss_weight * min((self.opt.residual_loss_weight_warmup_epochs - self.current_epoch)/self.opt.residual_loss_weight_warmup_epochs, 1)
+
     def training_step(self, batch, batch_idx):
         self.set_inputs(batch)
         # print(self.input_mod_nets[0].encoder1.weight.data)
@@ -173,9 +178,13 @@ class TransflowerModel(BaseModel):
                 nll_loss += glow.loss_generative(z, sldj)
                 # import pdb;pdb.set_trace()
                 mse_loss += 100*self.mean_loss(predicted_mean, self.targets[i])
-            loss = nll_loss + mse_loss
+
+            adaptive_weight = F.sigmoid(mse_loss/5)
+            loss = (1-adaptive_weight)*nll_loss + adaptive_weight*mse_loss
             self.mse_loss = mse_loss
             self.nll_loss = nll_loss
+            print(mse_loss)
+            print(nll_loss)
             self.log('mse_loss', mse_loss)
             self.log('nll_loss', nll_loss)
         else:
