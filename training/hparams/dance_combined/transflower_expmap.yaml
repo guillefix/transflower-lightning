@@ -13,7 +13,7 @@ num_glow_coupling_blocks: 2
 glow_use_attn: True
 use_transformer_nn: True
 use_pos_emb_coupling: True
-use_pos_emb_output: True
+#use_pos_emb_output: True
 dhid: 800
 cond_concat_dims: True
 glow_norm_layer: batchnorm

@@ -77,7 +77,7 @@ class TransformerModel(BaseModel):
             output = self.output_mod_nets[i].forward(latent)[:self.output_lengths[i]]
             outputs.append(output)
 
-        import pdb;pdb.set_trace()
+        #import pdb;pdb.set_trace()
         return outputs
 
     def training_step(self, batch, batch_idx):
