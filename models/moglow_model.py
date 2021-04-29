@@ -160,8 +160,8 @@ class MoglowModel(BaseModel):
         # loss = mse_loss
         # print(nll_loss)
         # print(mse_loss)
-        #self.log('nll_loss', nll_loss)
-        #self.log('loss', loss)
+        self.log('nll_loss', nll_loss)
+        self.log('loss', loss)
         # self.log('mse_loss', mse_loss)
         # import pdb;pdb.set_trace()
         # if not self.has_initialized:

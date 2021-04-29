@@ -21,8 +21,15 @@
 #for exp in transglower_aistpp_expmap transglower_residual_aistpp_expmap transflower_residual_aistpp_expmap transflower_aistpp_expmap residualflower2_transflower_aistpp_expmap moglow_aistpp_expmap
 #for exp in transflower_residual_aistpp_expmap transflower_aistpp_expmap_future1 transflower_aistpp_expmap_future3 residualflower2_transflower_aistpp_expmap_future1 residualflower2_transflower_aistpp_expmap_future3 moglow_aistpp_expmap 
 #for exp in transflower_residual_aistpp_expmap_future3
-for exp in transflower_aistpp_expmap_future3_rot
+#for exp in transflower_expmap_use_pos_emb_output moglow_expmap transflower_expmap_studentT_gclp1
+for exp in transflower_expmap_use_pos_emb_output
+#for exp in moglow_expmap
 do
+	sbatch slurm_script_generate.slurm $exp
+	sbatch slurm_script_generate.slurm $exp
+	sbatch slurm_script_generate.slurm $exp
+	sbatch slurm_script_generate.slurm $exp
+	sbatch slurm_script_generate.slurm $exp
 	sbatch slurm_script_generate.slurm $exp
 done
 

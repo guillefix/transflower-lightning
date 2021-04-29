@@ -2,6 +2,7 @@
 
 #SBATCH --time=1:00:00
 ##SBATCH --qos=qos_gpu-t4
+#SBATCH --qos=qos_gpu-dev
 #SBATCH --ntasks=1 --cpus-per-task=8 --gres=gpu:1
 #SBATCH -A imi@gpu
 ##SBATCH -C v100-32g

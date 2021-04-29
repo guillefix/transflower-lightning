@@ -13,7 +13,7 @@ num_glow_coupling_blocks: 2
 glow_use_attn: True
 use_transformer_nn: True
 use_pos_emb_coupling: True
-#use_pos_emb_output: True
+use_pos_emb_output: True
 dhid: 800
 cond_concat_dims: True
 glow_norm_layer: batchnorm
@@ -21,9 +21,9 @@ glow_bn_momentum: 0.1
 dropout: 0
 lr_policy: multistep
 lr_decay_milestones: [500,1000]
-learning_rate: 5e-5
+learning_rate: 7e-5
 gradient_clip_val: 0.5
-batch_size: 64
+batch_size: 84
 
 
 

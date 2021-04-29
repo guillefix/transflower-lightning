@@ -63,7 +63,7 @@ hparams_file=dance_combined/${exp}
 #exp=${exp}_future3_rot
 #exp=${exp}_use_pos_emb_output
 #exp=${exp}_1e4
-#exp=${exp}_studentT_gclp1
+#exp=${exp}_studentT
 
 echo $exp
 
@@ -71,17 +71,16 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --do_validation \
     --hparams_file=training/hparams/${hparams_file}.yaml \
     --val_batch_size=8 \
+    --batch_size=128 \
+    --learning_rate=1e-4 \
     --experiment_name=$exp\
     --workers=$(nproc) \
     --gpus=4 \
     --accelerator=ddp \
-    #--batch_size=64 \
+    #--flow_dist=studentT \
     #--continue_train \
-    #--learning_rate=1e-4 \
+    #--flow_dist=studentT \
     #--use_pos_emb_output \
-    #--flow_dist=studentT \
-    #--gradient_clip_val=1 \
-    #--flow_dist=studentT \
     #--fix_lengths \
     #--use_x_transformers \
     #--use_rotary_pos_emb \

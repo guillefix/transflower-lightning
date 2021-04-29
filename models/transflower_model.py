@@ -183,8 +183,8 @@ class TransflowerModel(BaseModel):
             loss = (1-adaptive_weight)*nll_loss + adaptive_weight*mse_loss
             self.mse_loss = mse_loss
             self.nll_loss = nll_loss
-            print(mse_loss)
-            print(nll_loss)
+            #print(mse_loss)
+            #print(nll_loss)
             self.log('mse_loss', mse_loss)
             self.log('nll_loss', nll_loss)
         else:

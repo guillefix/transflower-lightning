@@ -15,9 +15,9 @@ prior_dropout: 0
 dropout: 0
 lr_policy: multistep
 lr_decay_milestones: [100,500]
-learning_rate: 1e-5
+learning_rate: 7e-5
 gradient_clip_val: 0.5
-batch_size: 64
+batch_size: 84
 find_unused_parameters: True
 
 
