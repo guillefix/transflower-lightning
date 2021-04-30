@@ -12,8 +12,8 @@ exp=$1
 #seq_id=gKR_sFM_cAll_d28_mKR5_ch06
 #seq_id=gLH_sFM_cAll_d16_mLH3_ch04
 #seq_id=gPO_sFM_cAll_d12_mPO4_ch19
-#seq_id=aistpp_gMH_sFM_cAll_d22_mMH3_ch04
-seq_id=kthmisc_12
+seq_id=aistpp_gMH_sFM_cAll_d22_mMH3_ch04
+#seq_id=Streetdance_001
 echo $exp $seq_id
 
 mkdir inference/generated/
