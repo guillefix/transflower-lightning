@@ -13,7 +13,8 @@ import numpy as np
 from functools import partial
 
 from torch.nn import TransformerEncoder, TransformerEncoderLayer, Transformer
-from models.x_transformers import ContinuousTransformerWrapper, Decoder, Encoder, AutoregressiveWrapper
+#from models.x_transformers import ContinuousTransformerWrapper, Decoder, Encoder, AutoregressiveWrapper
+from x_transformers import ContinuousTransformerWrapper, Decoder, Encoder, AutoregressiveWrapper
 
 def pick_and_pop(keys, d):
     values = list(map(lambda key: d.pop(key), keys))
@@ -115,7 +116,7 @@ class BasicTransformerModel(nn.Module):
                     depth = nlayers,
                     heads = nhead,
                     rotary_pos_emb = opt.use_rotary_pos_emb,
-                    rel_pos_bias = True
+                    #rel_pos_bias = True
                 )
             )
 
