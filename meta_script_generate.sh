@@ -24,8 +24,9 @@
 #for exp in transflower_expmap_use_pos_emb_output moglow_expmap transflower_expmap_studentT_gclp1
 #for exp in transflower_expmap_use_pos_emb_output
 #for exp in transformer_expmap_no_pos_emb_output
-for exp in transformer_expmap
-#for exp in transflower_expmap_use_pos_emb_output moglow_expmap transflower_expmap_studentT_gclp1 transflower_residual_expmap_1e4
+#for exp in transformer_expmap transformer_expmap_no_pos_emb_output
+#for exp in transflower_expmap_use_pos_emb_output moglow_expmap transflower_expmap_studentT_gclp1 transflower_residual_expmap_1e4 transflower_expmap_large
+for exp in transflower_residual_expmap_1e4
 #for exp in moglow_expmap
 do
 	sbatch slurm_script_generate.slurm $exp

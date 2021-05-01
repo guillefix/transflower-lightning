@@ -20,7 +20,7 @@ param=expmap
 #param=position
 
 mpirun -n $n $py feature_extraction/process_motions.py $@ --param ${param} --fps $fps
-mpirun -n 1 $py feature_extraction/extract_transform2.py $1 --feature_name bvh_${param} --transforms scaler
+#mpirun -n 1 $py feature_extraction/extract_transform2.py $1 --feature_name bvh_${param} --transforms scaler
 mpirun -n $n $py feature_extraction/apply_transforms.py $@ --feature_name bvh_${param} --transform_name scaler --new_feature_name ${param}_scaled_${fps}
 cp $1/motion_expmap_data_pipe.sav $1/motion_${param}_scaled_${fps}_data_pipe.sav
 #cp $1/bvh_expmap_scaler.pkl $1/${param}_scaled_${fps}_scaler.pkl
@@ -33,3 +33,4 @@ cp $1/motion_expmap_data_pipe.sav $1/motion_${param}_scaled_${fps}_data_pipe.sav
 #mpirun -n 1 $py feature_extraction/extract_transform2.py $1 --feature_name moglow_loc_control --transforms scaler
 #mpirun -n $n $py feature_extraction/apply_transforms.py $@ --feature_name moglow_loc_control --transform_name scaler --new_feature_name moglow_control_scaled
 #cp $1/moglow_loc_control_scaler.pkl $1/moglow_control_scaled_scaler.pkl
+

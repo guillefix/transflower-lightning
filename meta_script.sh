@@ -25,12 +25,13 @@
 #for exp in transflower_residual_aistpp_expmap transflower_aistpp_expmap
 #for exp in moglow_expmap
 #for exp in transformer_expmap
-#for exp in mowgli_expmap
+for exp in mowgli_expmap
 #for exp in transflower_expmap
-for exp in transflower_expmap_large
+#for exp in transflower_expmap_large
 #for exp in transflower_residual_expmap
 #for exp in transflower_residual_aistpp_expmap
 do
-	sbatch slurm_script.slurm $exp
+	#sbatch slurm_script.slurm $exp
+	sbatch slurm_script2.slurm $exp
 done
 
