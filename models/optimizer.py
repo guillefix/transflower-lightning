@@ -3,6 +3,7 @@ import torch
 from .nero import Nero
 # import torch_optimizer as optim
 import ast
+from madgrad import MADGRAD
 
 
 def get_optimizers(net, opt):
@@ -18,6 +19,8 @@ def get_optimizers(net, opt):
         optimizer = torch.optim.Rmsprop(net.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay)
     elif opt.optimizer == "nero":
         optimizer = Nero(net.parameters(), lr=opt.learning_rate)
+    elif opt.optimizer == "madgrad":
+        optimizer = MADGRAD(net.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay, momentum=opt.momentum)
     # elif opt.optimizer == "ranger":
     #     optimizer = optim.Ranger(net.parameters(), lr=opt.learning_rate, alpha=0.5, k=6, N_sma_threshhold=5, betas=(.95, 0.999), eps=1e-5, weight_decay=0 )
     else:

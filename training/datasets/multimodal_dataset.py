@@ -177,6 +177,13 @@ class MultimodalDataset(BaseDataset):
                     else:
                         assert length == length_0
 
+            #TODO: implement this!
+            ## we pad the song features with zeros to imitate during training what happens during generation
+            #x = [np.concatenate((np.zeros(( xx.shape[0],max(0,max(output_time_offsets)) )),xx),0) for xx in x]
+            ## we also pad at the end to allow generation to be of the same length of sequence, by padding an amount corresponding to time_offset
+            #x = [np.concatenate((xx,np.zeros(( xx.shape[0],max(0,max(input_lengths)+max(input_time_offsets)-(min(output_time_offsets)+min(output_lengths)-1)) ))),0) for xx in x]
+
+
             sequence_length = self.input_features[input_mods[0]][base_filename].shape[0]
             possible_init_frames = sequence_length-max(max(input_lengths)+max(input_time_offsets),max(output_time_offsets)+max(output_lengths))+1
             self.total_frames += possible_init_frames
@@ -241,13 +248,6 @@ class MultimodalDataset(BaseDataset):
         # not doing this any more as we are normalizing over all examples now
         #x = [(xx-np.mean(xx,0,keepdims=True))/(np.std(xx,0,keepdims=True)+1e-5) for xx in x]
         #y = [(yy-np.mean(yy,0,keepdims=True))/(np.std(yy,0,keepdims=True)+1e-5) for yy in y]
-
-        ## we pad the song features with zeros to imitate during training what happens during generation
-        #x = [np.concatenate((np.zeros(( xx.shape[0],max(0,max(output_time_offsets)) )),xx),0) for xx in x]
-        #y = [np.concatenate((np.zeros(( yy.shape[0],max(0,max(output_time_offsets)) )),yy),0) for yy in y]
-        ## we also pad at the end to allow generation to be of the same length of sequence, by padding an amount corresponding to time_offset
-        #x = [np.concatenate((xx,np.zeros(( xx.shape[0],max(0,max(input_lengths)+max(input_time_offsets)-(min(output_time_offsets)+min(output_lengths)-1)) ))),0) for xx in x]
-        #y = [np.concatenate((yy,np.zeros(( yy.shape[0],max(0,max(input_lengths)+max(input_time_offsets)-(min(output_time_offsets)+min(output_lengths)-1)) ))),0) for yy in y]
 
         if idx > 0: index = item - self.frame_cum_sums[idx-1]
         else: index = item

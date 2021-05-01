@@ -12,7 +12,8 @@ smplx
 transforms3d
 x-transformers
 madmom
-#ftfy
-#axial_positional_embedding
-#einops
-#entmax
+ftfy
+axial_positional_embedding
+einops
+entmax
+madgrad

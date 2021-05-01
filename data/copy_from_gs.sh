@@ -11,7 +11,9 @@ gsutil=$SCRATCH/google-cloud-sdk/bin/gsutil
 #gsutil -m cp -r gs://metagen/data/aistpp_60hz $data_dir/
 #$gsutil -m cp -r gs://metagen/data/aistpp/music/*.mp3 $data_dir/aistpp_20hz/
 #$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp -r gs://metagen/data/aistpp/music/*.mp3 $data_dir/aistpp_20hz/
-$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp -r gs://metagen/data/dance_combined $data_dir/
+#$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp -r gs://metagen/data/dance_combined $data_dir/
+$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp -r gs://metagen/data/dance_combined/justdance* $data_dir/dance_combined
+$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp -r gs://metagen/data/dance_combined/base_filenames* $data_dir/dance_combined
 
 #gsutil -m cp gs://metagen/data/features_20/*mel_ddcpca_scaled_20* features/
 #gsutil -m cp gs://metagen/data/features_20/*scaler* features/

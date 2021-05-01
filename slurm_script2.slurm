@@ -24,6 +24,6 @@ exp=$1
 
 #./script_train_residualflower.sh
 #./script_train.sh $exp
-#./script_train2.sh $exp
-./script_train3.sh $exp
+./script_train2.sh $exp
+#./script_train3.sh $exp
 
