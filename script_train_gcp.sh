@@ -38,7 +38,8 @@ root_dir=data
 #hparams_file=aistpp_20hz/residualflower2_moglow_aistpp_expmap
 
 ####dance_combined
-data_dir=${root_dir}/dance_combined
+#data_dir=${root_dir}/dance_combined
+data_dir=${root_dir}/dance_combined2
 #exp=$1
 #exp=transflower_expmap_large
 #exp=transflower_residual_expmap
@@ -65,8 +66,8 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
     --workers=$(nproc) \
     --tpu_cores=8 \
     --sync_batchnorm \
-    --optimizer=madgrad \
-    --learning_rate=1e-4 \
+    #--optimizer=madgrad \
+    #--learning_rate=1e-3 \
     #--batch_size=128 \
     #--use_x_transformers \
     #--use_rotary_pos_emb \
