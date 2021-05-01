@@ -61,15 +61,15 @@ hparams_file=dance_combined/${exp}
 #exp=${exp}_future3_actnorm
 #exp=${exp}_future3
 #exp=${exp}_future3_rot
-#exp=${exp}_use_pos_emb_output
+exp=${exp}_use_pos_emb_output
 #exp=${exp}_1e4
 #exp=${exp}_studentT_gclp1
 #exp=${exp}_no_pos_emb_output
-exp=${exp}_xt
 
 echo $exp
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
+    --fix_lengths \
     --do_validation \
     --hparams_file=training/hparams/${hparams_file}.yaml \
     --val_batch_size=8 \
@@ -77,13 +77,14 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --workers=$(nproc) \
     --gpus=4 \
     --accelerator=ddp \
-    --sync_batchnorm \
-    --optimizer=madgrad \
-    --learning_rate=1e-3 \
-    --use_x_transformers \
-    --use_rotary_pos_emb \
-    --batch_size=84 \
-    #--continue_train \
+    --continue_train \
+    --dhid=800 \
+    #--sync_batchnorm \
+    #--optimizer=madgrad \
+    #--learning_rate=1e-3 \
+    #--use_x_transformers \
+    #--use_rotary_pos_emb \
+    #--batch_size=64 \
     #--learning_rate=1e-4 \
     #--use_pos_emb_output \
     #--flow_dist=studentT \

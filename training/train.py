@@ -55,10 +55,10 @@ if __name__ == '__main__':
         if opt.load_weights_only:
             state_dict = torch.load(latest_file)
             state_dict = state_dict['state_dict']
-            state_dict = {k:v for k,v in state_dict.items() if not ("prior_transformer" in k)}
+            #state_dict = {k:v for k,v in state_dict.items() if not ("prior_transformer" in k)}
             # import pdb;pdb.set_trace()
-            model.load_state_dict(state_dict, strict=False)
-            #model.load_state_dict(state_dict)
+            #model.load_state_dict(state_dict, strict=False)
+            model.load_state_dict(state_dict)
             trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=ddpplugin)
         else:
             trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file, plugins=ddpplugin)
