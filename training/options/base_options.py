@@ -167,6 +167,7 @@ class BaseOptions:
         # set multiprocessing
         #if opt.workers > 0 and not opt.fork_processes:
         #    mp.set_start_method('spawn', force=True)
+        #mp.set_start_method('spawn', force=True)
 
         self.opt = opt
         return self.opt

@@ -43,7 +43,7 @@ data_dir=${root_dir}/dance_combined
 #exp=transflower_expmap_large
 #exp=transflower_residual_expmap
 #exp=transformer_expmap
-exp=transformer_expmap_large
+exp=transformer_expmap
 #exp=moglow_expmap
 hparams_file=dance_combined/${exp}
 
@@ -61,15 +61,15 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
     --do_validation \
     --hparams_file=training/hparams/${hparams_file}.yaml \
     --val_batch_size=32 \
-    --batch_size=84 \
     --experiment_name=$exp\
     --workers=$(nproc) \
     --tpu_cores=8 \
     --sync_batchnorm \
     --optimizer=madgrad \
-    --learning_rate=1e-3 \
-    --use_x_transformers \
-    --use_rotary_pos_emb \
+    --learning_rate=1e-4 \
+    #--batch_size=128 \
+    #--use_x_transformers \
+    #--use_rotary_pos_emb \
     #--accelerator=ddp \
     #--flow_dist=studentT \
     #--continue_train \

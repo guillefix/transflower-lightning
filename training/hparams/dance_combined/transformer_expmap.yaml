@@ -1,7 +1,7 @@
 model: transformer
 learning_rate: 1e-4
 lr_policy: multistep
-lr_decay_milestones: [50,100]
+lr_decay_milestones: [100,200]
 dins: "69,85"
 douts: "69"
 input_modalities: "expmap_scaled_20,audio_feats_scaled_20"
