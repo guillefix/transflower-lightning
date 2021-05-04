@@ -65,12 +65,11 @@ hparams_file=dance_combined/${exp}
 #exp=${exp}_1e4
 #exp=${exp}_studentT_gclp1
 #exp=${exp}_no_pos_emb_output
-exp=${exp}_stage2
+#exp=${exp}_stage2
 
 echo $exp
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
-    --fix_lengths \
     --do_validation \
     --hparams_file=training/hparams/${hparams_file}.yaml \
     --val_batch_size=8 \
@@ -79,8 +78,11 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --gpus=4 \
     --accelerator=ddp \
     --continue_train \
-    --load_weights_only \
-    --stage2 \
+    #--load_weights_only \
+    #--stage2 \
+    #--use_pos_emb_output \
+    #--dhid=800 \
+    #--batch_size=84 \
     #--sync_batchnorm \
     #--optimizer=madgrad \
     #--learning_rate=1e-3 \

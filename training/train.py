@@ -9,6 +9,7 @@ print(torch.cuda.is_available())
 from training.datasets import create_dataset, create_dataloader
 print("HIII")
 from models import create_model
+import pytorch_lightning as pl
 from training.options.train_options import TrainOptions
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -19,6 +20,7 @@ from pytorch_lightning.plugins import DDPPlugin
 from training.utils import get_latest_checkpoint
 
 if __name__ == '__main__':
+    pl.seed_everything(69420)
     opt = TrainOptions().parse()
     print("loaded options")
     model = create_model(opt)
@@ -26,7 +28,7 @@ if __name__ == '__main__':
     if "tpu_cores" in vars(opt) and opt.tpu_cores is not None and opt.tpu_cores > 0:
         ddpplugin = None
     else:
-        ddpplugin = DDPPlugin(find_unused_parameters=opt.find_unused_parameters)
+        ddpplugin = DDPPlugin(find_unused_parameters=opt.find_unused_parameters, num_nodes=opt.num_nodes)
 
     ##Datasets and dataloaders
     train_dataset = create_dataset(opt)
@@ -55,15 +57,25 @@ if __name__ == '__main__':
         if opt.load_weights_only:
             state_dict = torch.load(latest_file)
             state_dict = state_dict['state_dict']
-            #state_dict = {k:v for k,v in state_dict.items() if not ("prior_transformer" in k)}
-            # import pdb;pdb.set_trace()
-            #model.load_state_dict(state_dict, strict=False)
-            model.load_state_dict(state_dict)
+            if opt.ignore_in_state_dict != "":
+                #state_dict = {k:v for k,v in state_dict.items() if not ("prior_transformer" in k)}
+                state_dict = {k:v for k,v in state_dict.items() if not (opt.ignore_in_state_dict in k)}
+                #import pdb;pdb.set_trace()
+                model.load_state_dict(state_dict, strict=False)
+            else:
+                model.load_state_dict(state_dict)
             trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=ddpplugin)
         else:
             trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file, plugins=ddpplugin)
     else:
         trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=ddpplugin)
+
+    #Tuning
+    if opt.do_tuning:
+        if opt.do_validation:
+            trainer.tune(model, train_dataloader, val_dataloader)
+        else:
+            trainer.tune(model, train_dataloader)
 
     #Training
     if not opt.skip_training:

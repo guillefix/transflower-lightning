@@ -14,6 +14,7 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--momentum', default=0, type=float)
         parser.add_argument('--weight_decay', default=0, type=float)
         parser.add_argument('--lr_policy', type=str, default='lambda', help='learning rate policy: lambda|step|plateau|cosine')
+        parser.add_argument('--warmup_epochs', type=int, default=10, help='the number of warmup epochs when using lr policy LinearWarmupCosineAnnealing')
         parser.add_argument('--lr_decay_iters', type=int, default=50, help='multiply by a gamma every lr_decay_iters iterations')
         parser.add_argument('--lr_decay_factor', default=0.1, type=float, help="decay factor to use with multiplicative learning rate schedulers")
         parser.add_argument('--lr_decay_milestones', type=str, default='[500,1000]', help='the milestones at which to decay the learning rate, when using the multi step lr policy')

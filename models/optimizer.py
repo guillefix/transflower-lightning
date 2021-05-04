@@ -4,6 +4,7 @@ from .nero import Nero
 # import torch_optimizer as optim
 import ast
 from madgrad import MADGRAD
+from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 
 
 def get_optimizers(net, opt):
@@ -30,7 +31,8 @@ def get_optimizers(net, opt):
 def get_scheduler(optimizer, opt):
     if opt.lr_policy == 'lambda':
         def lambda_rule(epoch):
-            lr_l = 1.0 - max(0, epoch + opt.epoch_count - opt.max_epochs) / float(opt.nepoch_decay + 1)
+            nepochs = opt.max_epochs - opt.nepoch_decay #number of epochs before beginning to decay
+            lr_l = 1.0 - max(0, epoch + opt.epoch_count - nepochs) / float(opt.nepoch_decay + 1)
             return lr_l
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
     elif opt.lr_policy == 'step':
@@ -44,6 +46,10 @@ def get_scheduler(optimizer, opt):
     elif opt.lr_policy == 'cyclic':
         scheduler = CyclicLR(optimizer, base_lr=opt.learning_rate / 10, max_lr=opt.learning_rate,
                              step_size=opt.nepoch_decay, mode='triangular2')
+    elif opt.lr_policy == 'reduceOnPlateau':
+        scheduler = ReduceLROnPlateau(optimizer, 'min', factor=0.2)
+    elif opt.lr_policy == 'LinearWarmupCosineAnnealing':
+        scheduler = LinearWarmupCosineAnnealingLR(optimizer, warmup_epochs=opt.warmup_epochs, max_epochs=opt.max_epochs)
     else:
         return NotImplementedError('learning rate policy [%s] is not implemented', opt.lr_policy)
     return scheduler

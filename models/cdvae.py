@@ -290,9 +290,11 @@ class ConditionalDiscreteVAE(nn.Module):
             padding_size1 = 1
             codebook_layer_shape1 = input_shape[0]
         else:
-            kernel_size1 = 4
+            #kernel_size1 = 4
+            kernel_size1 = 3
             padding_size1 = 1
-            codebook_layer_shape1 = input_shape[0] - num_layers
+            #codebook_layer_shape1 = input_shape[0] - num_layers
+            codebook_layer_shape1 = input_shape[0]
 
         if input_shape[1] == 1:
             kernel_size2 = 1
@@ -303,9 +305,11 @@ class ConditionalDiscreteVAE(nn.Module):
             padding_size2 = 1
             codebook_layer_shape2 = input_shape[1]
         else:
-            kernel_size2 = 4
+            #kernel_size2 = 4
+            kernel_size2 = 3
             padding_size2 = 1
-            codebook_layer_shape2 = input_shape[1] - num_layers
+            #codebook_layer_shape2 = input_shape[1] - num_layers
+            codebook_layer_shape2 = input_shape[1]
 
         self.codebook_layer_shape = (codebook_layer_shape1,codebook_layer_shape2)
         kernel_shape = (kernel_size1, kernel_size2)
