@@ -40,6 +40,7 @@ data/testing/*
 data/aistpp_ddcpca/*
 to_check*
 data/dance_combined/*
+data/dance_combined2/*
 data/dance_full.zip
 MNIST/
 models/testing_model.py

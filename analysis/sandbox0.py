@@ -14,6 +14,7 @@ p = BVHParser()
 # f="data/dance_full/shadermotion_data2_retarget/bvh/VRChat_Dance_2.bvh"
 # f="data/dance_full/shadermotion_data2_retarget/bvh/VRChat_Dance_8.bvh"
 f="data/dance_full/kth_streetdance_data/bvh/Streetdance_001.bvh"
+f="data/dance_full/shadermotion_justdance/bvh/justdance_0.bvh"
 f="data/dance_full/vibe_dance/bvh/Take1.bvh"
 # f="data/dance_full/shadermotion_data2_retarget/bvh/VRChat_Dance_0.bvh"
 f="data/dance_full/tmp/bvh/VRChat_Dance_0.bvh"
@@ -30,6 +31,8 @@ data = p.parse(f)
 # data = p.parse(f)
 #
 # print_skel(data)
+
+data.skeleton
 
 #%%
 

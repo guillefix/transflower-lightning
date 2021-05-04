@@ -59,31 +59,49 @@ exp=$1
 hparams_file=dance_combined/${exp}
 
 #exp=${exp}_future3_actnorm
-#exp=${exp}_future3
+#exp=${exp}_future10_fix
 #exp=${exp}_future3_rot
 #exp=${exp}_use_pos_emb_output
 #exp=${exp}_1e4
 #exp=${exp}_studentT_gclp1
 #exp=${exp}_no_pos_emb_output
-exp=${exp}_xt
+#exp=${exp}_xt
+#exp=${exp}_p32_b
+#exp=${exp}_p32_c
 
 echo $exp
+#echo $RANK
+#echo $LOCAL_RANK
+echo $SLURM_PROCID
 
-$py training/train.py --data_dir=${data_dir} --max_epochs=2000\
-    --do_validation \
+$py training/train.py --data_dir=${data_dir} \
+    --max_epochs=1000\
     --hparams_file=training/hparams/${hparams_file}.yaml \
-    --val_batch_size=8 \
     --experiment_name=$exp\
     --workers=$(nproc) \
-    --gpus=4 \
+    --gpus=-1 \
     --accelerator=ddp \
+    --num_nodes=8 \
+    --gradient_clip_val=0.5 \
+    --precision=32 \
     --sync_batchnorm \
-    --optimizer=madgrad \
-    --learning_rate=1e-3 \
-    --use_x_transformers \
-    --use_rotary_pos_emb \
-    --batch_size=84 \
+    --lr_policy=LinearWarmupCosineAnnealing \
+    #--auto_lr_find \
+    #--do_tuning \
+    #--learning_rate=7e-5 \
+    #--batch_size=84 \
     #--continue_train \
+    #--num_nodes=4 \
+    #--output_lengths=3 \
+    #--dropout=0.1 \
+    #--vae_dhid=128 \
+    #--optimizer=madgrad \
+    #--learning_rate=1e-3 \
+    #--use_x_transformers \
+    #--use_rotary_pos_emb \
+    #--batch_size=84 \
+    #--lr_policy=reduceOnPlateau \
+
     #--learning_rate=1e-4 \
     #--use_pos_emb_output \
     #--flow_dist=studentT \

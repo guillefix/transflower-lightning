@@ -24,6 +24,8 @@ class BaseOptions:
         parser.add_argument('--do_validation', action='store_true', help='whether to do validation steps during training')
         parser.add_argument('--do_testing', action='store_true', help='whether to do evaluation on test set at the end of training')
         parser.add_argument('--skip_training', action='store_true', help='whether to not do training (only useful when doing just testing)')
+        parser.add_argument('--do_tuning', action='store_true', help='whether to not do the tuning phase (e.g. to tune learning rate)')
+        parser.add_argument('--ignore_in_state_dict', type=str, default="", help="substring to match in state dict, to then ignore the corresponding saved weights. Sometimes useful for models where only some part was trained e.g.")
         # parser.add_argument('--augment', type=int, default=0)
         parser.add_argument('--model', type=str, default="transformer", help="The network model used for beatsaberification")
         # parser.add_argument('--init_type', type=str, default="normal")
@@ -167,6 +169,7 @@ class BaseOptions:
         # set multiprocessing
         #if opt.workers > 0 and not opt.fork_processes:
         #    mp.set_start_method('spawn', force=True)
+        #mp.set_start_method('spawn', force=True)
 
         self.opt = opt
         return self.opt
