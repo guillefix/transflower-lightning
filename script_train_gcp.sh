@@ -65,7 +65,8 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
     --experiment_name=$exp\
     --workers=$(nproc) \
     --tpu_cores=8 \
-    --sync_batchnorm \
+    #--continue_train \
+    #--sync_batchnorm \
     #--optimizer=madgrad \
     #--learning_rate=1e-3 \
     #--batch_size=128 \
@@ -73,7 +74,6 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=1000\
     #--use_rotary_pos_emb \
     #--accelerator=ddp \
     #--flow_dist=studentT \
-    #--continue_train \
     #--no-use_pos_emb_output \
     #--load_weights_only \
     #--stage2 \
