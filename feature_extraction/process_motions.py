@@ -73,9 +73,11 @@ def extract_joint_angles(files):
 
         out_data = data_pipe.fit_transform(data_all)
 
-        # NO: the datapipe will append the mirrored files to the end
-        # assert len(out_data) == 2*len(filenames)
-        assert len(out_data) == len(files)
+        if do_mirror:
+            # NOTE: the datapipe will append the mirrored files to the end
+            assert len(out_data) == 2*len(files)
+        else:
+            assert len(out_data) == len(files)
 
         if rank == 0:
             jl.dump(data_pipe, os.path.join(data_path, 'motion_'+param+'_data_pipe.sav'))
