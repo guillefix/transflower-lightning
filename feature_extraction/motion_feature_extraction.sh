@@ -25,6 +25,8 @@ mpirun -n $n $py feature_extraction/apply_transforms.py $@ --feature_name bvh_${
 #cp $1/motion_expmap_data_pipe.sav $1/motion_${param}_scaled_${fps}_data_pipe.sav
 
 #cp $1/bvh_expmap_scaler.pkl $1/${param}_scaled_${fps}_scaler.pkl
+#if doing mirroring
+
 
 # for moglow
 #param=position

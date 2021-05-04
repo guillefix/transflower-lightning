@@ -824,10 +824,10 @@ class RootTransformer(BaseEstimator, TransformerMixin):
                 rotation = Quaternions.between(target, forward)[:,np.newaxis]
                 positions = (-rotation[:,0]) * positions
                 new_rotations = (-rotation[:,0]) * quats
+                velocity = (-rotation[:,0]) * velocity
 
                 """ Get Root Rotation """
                 #print(rotation[:,0])
-                velocity = (-rotation[:,0]) * velocity
                 rvelocity = Pivots.from_quaternions(rotation[1:] * -rotation[:-1]).ps
                 rvelocity = np.vstack((rvelocity[0], rvelocity))
 
