@@ -66,6 +66,7 @@ hparams_file=dance_combined/${exp}
 #exp=${exp}_studentT_gclp1
 #exp=${exp}_no_pos_emb_output
 #exp=${exp}_stage2
+exp=${exp}_future3
 
 echo $exp
 
@@ -75,9 +76,12 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --val_batch_size=8 \
     --experiment_name=$exp\
     --workers=$(nproc) \
-    --gpus=4 \
+    --gpus=-1 \
     --accelerator=ddp \
     --continue_train \
+    --stage2 \
+    --ignore_in_state_dict=prior_transformer \
+    --num_nodes=4 \
     #--load_weights_only \
     #--stage2 \
     #--use_pos_emb_output \

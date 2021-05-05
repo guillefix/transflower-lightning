@@ -1,4 +1,5 @@
 model: mowgli
+stage2: True
 dins: 69,85
 douts: 69
 input_modalities: "expmap_scaled_20,audio_feats_scaled_20"
@@ -20,6 +21,4 @@ learning_rate: 7e-5
 gradient_clip_val: 0.5
 batch_size: 84
 find_unused_parameters: True
-
-
-
+ignore_in_state_dit: prior_transformer

@@ -49,7 +49,6 @@ root_dir=$SCRATCH/data
 
 ####dance_combined
 data_dir=${root_dir}/dance_combined
-#data_dir=${root_dir}/dance_combined2
 exp=$1
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
@@ -60,55 +59,33 @@ exp=$1
 hparams_file=dance_combined/${exp}
 
 #exp=${exp}_future3_actnorm
-#exp=${exp}_future10_fix
+#exp=${exp}_future3
 #exp=${exp}_future3_rot
 #exp=${exp}_use_pos_emb_output
 #exp=${exp}_1e4
 #exp=${exp}_studentT_gclp1
 #exp=${exp}_no_pos_emb_output
-#exp=${exp}_xt
-#exp=${exp}_p32_b
-#exp=${exp}_p16
-exp=${exp}_nsn
-#exp=${exp}_newdata
+#exp=${exp}_longer
 
 echo $exp
-#echo $RANK
-#echo $LOCAL_RANK
-echo $SLURM_PROCID
-export LOCAL_RANK=$SLURM_PROCID
 
-$py training/train.py --data_dir=${data_dir} \
-    --max_epochs=1000\
+$py training/train.py --data_dir=${data_dir} --max_epochs=2000\
+    --do_validation \
     --hparams_file=training/hparams/${hparams_file}.yaml \
+    --val_batch_size=8 \
     --experiment_name=$exp\
     --workers=$(nproc) \
     --gpus=-1 \
     --accelerator=ddp \
-    --num_nodes=8 \
     --continue_train \
-    #--batch_size=32 \
-    #--plugins=deepspeed \
-    #--precision=16 \
-
-    #--gradient_clip_val=0.5 \
+    --use_pos_emb_output \
+    --batch_size=84 \
+    #--dhid=800 \
     #--sync_batchnorm \
-    #--lr_policy=LinearWarmupCosineAnnealing \
-    #--auto_lr_find \
-    #--do_tuning \
-    #--learning_rate=7e-5 \
-    #--batch_size=84 \
-    #--num_nodes=4 \
-    #--output_lengths=3 \
-    #--dropout=0.1 \
-    #--vae_dhid=128 \
     #--optimizer=madgrad \
     #--learning_rate=1e-3 \
     #--use_x_transformers \
-    #--use_rotary_pos_emb \
-    #--batch_size=84 \
-    #--lr_policy=reduceOnPlateau \
-
+    #--batch_size=64 \
     #--learning_rate=1e-4 \
     #--use_pos_emb_output \
     #--flow_dist=studentT \
@@ -121,5 +98,4 @@ $py training/train.py --data_dir=${data_dir} \
     #--scales="[[16,0]]" \
     #--residual_scales="[[16,0]]"
 #    --glow_norm_layer="actnorm" \
-    #--use_pos_emb_output \
 #    --tpu_cores=8 \

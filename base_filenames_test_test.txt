@@ -1,0 +1,4 @@
+groovenet_1
+aistpp_gKR_sFM_cAll_d28_mKR3_ch07
+aistpp_gJS_sBM_cAll_d01_mJS0_ch01
+aistpp_gLO_sBM_cAll_d15_mLO4_ch04

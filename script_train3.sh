@@ -48,7 +48,7 @@ root_dir=$SCRATCH/data
 #exp=${exp}_pos_emb
 
 ####dance_combined
-data_dir=${root_dir}/dance_combined
+data_dir=${root_dir}/dance_combined2
 exp=$1
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
@@ -65,18 +65,20 @@ hparams_file=dance_combined/${exp}
 #exp=${exp}_1e4
 #exp=${exp}_studentT_gclp1
 #exp=${exp}_no_pos_emb_output
+exp=${exp}_newdata
 
 echo $exp
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
+    --fix_lengths \
     --do_validation \
     --hparams_file=training/hparams/${hparams_file}.yaml \
     --val_batch_size=8 \
     --experiment_name=$exp\
     --workers=$(nproc) \
-    --gpus=4 \
+    --gpus=-1 \
     --accelerator=ddp \
-    --continue_train \
+    #--continue_train \
     #--use_pos_emb_output \
     #--batch_size=84 \
     #--dhid=800 \

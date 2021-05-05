@@ -26,9 +26,14 @@ if __name__ == '__main__':
     model = create_model(opt)
     print("loaded model")
     if "tpu_cores" in vars(opt) and opt.tpu_cores is not None and opt.tpu_cores > 0:
-        ddpplugin = None
+        plugins = None
+    elif opt.plugins is None:
+        print("DDPPlugin")
+        plugins = DDPPlugin(find_unused_parameters=opt.find_unused_parameters, num_nodes=opt.num_nodes)
     else:
-        ddpplugin = DDPPlugin(find_unused_parameters=opt.find_unused_parameters, num_nodes=opt.num_nodes)
+        #ddpplugin = DDPPlugin(find_unused_parameters=opt.find_unused_parameters, num_nodes=opt.num_nodes)
+        #plugins = [ddpplugin, opt.plugins]
+        plugins = opt.plugins
 
     ##Datasets and dataloaders
     train_dataset = create_dataset(opt)
@@ -64,11 +69,11 @@ if __name__ == '__main__':
                 model.load_state_dict(state_dict, strict=False)
             else:
                 model.load_state_dict(state_dict)
-            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=ddpplugin)
+            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=plugins)
         else:
-            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file, plugins=ddpplugin)
+            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file, plugins=plugins)
     else:
-        trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=ddpplugin)
+        trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=plugins)
 
     #Tuning
     if opt.do_tuning:
