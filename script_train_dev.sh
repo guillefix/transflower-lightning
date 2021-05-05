@@ -52,7 +52,8 @@ root_dir=$SCRATCH/data
 #exp=${exp}_pos_emb
 
 ####dance_combined
-data_dir=${root_dir}/dance_combined
+#data_dir=${root_dir}/dance_combined
+data_dir=${root_dir}/dance_combined2
 #exp=$1
 exp=transformer_expmap
 #exp=transglower_aistpp_expmap
