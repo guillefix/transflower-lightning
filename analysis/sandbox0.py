@@ -31,6 +31,9 @@ data = p.parse(f)
 # data = p.parse(f)
 #
 # print_skel(data)
+data.values
+
+data.values
 
 data.skeleton
 
@@ -40,15 +43,29 @@ data.skeleton
 p = BVHParser()
 data_pipe = Pipeline([
     # ('dwnsampl', DownSampler(tgt_fps=fps,  keep_all=False)),
-    # ('root', RootTransformer('pos_rot_deltas')),
-    # ('mir', Mirror(axis='X', append=True)),
+    ('mir', Mirror(axis='X', append=True)),
+    ('root', RootTransformer('pos_rot_deltas')),
     ('jtsel', JointSelector(['Spine', 'Spine1', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
-    ('exp', MocapParameterizer('position')),
+    # ('jtsel', JointSelector(['Spine1', 'Spine', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
+    # ('exp', MocapParameterizer('position')),
+    ('exp', MocapParameterizer('expmap')),
     # ('cnst', ConstantsRemover()),
-    # ('np', Numpyfier())
+    ('np', Numpyfier())
 ])
 
+
 out_data = data_pipe.fit_transform([data])
+
+# out_data[0].values
+out_data[0].shape
+inv_data = data_pipe.inverse_transform(out_data)
+inv_data[0] == data
+
+data.values
+inv_data[0].values
+
+# out_data[0][0]
+# out_data[0].values.columns
 
 # video_file = "analysis/tmp/Streetdance_001.mp4"
 # video_file = "analysis/tmp/sm01.mp4"

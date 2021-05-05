@@ -17,7 +17,8 @@ p = BVHParser()
 # f1="data/dance_full/shadermotion_justdance/bvh/justdance_0.bvh"
 # f2="data/dance_full/kth_streetdance_data/bvh/Streetdance_001.bvh"
 f1=sys.argv[1] #target file
-f2=sys.argv[2] #file from which to source the offsets of the skeleton (bone names and hierarchy should be the same)
+# f2=sys.argv[2] #file from which to source the offsets of the skeleton (bone names and hierarchy should be the same)
+f2="/home/guillefix/code/mt-lightning/data/dance_full/kth_streetdance_data/bvh/Streetdance_001.bvh"
 
 data1 = p.parse(f1)
 data2 = p.parse(f2)
@@ -27,6 +28,10 @@ data1.skeleton
 for name, bone in data1.skeleton.items():
     bone["offsets"] = data2.skeleton[name]["offsets"]
     data1.skeleton[name]=bone
+
+data1.values["Hips_Xposition"] *= 100
+data1.values["Hips_Yposition"] *= 100
+data1.values["Hips_Zposition"] *= 100
 
 writer = BVHWriter()
 with open(f1,'w') as f:

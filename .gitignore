@@ -46,3 +46,6 @@ MNIST/
 models/testing_model.py
 models/mowgli2_model.py
 training/hparams/aistpp_20hz/mowgli_aistpp_expmap_testing.yaml
+data/david/*
+data/justdance/*
+data/justdance2/*
