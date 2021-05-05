@@ -17,3 +17,4 @@ axial_positional_embedding
 einops
 entmax
 madgrad
+lightning-bolts
