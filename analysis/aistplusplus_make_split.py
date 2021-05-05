@@ -38,8 +38,9 @@ test_data_seqs = ["_".join([x["genre"], x["situation"], x["camera"], x["dancer"]
 with open("analysis/aistpp_base_filenames_test.txt", "w") as f:
     f.writelines([x+"\n" for x in test_data_seqs])
 
-# train_data = df[~((df["musicId"].isin(test_data["musicId"])) & (df["choreo"].isin(test_data["choreo"])))]
+# train_data = df[~(df["musicId"].isin(test_data["musicId"]))]
 train_data = df[~((df["musicId"].isin(test_data["musicId"])) & (df["choreo"].isin(test_data["choreo"])))]
+len(train_data)
 # song_choreos=[x.tolist() for i,x in test_data[["musicId","choreo"]].iterrows()]
 # song_dancer_choreos=[x.tolist() for i,x in test_data[["musicId","dancer","choreo"]].iterrows()]
 

@@ -2,8 +2,8 @@
 
 folder=$1
 py=python3
-n=$(nproc)
-#n=6
+#n=$(nproc)
+n=6
 
 #find $1 -type f -iname "*.mp3" -exec basename \{\} .mp3 \; > $1/base_filenames.txt
 
