@@ -11,8 +11,8 @@
 
 module load pytorch-gpu/py3/1.8.0
 
-exp=$1
-seq_id=$2
+#exp=$1
+#seq_id=$2
 #exp=transglower_moglow_pos
 #exp=transglower_residual_moglow_pos
 #exp=transflower_residual_moglow_pos
@@ -21,5 +21,5 @@ seq_id=$2
 #exp=moglow_moglow_pos
 
 #./script_train_residualflower.sh
-./script_generate.sh $exp $seq_id
+./script_generate.sh $@
 

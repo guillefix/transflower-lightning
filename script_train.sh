@@ -13,64 +13,24 @@ py=python3
 
 root_dir=$SCRATCH/data
 #root_dir=data
+exp=$1
 
 ####aistpp_60hz
 #data_dir=${root_dir}/scaled_features
-#hparams_file=aistpp_60hz/transflower_aistpp_expmap
-#hparams_file=aistpp_60hz/transglower_aistpp_expmap
+#hparams_file=aistpp_60hz/${exp}
 
 ####aistpp_20hz
 #data_dir=${root_dir}/aistpp_20hz
-#exp=$1
-#exp=transglower_aistpp_expmap
-#exp=transglower_residual_aistpp_expmap
-#exp=transflower_residual_aistpp_expmap
-#exp=transflower_aistpp_expmap
-#exp=residualflower2_transflower_aistpp_expmap
-#exp=moglow_aistpp_expmap
 #hparams_file=aistpp_20hz/${exp}
-
-## Fix: needs vmapped version of transformer:
-#hparams_file=aistpp_20hz/residualflower2_moglow_aistpp_expmap
 
 ####moglow_pos
 #data_dir=${root_dir}/moglow_pos
-#exp=$1
-#exp=transglower_moglow_pos
-#exp=transglower_residual_moglow_pos
-#exp=transflower_residual_moglow_pos
-#exp=transflower_moglow_pos
-#exp=residualflower2_transflower_moglow_pos
-#exp=moglow_moglow_pos
-#exp=moglow_trans_moglow_pos
 #hparams_file=moglow_pos/${exp}
-#exp=testing
-#exp=${exp}_pos_emb
 
 ####dance_combined
 data_dir=${root_dir}/dance_combined
 #data_dir=${root_dir}/dance_combined2
-exp=$1
-#exp=transglower_aistpp_expmap
-#exp=transglower_residual_aistpp_expmap
-#exp=transflower_residual_aistpp_expmap
-#exp=transflower_aistpp_expmap
-#exp=residualflower2_transflower_aistpp_expmap
-#exp=moglow_aistpp_expmap
 hparams_file=dance_combined/${exp}
-
-#exp=${exp}_future3_actnorm
-#exp=${exp}_future10_fix
-#exp=${exp}_future3_rot
-#exp=${exp}_use_pos_emb_output
-#exp=${exp}_1e4
-#exp=${exp}_studentT_gclp1
-#exp=${exp}_no_pos_emb_output
-#exp=${exp}_xt
-#exp=${exp}_p32_b
-#exp=${exp}_p16
-exp=${exp}_nsn
-#exp=${exp}_newdata
 
 echo $exp
 #echo $RANK
@@ -85,8 +45,7 @@ $py training/train.py --data_dir=${data_dir} \
     --workers=$(nproc) \
     --gpus=-1 \
     --accelerator=ddp \
-    --num_nodes=8 \
-    --continue_train \
+    ${@:2} #NOTE: can override experiment_name, and any of the options above
     #--batch_size=32 \
     #--plugins=deepspeed \
     #--precision=16 \

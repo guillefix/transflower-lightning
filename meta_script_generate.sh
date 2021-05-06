@@ -31,14 +31,21 @@
 #for exp in transformer_expmap1
 #for exp in transformer_expmap_no_pos_emb_output
 #for exp in transflower_expmap_large_ext_nsn transflower_expmap_large_ext
-#for exp in transflower_expmap
-for exp in moglow_expmap
-#for exp in mowgli_expmap
+for exp in transflower_expmap
+#for exp in transflower_residual_expmap
+#for exp in transflower_expmap_large_ext_newdata
+#for exp in transflower_expmap_newdata
+#for exp in moglow_expmap
+#for exp in mowgli_expmap_future10_fix
 do
-	while read line; do
-		  echo "$line"
-		sbatch slurm_script_generate.slurm $exp $line
-	  done <$1
+	#while read line; do
+	#	  echo "$line"
+	#	sbatch slurm_script_generate.slurm $exp $line
+	#  done <$1
+	sbatch slurm_script_generate.slurm $exp aistpp_gMH_sFM_cAll_d22_mMH3_ch04 --generate_bvh
+	#sbatch slurm_script_generate.slurm $exp fan
+	#sbatch slurm_script_generate.slurm $exp polish_cow
+	#sbatch slurm_script_generate.slurm $exp aistpp_gLO_sBM_cAll_d14_mLO4_ch02
 done
 
 #for exp in transflower_residual_aistpp_expmap_future1 transflower_aistpp_expmap_future1 residualflower2_transflower_aistpp_expmap_future1_future1

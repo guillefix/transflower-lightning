@@ -79,6 +79,8 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --experiment_name=$exp\
     --accelerator=ddp \
     --workers=0 \
+    --gpus=1 \
+    #--continue_train \
     #--workers=$(nproc) \
     #--gpus=1 \
     #--scales="[[16,0]]" \
