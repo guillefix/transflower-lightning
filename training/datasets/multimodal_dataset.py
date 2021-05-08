@@ -28,7 +28,10 @@ class MultimodalDataset(BaseDataset):
         if not data_path.is_dir():
             raise ValueError('Invalid directory:'+opt.data_dir)
 
-        temp_base_filenames = [x[:-1] for x in open(data_path.joinpath("base_filenames_"+split+".txt"), "r").readlines()]
+        if split == "train":
+            temp_base_filenames = [x[:-1] for x in open(data_path.joinpath(opt.base_filenames_file), "r").readlines()]
+        else:
+            temp_base_filenames = [x[:-1] for x in open(data_path.joinpath("base_filenames_"+split+".txt"), "r").readlines()]
         if opt.num_train_samples > 0:
             temp_base_filenames = np.random.choice(temp_base_filenames, size=opt.num_train_samples, replace=False)
         self.base_filenames = []

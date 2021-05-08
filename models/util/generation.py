@@ -24,7 +24,7 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
     #TODO: append the initial conditioning bit to the output too
     model.eval()
     output_seq = []
-    # sequence_length = inputs_[0].shape[0]
+    #sequence_length = inputs_[0].shape[0]
     sequence_length = inputs_[1].shape[0]
     print(sequence_length)
     #import pdb;pdb.set_trace()

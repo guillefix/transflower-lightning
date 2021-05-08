@@ -10,6 +10,7 @@ output_lengths: 3
 output_time_offsets: 120
 nlayers: 12
 nhead: 10
+vae_dhid: 128
 #use_pos_emb_output: True
 dhid: 800
 #prior_nlayers: 24

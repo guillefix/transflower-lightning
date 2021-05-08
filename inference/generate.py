@@ -48,7 +48,7 @@ if __name__ == '__main__':
     seq_id = args.seq_id
 
     if seq_id is None:
-        temp_base_filenames = [x[:-1] for x in open(data_dir + "/base_filenames_val.txt", "r").readlines()]
+        temp_base_filenames = [x[:-1] for x in open(data_dir + "/base_filenames_test.txt", "r").readlines()]
         seq_id = np.random.choice(temp_base_filenames)
 
     print(seq_id)

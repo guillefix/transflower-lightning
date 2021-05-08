@@ -25,6 +25,7 @@ lr_policy: LinearWarmupCosineAnnealing
 learning_rate: 5e-5
 gradient_clip_val: 0.5
 batch_size: 16
+num_nodes: 8
 
 
 

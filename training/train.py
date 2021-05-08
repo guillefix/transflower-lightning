@@ -23,6 +23,7 @@ if __name__ == '__main__':
     pl.seed_everything(69420)
     opt = TrainOptions().parse()
     print("loaded options")
+    print(opt.experiment_name)
     model = create_model(opt)
     print("loaded model")
     if "tpu_cores" in vars(opt) and opt.tpu_cores is not None and opt.tpu_cores > 0:

@@ -25,14 +25,16 @@ mkdir inference/generated/${exp}/videos
 fps=20
 #data_dir=data/aistpp_20hz
 #data_dir=$SCRATCH/data/aistpp_20hz
-#data_dir=data/dance_combined
 #data_dir=$SCRATCH/data/dance_combined
-data_dir=test_data/
+data_dir=$SCRATCH/data/dance_combined_test
+#data_dir=$SCRATCH/data/dance_combined2
+#data_dir=test_data
 #data_dir=$SCRATCH/data/moglow_pos
 
 # if we don't pass seq_id it will choose a random one from the test set
 $py inference/generate.py --data_dir=$data_dir --output_folder=inference/generated --experiment_name=$exp \
     --generate_video \
     --seq_id $seq_id \
+    ${@:3}
 
 
