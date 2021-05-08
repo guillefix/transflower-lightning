@@ -28,8 +28,8 @@ exp=$1
 #hparams_file=moglow_pos/${exp}
 
 ####dance_combined
-data_dir=${root_dir}/dance_combined
-#data_dir=${root_dir}/dance_combined2
+#data_dir=${root_dir}/dance_combined
+data_dir=${root_dir}/dance_combined2
 hparams_file=dance_combined/${exp}
 
 echo $exp

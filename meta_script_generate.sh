@@ -31,18 +31,23 @@
 #for exp in transformer_expmap1
 #for exp in transformer_expmap_no_pos_emb_output
 #for exp in transflower_expmap_large_ext_nsn transflower_expmap_large_ext
-for exp in transflower_expmap
+#for exp in transflower_expmap
 #for exp in transflower_residual_expmap
 #for exp in transflower_expmap_large_ext_newdata
 #for exp in transflower_expmap_newdata
 #for exp in moglow_expmap
+#for exp in moglow_expmap transflower_expmap mowgli_expmap_future3
+for exp in moglow_expmap_finetune transflower_expmap_finetune moglow_expmap transflower_expmap mowgli_expmap_future3
+#for exp in transformer_expmap1
+#for exp in transflower_expmap2
 #for exp in mowgli_expmap_future10_fix
 do
-	#while read line; do
-	#	  echo "$line"
-	#	sbatch slurm_script_generate.slurm $exp $line
-	#  done <$1
-	sbatch slurm_script_generate.slurm $exp aistpp_gMH_sFM_cAll_d22_mMH3_ch04 --generate_bvh
+	while read line; do
+		  echo "$line"
+		#sbatch slurm_script_generate.slurm $exp $line
+		sbatch slurm_script_generate.slurm $exp $line --generate_bvh
+	done <$1
+	#sbatch slurm_script_generate.slurm $exp aistpp_gMH_sFM_cAll_d22_mMH3_ch04 --generate_bvh --data_dir=${SCRATCH}/data/dance_combined2
 	#sbatch slurm_script_generate.slurm $exp fan
 	#sbatch slurm_script_generate.slurm $exp polish_cow
 	#sbatch slurm_script_generate.slurm $exp aistpp_gLO_sBM_cAll_d14_mLO4_ch02

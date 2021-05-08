@@ -1,7 +1,8 @@
 model: transformer
-learning_rate: 1e-4
-lr_policy: multistep
-lr_decay_milestones: [50,100]
+learning_rate: 2e-6
+#lr_policy: multistep
+#lr_decay_milestones: [50,100]
+lr_policy: LinearWarmupCosineAnnealing
 dins: "69,85"
 douts: "69"
 input_modalities: "expmap_scaled_20,audio_feats_scaled_20"
@@ -17,3 +18,4 @@ dropout: 0
 #use_pos_emb_output: True
 batch_size: 128
 gradient_clip_val: 0.5
+precision: 16

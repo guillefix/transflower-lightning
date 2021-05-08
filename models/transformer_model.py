@@ -98,6 +98,8 @@ class TransformerModel(BaseModel):
             loss_mse += self.criterion(output, self.targets[i])
             #loss_mse += self.criterion(output, self.targets[i]).detach()
         #print(loss_mse)
+        if self.opt.precision == 16:
+            loss_mse *= 100 # loss scaling
         self.log('mse_loss', loss_mse)
         return loss_mse
         #return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
