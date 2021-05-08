@@ -14,6 +14,6 @@ optimizer: adam
 nhead: 10
 dhid: 800
 dropout: 0
-use_pos_emb_output: True
+#use_pos_emb_output: True
 batch_size: 64
 gradient_clip_val: 0.5
