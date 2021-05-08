@@ -19,16 +19,17 @@ df["musicId"].unique()
 
 songs=[np.random.choice(df[df["genre"]==g]["musicId"],size=1).item() for g in df["genre"].unique()]
 
-song_dancers=sum([[(s,x) for x in np.random.choice(df[df["musicId"]==s]["dancer"],size=2, replace=False).tolist()] for s in songs], [])
+# song_dancers=sum([[(s,x) for x in np.random.choice(df[df["musicId"]==s]["dancer"],size=2, replace=False).tolist()] for s in songs], [])
 # song_dancers
 
 # df[(df["musicId"]=="mBR4") & (df["dancer"]=="d06")]
 
-song_dancer_choreos=sum([[(s,d,x) for x in np.random.choice(df[(df["musicId"]==s) & (df["dancer"]==d)]["choreo"],size=2, replace=False).tolist()] for s,d in song_dancers], [])
+# song_dancer_choreos=sum([[(s,d,x) for x in np.random.choice(df[(df["musicId"]==s) & (df["dancer"]==d)]["choreo"],size=2, replace=False).tolist()] for s,d in song_dancers], [])
 
-len(song_dancer_choreos)
+# len(song_dancer_choreos)
 
-test_data = pd.concat([df[(df["musicId"]==s) & (df["dancer"]==d) & (df["choreo"]==c)].sample(1) for s,d,c in song_dancer_choreos])
+# test_data = pd.concat([df[(df["musicId"]==s) & (df["dancer"]==d) & (df["choreo"]==c)].sample(1) for s,d,c in song_dancer_choreos])
+test_data = pd.concat([df[(df["musicId"]==s)] for s in songs])
 # [df[(df["musicId"]==s) & (df["dancer"]==d) & (df["choreo"]==c)] for s,d,c in song_dancer_choreos]
 
 test_data.count()
@@ -38,8 +39,16 @@ test_data_seqs = ["_".join([x["genre"], x["situation"], x["camera"], x["dancer"]
 with open("analysis/aistpp_base_filenames_test.txt", "w") as f:
     f.writelines([x+"\n" for x in test_data_seqs])
 
-# train_data = df[~(df["musicId"].isin(test_data["musicId"]))]
-train_data = df[~((df["musicId"].isin(test_data["musicId"])) & (df["choreo"].isin(test_data["choreo"])))]
+
+###TRAIN DATA
+seqs = [x[:-1].split("_") for x in open("analysis/aistpp_base_filenames_test.txt", "r").readlines()]
+
+seqs = [{"genre":x[0], "situation":x[1], "camera":x[2], "dancer":x[3], "musicId":x[4], "choreo":x[5]} for x in seqs]
+test_data = pd.DataFrame(seqs)
+
+# train_data = df[~(df["musicId"].isin(test_data["musicId"])) & ~(df["choreo"].isin(test_data["choreo"]))]
+train_data = df[~(df["musicId"].isin(test_data["musicId"]))]
+# train_data = df[~((df["musicId"].isin(test_data["musicId"])) & (df["choreo"].isin(test_data["choreo"])))]
 len(train_data)
 # song_choreos=[x.tolist() for i,x in test_data[["musicId","choreo"]].iterrows()]
 # song_dancer_choreos=[x.tolist() for i,x in test_data[["musicId","dancer","choreo"]].iterrows()]
@@ -54,8 +63,8 @@ len(train_data)
 # train_data = df[(~df["musicId"].isin(test_data["musicId"])) & (~df["choreo"].isin(test_data["choreo"])))]
 
 train_data.count()
-train_data[["musicId","choreo"]].drop_duplicates().count()
-train_data[["dancer","choreo"]].drop_duplicates().count()
+# train_data[["musicId","choreo"]].drop_duplicates().count()
+# train_data[["dancer","choreo"]].drop_duplicates().count()
 
 train_data_seqs = ["_".join([x["genre"], x["situation"], x["camera"], x["dancer"], x["musicId"], x["choreo"]]) for i,x in train_data.iterrows()]
 
