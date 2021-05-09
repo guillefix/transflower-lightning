@@ -23,9 +23,10 @@
 #for exp in transglower_aistpp_expmap transglower_residual_aistpp_expmap transflower_residual_aistpp_expmap transflower_aistpp_expmap residualflower2_transflower_aistpp_expmap moglow_aistpp_expmap
 #for exp in transglower_aistpp_expmap transglower_residual_aistpp_expmap
 #for exp in transflower_residual_aistpp_expmap transflower_aistpp_expmap
-for exp in moglow_expmap
+#for exp in moglow_expmap transformer_expmap
+#for exp in transflower_expmap
 #for exp in transformer_expmap
-#for exp in mowgli_expmap
+for exp in mowgli_expmap
 #for exp in mowgli_expmap transflower_residual_expmap
 #for exp in transformer_residual_expmap
 #for exp in transflower_expmap
@@ -36,8 +37,9 @@ for exp in moglow_expmap
 #for exp in transflower_residual_aistpp_expmap
 #for exp in moglow_expmap transflower_expmap
 do
-	#sbatch slurm_script.slurm $exp --experiment_name ${exp}_newdata --num_nodes 8
-	sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata
-	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_finetune --base_filenames_file base_filenames_train_finetune.txt --continue_train
+	sbatch slurm_script.slurm $exp --experiment_name ${exp}_newdata --num_nodes 8 --continue_train
+	#sbatch slurm_script.slurm $exp --experiment_name ${exp}_newdata2 --max_prior_loss_weight=0 --num_nodes 8
+	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata $@
+	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_finetune2 --base_filenames_file base_filenames_train_finetune.txt --continue_train
 done
 

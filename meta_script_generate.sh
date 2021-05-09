@@ -37,7 +37,8 @@
 #for exp in transflower_expmap_newdata
 #for exp in moglow_expmap
 #for exp in moglow_expmap transflower_expmap mowgli_expmap_future3
-for exp in moglow_expmap_finetune transflower_expmap_finetune moglow_expmap transflower_expmap mowgli_expmap_future3
+for exp in moglow_expmap_finetune transflower_expmap_finetune2 moglow_expmap transflower_expmap mowgli_expmap_future3
+#for exp in transflower_expmap_newdata
 #for exp in transformer_expmap1
 #for exp in transflower_expmap2
 #for exp in mowgli_expmap_future10_fix
