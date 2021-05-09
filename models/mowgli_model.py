@@ -100,7 +100,7 @@ class MowgliModel(BaseModel):
         parser.add_argument('--prior_nlayers', type=int, default=8)
         parser.add_argument('--prior_dropout', type=float, default=0)
         parser.add_argument('--prior_loss_weight_initial', type=float, default=0)
-        parser.add_argument('--prior_loss_weight_warmup_epochs', type=float, default=500)
+        parser.add_argument('--prior_loss_weight_warmup_epochs', type=float, default=100)
         parser.add_argument('--max_prior_loss_weight', type=float, default=0, help="max value of prior loss weight during stage 1 (e.g. 0.01 is a good value)")
         parser.add_argument('--vae_num_resnet_blocks', type=int, default=1)
         parser.add_argument('--vae_temp', type=float, default=0.9)

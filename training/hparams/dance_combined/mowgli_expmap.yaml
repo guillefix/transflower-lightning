@@ -16,10 +16,13 @@ dhid: 800
 #prior_nlayers: 24
 prior_dropout: 0
 dropout: 0.1
+max_prior_loss_weight: 1
 #lr_policy: multistep
 #lr_decay_milestones: [100,500]
 #learning_rate: 7e-5
+learning_rate: 1e-4
 lr_policy: LinearWarmupCosineAnnealing
+#lr_policy: cosine
 gradient_clip_val: 0.5
 batch_size: 84
 find_unused_parameters: True
