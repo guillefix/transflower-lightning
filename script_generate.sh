@@ -27,6 +27,7 @@ fps=20
 #data_dir=$SCRATCH/data/aistpp_20hz
 #data_dir=$SCRATCH/data/dance_combined
 data_dir=$SCRATCH/data/dance_combined_test
+#data_dir=$SCRATCH/data/dance_combined2_test
 #data_dir=$SCRATCH/data/dance_combined2
 #data_dir=test_data
 #data_dir=$SCRATCH/data/moglow_pos

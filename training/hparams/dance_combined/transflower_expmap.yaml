@@ -21,10 +21,7 @@ glow_bn_momentum: 0.1
 dropout: 0
 #lr_policy: cosine
 lr_policy: multistep
-lr_decay_milestones: [100,200]
+lr_decay_milestones: [50,100]
 learning_rate: 7e-5
 gradient_clip_val: 0.5
-batch_size: 128
-
-
-
+batch_size: 84
