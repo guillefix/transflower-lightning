@@ -4,7 +4,8 @@ dins: 69,85
 douts: 69
 input_modalities: "expmap_scaled_20,audio_feats_scaled_20"
 output_modalities: expmap_scaled_20
-input_lengths: 120,140
+#input_lengths: 120,140
+input_lengths: 120,160
 #output_lengths: 10
 output_lengths: 3
 output_time_offsets: 120
@@ -19,6 +20,7 @@ prior_dropout: 0
 #dropout: 0
 #lr_policy: multistep
 #lr_decay_milestones: [100,500]
+lr_policy: LinearWarmupCosineAnnealing
 learning_rate: 7e-5
 gradient_clip_val: 0.5
 batch_size: 128
@@ -26,6 +28,9 @@ find_unused_parameters: True
 precision: 16
 plugins: deepspeed
 optimizer: adamw
-cond_vae: false
-#ignore_in_state_dit: prior_transformer
-only_load_in_state_dict: output_vae
+#cond_vae: false
+cond_vae: true
+load_weights_only: true
+ignore_in_state_dict: prior_transformer
+vae_temp: 0.9
+#only_load_in_state_dict: output_vae

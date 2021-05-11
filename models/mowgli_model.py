@@ -5,6 +5,7 @@ from models import BaseModel
 from models.flowplusplus import FlowPlusPlus
 import ast
 from torch import nn
+import math
 
 from .util.generation import autoregressive_generation_multimodal
 
@@ -26,6 +27,7 @@ class MowgliModel(BaseModel):
         self.output_mod_vaes = []
         self.conditioning_seq_lens = []
         self.module_names = []
+        self.vae_temp = opt.vae_temp
         if opt.cond_vae or opt.stage2:
             for i, mod in enumerate(input_mods):
                 net = BasicTransformerModel(opt.dhid, dins[i], opt.nhead, opt.dhid, 2, opt.dropout, self.device, use_pos_emb=True, input_length=input_lengths[i], use_x_transformers=opt.use_x_transformers, opt=opt)
@@ -106,7 +108,9 @@ class MowgliModel(BaseModel):
         parser.add_argument('--prior_loss_weight_warmup_epochs', type=float, default=100)
         parser.add_argument('--max_prior_loss_weight', type=float, default=0, help="max value of prior loss weight during stage 1 (e.g. 0.01 is a good value)")
         parser.add_argument('--vae_num_resnet_blocks', type=int, default=1)
-        parser.add_argument('--vae_temp', type=float, default=0.9)
+        parser.add_argument('--vae_temp', type=float, default=1.0)
+        parser.add_argument('--anneal_rate', type=float, default=1e-6)
+        parser.add_argument('--temp_min', type=float, default=0.5)
         parser.add_argument('--vae_hard', action='store_true', help="whether to use the hard one-hot vector as output and use the straight through gradient estimator, for discrete latents")
         parser.add_argument('--dropout', type=float, default=0.1)
         parser.add_argument('--scales', type=str, default="[[10,0]]")
@@ -149,6 +153,7 @@ class MowgliModel(BaseModel):
 
     def on_train_epoch_start(self):
         self.prior_loss_weight = self.opt.max_prior_loss_weight * min(self.current_epoch/self.opt.prior_loss_weight_warmup_epochs, 1)
+        self.vae_temp = max(self.vae_temp * math.exp(-self.opt.anneal_rate * self.global_step), self.opt.temp_min)
 
     def training_step(self, batch, batch_idx):
         opt = self.opt
@@ -174,7 +179,7 @@ class MowgliModel(BaseModel):
                     predicted_mean = self.output_mod_mean_nets[i](trans_predicted_mean_latents)
                     vae = self.output_mod_vaes[i]
                     if not self.opt.stage2:
-                        nll_loss += vae((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents1.permute(1,2,0), return_loss=True) #time, batch, features -> batch, features, time
+                        nll_loss += vae((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents1.permute(1,2,0), return_loss=True, temp=self.vae_temp) #time, batch, features -> batch, features, time
                         if self.opt.max_prior_loss_weight > 0:
                             prior_loss, accuracy = vae.prior_logp((self.targets[i] - predicted_mean).permute(1,2,0), cond=latents2.permute(1,2,0), return_accuracy=True)
                             accuracies.append(accuracy)
@@ -200,7 +205,7 @@ class MowgliModel(BaseModel):
                     output2 = output1
                     vae = self.output_mod_vaes[i]
                     if not self.opt.stage2:
-                        loss += vae(self.targets[i].permute(1,2,0), cond=output1.permute(1,2,0), return_loss=True) #time, batch, features -> batch, features, time
+                        loss += vae(self.targets[i].permute(1,2,0), cond=output1.permute(1,2,0), return_loss=True, temp=self.vae_temp) #time, batch, features -> batch, features, time
                         if self.opt.max_prior_loss_weight > 0:
                             prior_loss, accuracy = vae.prior_logp(self.targets[i].permute(1,2,0), cond=output2.permute(1,2,0), return_accuracy=True)
                             loss += self.prior_loss_weight * prior_loss
@@ -214,7 +219,7 @@ class MowgliModel(BaseModel):
             loss = 0
             for i, mod in enumerate(self.output_mods):
                 vae = self.output_mod_vaes[i]
-                loss += vae(self.targets[i].permute(1,2,0), cond=None, return_loss=True) #time, batch, features -> batch, features, time
+                loss += vae(self.targets[i].permute(1,2,0), cond=None, return_loss=True, temp=self.vae_temp) #time, batch, features -> batch, features, time
 
         self.log('loss', loss)
         if opt.cond_vae or opt.stage2:

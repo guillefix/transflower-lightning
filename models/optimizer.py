@@ -37,6 +37,8 @@ def get_scheduler(optimizer, opt):
             lr_l = 1.0 - max(0, epoch + opt.epoch_count - nepochs) / float(opt.nepoch_decay + 1)
             return lr_l
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
+    elif opt.lr_policy == 'exponential':
+        scheduler = lr_scheduler.ExponentialLR(optimizer = optimizer, gamma = opt.lr_decay_factor)
     elif opt.lr_policy == 'step':
         scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=opt.lr_decay_factor)
     elif opt.lr_policy == 'multistep':

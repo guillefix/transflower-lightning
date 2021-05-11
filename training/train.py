@@ -71,8 +71,8 @@ if __name__ == '__main__':
 
     logger = TensorBoardLogger(opt.checkpoints_dir, name=opt.experiment_name, default_hp_metric=False)
     checkpoint_callback = ModelCheckpoint(
-            monitor = 'loss',
-            save_top_k = 5
+            #monitor = 'loss',
+            #save_top_k = 5
             )
     callbacks = [checkpoint_callback]
     args = Trainer.parse_argparser(opt)
