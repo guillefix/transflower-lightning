@@ -31,6 +31,7 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
     with torch.no_grad():
         # for t in range(min(512, sequence_length-max(input_lengths)-1)):
         for t in range(sequence_length-max(input_lengths)+1):
+        #for t in range(512):
             print(t)
             inputs = [x.clone().to(model.device) for x in input_tmp]
             # import pdb;pdb.set_trace()

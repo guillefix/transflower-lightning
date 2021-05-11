@@ -10,6 +10,8 @@ from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 def get_optimizers(net, opt):
     if opt.optimizer == "adam":
         optimizer = torch.optim.Adam(net.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay)
+    elif opt.optimizer == "adamw":
+        optimizer = torch.optim.AdamW(net.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay, eps=1e-05, betas=(0.9, 0.95))
     elif opt.optimizer == "sgd":
         optimizer = torch.optim.SGD(net.parameters(), lr=opt.learning_rate, momentum=opt.momentum, weight_decay=opt.weight_decay)
     elif opt.optimizer == "adagrad":

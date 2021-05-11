@@ -1,5 +1,5 @@
 model: transformer
-learning_rate: 2e-6
+learning_rate: 1e-4
 #lr_policy: multistep
 #lr_decay_milestones: [50,100]
 lr_policy: LinearWarmupCosineAnnealing
@@ -16,6 +16,7 @@ nhead: 10
 dhid: 800
 dropout: 0
 #use_pos_emb_output: True
-batch_size: 128
+batch_size: 32
 gradient_clip_val: 0.5
-precision: 16
+#precision: 16
+#plugins: deepspeed
