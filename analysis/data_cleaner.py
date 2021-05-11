@@ -36,7 +36,7 @@ def mp4_for_bvh_file(filename, output_dir):
     piped_data = data_pipe.fit_transform([parsed_data])
     assert len(piped_data) == 1
 
-    render_mp4(piped_data[0], output_dir / filename.stem, axis_scale=3, elev=0, azim=45)
+    render_mp4(piped_data[0], output_dir.__str__() + "/"+ filename.stem.__str__()+".mp4", axis_scale=3, elev=0, azim=45)
 
     return piped_data, data_pipe
 
@@ -113,10 +113,10 @@ if __name__ == "__main__":
     parser.add_argument("--param", type=str, default="position")
     parser.add_argument("--detect-below-floor", action="store_true")
     parser.add_argument("--floor-z", type=float, default=-0.08727)
-    parser.add_argument("--ignore-first-secs", type=float, default=1)
+    parser.add_argument("--ignore-first-secs", type=float, default=0)
     parser.add_argument("--plot", action="store_true", help="plot jump distributions")
     parser.add_argument("--mp4", action="store_true", help="create mp4 visualisation")
-    parser.add_argument("--output-dir", default="data_cleaning")
+    parser.add_argument("--output-dir", default="analysis/data_cleaning")
     args = parser.parse_args()
 
     if args.detect_below_floor:

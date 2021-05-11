@@ -12,7 +12,7 @@ p = BVHParser()
 datas = []
 filename = sys.argv[1]
 cut_frames1 = int(sys.argv[2])
-cut_frames2 = int(sys.argv[2])
+cut_frames2 = int(sys.argv[3])
 data = p.parse(filename)
 
 data.values = data.values.iloc[cut_frames1:-cut_frames2]

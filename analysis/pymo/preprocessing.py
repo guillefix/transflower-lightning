@@ -292,6 +292,7 @@ class MocapParameterizer(BaseEstimator, TransformerMixin):
                 euler = [[f[1][r1_col], f[1][r2_col], f[1][r3_col]] for f in r.iterrows()]
                 #exps = [Rotation(f, 'euler', from_deg=True, order=rot_order).to_expmap() for f in euler] # Convert the eulers to exp maps
                 exps = unroll(np.array([euler2expmap(f, rot_order, True) for f in euler])) # Convert the exp maps to eulers
+                # exps = np.array([euler2expmap(f, rot_order, True) for f in euler]) # Convert the exp maps to eulers
                 #exps = euler2expmap2(euler, rot_order, True) # Convert the eulers to exp maps
 
                 # Create the corresponding columns in the new DataFrame

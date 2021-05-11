@@ -16,6 +16,7 @@ ones_to_check2.txt
 outs/*
 *.out
 analysis/aistplusplus_api/SMPL_python_v.1.1.0/*
+analysis/data_cleaning/*
 #data
 data/features/*
 data/aistpp/videos/*
@@ -49,3 +50,10 @@ training/hparams/aistpp_20hz/mowgli_aistpp_expmap_testing.yaml
 data/david/*
 data/justdance/*
 data/justdance2/*
+inference/generated_1/*
+inference/generated_2/*
+inference/generated_3/*
+inference/generated_4/*
+inference/generated_5/*
+inference/generated_.zip
+data/dance_full_renamed.zip
