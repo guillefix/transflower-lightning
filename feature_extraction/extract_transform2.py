@@ -55,6 +55,8 @@ for i in tasks:
     feature_file = path.__str__()
     features = np.load(feature_file)
     for transform in transforms:
+        if len(features.shape) == 3:
+            features = features[:,0,:]
         transforms_dict[transform].partial_fit(features)
 
 for transform in transforms:
