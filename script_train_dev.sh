@@ -69,6 +69,7 @@ hparams_file=dance_combined/${exp}b
 #exp=${exp}_future3_actnorm
 #exp=${exp}_future3
 exp=testing
+#exp=mowgli_expmap_stage2_newdata2
 #exp=testing2
 
 echo $exp
@@ -81,7 +82,7 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
     --workers=0 \
     --gpus=1 \
     --continue_train \
-    --no_load_hparams \
+    #--no_load_hparams \
     #--load_weights_only \
     #--only_load_in_state_dict=vae \
     #--fix_lengths \

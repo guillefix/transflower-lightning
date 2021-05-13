@@ -226,6 +226,8 @@ class MowgliModel(BaseModel):
             if len(accuracies) > 0:
                self.log('accuracy', torch.mean(torch.stack(accuracies)))
         # print(loss)
+        # for p in self.output_mod_nets[0].parameters():
+        #     print(p.norm())
         return loss
 
     def test_step(self, batch, batch_idx):
