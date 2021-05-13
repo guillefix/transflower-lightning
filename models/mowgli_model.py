@@ -31,6 +31,9 @@ class MowgliModel(BaseModel):
         if opt.cond_vae or opt.stage2:
             for i, mod in enumerate(input_mods):
                 net = BasicTransformerModel(opt.dhid, dins[i], opt.nhead, opt.dhid, 2, opt.dropout, self.device, use_pos_emb=True, input_length=input_lengths[i], use_x_transformers=opt.use_x_transformers, opt=opt)
+                if opt.cond_vae and opt.stage2:
+                    for param in net.parameters():
+                            param.requires_grad = False
                 name = "_input_"+mod
                 setattr(self,"net"+name, net)
                 self.input_mod_nets.append(net)
@@ -58,6 +61,11 @@ class MowgliModel(BaseModel):
                 prior_use_x_transformers = opt.prior_use_x_transformers,
                 opt = opt
             )
+            if opt.stage2:
+                for param in vae.encoder.parameters():
+                        param.requires_grad = False
+                for param in vae.decoder.parameters():
+                        param.requires_grad = False
 
             name = "_output_vae_"+mod
             setattr(self, "net"+name, vae)
@@ -70,11 +78,17 @@ class MowgliModel(BaseModel):
                 setattr(self, "net"+name, net)
                 self.output_mod_nets.append(net)
                 self.module_names.append(name)
+                if opt.cond_vae and opt.stage2:
+                    for param in net.parameters():
+                            param.requires_grad = False
                 if opt.residual:
                     if self.opt.cond_concat_dims:
                         net = nn.Linear(opt.dhid,douts[i])
                     else:
                         net = nn.Linear(opt.dhid,opt.douts[i])
+                    if opt.cond_vae and opt.stage2:
+                        for param in net.parameters():
+                                param.requires_grad = False
                     name="_output_mean_encoder"
                     setattr(self, "net"+name, net)
                     self.output_mod_mean_nets.append(net)

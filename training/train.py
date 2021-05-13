@@ -24,6 +24,9 @@ from training.utils import get_latest_checkpoint
 if __name__ == '__main__':
     pl.seed_everything(69420)
     opt = TrainOptions().parse()
+    #Path(opt.checkpoints_dir+"/"+opt.experiment_name).mkdir(parents=True,exist_ok=True)
+    if not os.path.exists(opt.checkpoints_dir+"/"+opt.experiment_name):
+        os.makedirs(opt.checkpoints_dir+"/"+opt.experiment_name)
     print("loaded options")
     print(opt.experiment_name)
     model = create_model(opt)
@@ -71,8 +74,9 @@ if __name__ == '__main__':
 
     logger = TensorBoardLogger(opt.checkpoints_dir, name=opt.experiment_name)
     checkpoint_callback = ModelCheckpoint(
-            #monitor = 'loss',
-            #save_top_k = 5
+            #####
+            monitor = 'loss',
+            save_top_k = 5
             )
     callbacks = [checkpoint_callback]
     args = Trainer.parse_argparser(opt)

@@ -51,10 +51,12 @@ base_filenames_file=base_filenames_test_test.txt
 #for exp in transflower_expmap_finetune2_old moglow_expmap
 #for exp in moglow_expmap
 #for exp in transflower_expmap_finetune2 transflower_expmap_old
-for exp in transflower_expmap_newdata
-#for exp in mowgli_expmap_stage2_newdata2
+#for exp in transflower_expmap_newdata
+#for exp in transflower_expmap_large_newdata
+#for exp in mowgli_expmap_stage2_newdata3
+#for exp in transflower_expmap
 
-#for exp in transformer_expmap
+for exp in transformer_expmap
 #for exp in mowgli_expmap_stage2_newdata
 #for exp in transflower_expmap
 #for exp in transflower_expmap_finetune2 transformer_expmap1
