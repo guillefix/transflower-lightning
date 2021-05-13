@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
     default_save_path = opt.checkpoints_dir+"/"+opt.experiment_name
 
-    logger = TensorBoardLogger(opt.checkpoints_dir, name=opt.experiment_name)
+    logger = TensorBoardLogger(opt.checkpoints_dir, name=opt.experiment_name, default_hp_metric=False)
     checkpoint_callback = ModelCheckpoint(
             #####
             monitor = 'loss',

@@ -140,6 +140,7 @@ class MowgliModel(BaseModel):
 
     def forward(self, data, temp=1.0):
         # in lightning, forward defines the prediction/inference actions
+        opt=self.opt
         latents = []
         for i, mod in enumerate(self.input_mods):
             latents.append(self.input_mod_nets[i].forward(data[i]))
@@ -239,6 +240,8 @@ class MowgliModel(BaseModel):
             if len(accuracies) > 0:
                self.log('accuracy', torch.mean(torch.stack(accuracies)))
         # print(loss)
+        # for p in self.output_mod_nets[0].parameters():
+        #     print(p.norm())
         return loss
 
     def test_step(self, batch, batch_idx):

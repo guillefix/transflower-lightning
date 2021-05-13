@@ -5,6 +5,7 @@ from analysis.pymo.viz_tools import *
 from analysis.pymo.writers import *
 import analysis.pymo
 import imp;imp.reload(analysis.pymo)
+import imp;imp.reload(analysis.pymo.preprocessing)
 from sklearn.pipeline import Pipeline
 from analysis.pymo.rotation_tools import euler2expmap
 
@@ -75,13 +76,15 @@ data_pipe = Pipeline([
     # ('jtsel', JointSelector(['Spine1', 'Spine', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
     # ('exp', MocapParameterizer('position')),
     ('exp', MocapParameterizer('expmap')),
-    # ('cnst', ConstantsRemover()),
+    ('cnst', ConstantsRemover(only_cols=["Hips_Xposition", "Hips_Zposition"])),
     # ('np', Numpyfier())
 ])
 
 
 out_data = data_pipe.fit_transform([data])
 out_data2 = data_pipe.fit_transform([data2])
+out_data[0].values.columns.size
+out_data2[0].values.columns.size
 
 out_data[0].values.columns[17]
 out_data[0].values
@@ -152,3 +155,9 @@ data.values.loc[last_index:].iloc[1:]
 
 
 ##################
+
+import numpy as np
+
+a = np.load("inference/generated_1/transflower_expmap_finetune2/predicted_mods/aistpp_gBR_sBM_cAll_d04_mBR0_ch10.expmap_scaled_20.generated.npy")
+
+a[:2,0,-9:]

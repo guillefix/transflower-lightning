@@ -450,6 +450,7 @@ class ConditionalDiscreteVAE(nn.Module):
             probs = F.softmax(filtered_logits / temp, dim = -1)
             sampled = torch.multinomial(probs, 1)
             tokens.append(sampled)
+        print(tokens)
         embs = self.codebook(torch.cat(tokens, 0))
         # import pdb;pdb.set_trace()
         if self.cond_vae:
@@ -484,6 +485,12 @@ class ConditionalDiscreteVAE(nn.Module):
             inp_cond = self.norm(inp)
 
         logits = self.encoder(inp_cond)
+        # codebook_indices = logits.argmax(dim = 1).flatten(1)
+        # print(codebook_indices.shape)
+        # print(codebook_indices)
+        # print(list(self.encoder.parameters())[1].data)
+        # for p in self.prior_transformer.parameters():
+        #     print(p.norm())
 
         if return_logits:
             return logits # return logits for getting hard image indices for DALL-E training
