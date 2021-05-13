@@ -14,6 +14,9 @@
 #exp=residualflower2_transflower_aistpp_expmap
 #exp=moglow_aistpp_expmap
 
+#base_filenames_file=base_filenames_test.txt
+base_filenames_file=base_filenames_test_test.txt
+
 
 #for exp in transglower_moglow_pos transglower_residual_moglow_pos transflower_residual_moglow_pos transflower_moglow_pos residualflower2_transflower_moglow_pos moglow_moglow_pos
 #for exp in moglow_trans_moglow_pos
@@ -31,23 +34,59 @@
 #for exp in transformer_expmap1
 #for exp in transformer_expmap_no_pos_emb_output
 #for exp in transflower_expmap_large_ext_nsn transflower_expmap_large_ext
-#for exp in transflower_expmap
+#for exp in transflower_expmap_old
+#for exp in transflower_expmap_finetune2_old
 #for exp in transflower_residual_expmap
 #for exp in transflower_expmap_large_ext_newdata
 #for exp in transflower_expmap_newdata
 #for exp in moglow_expmap
 #for exp in moglow_expmap transflower_expmap mowgli_expmap_future3
-for exp in moglow_expmap_finetune transflower_expmap_finetune2 moglow_expmap transflower_expmap mowgli_expmap_future3
+#for exp in moglow_expmap_finetune transflower_expmap_finetune2 moglow_expmap transflower_expmap
+
+#for exp in moglow_expmap_finetune transflower_expmap_finetune2 transflower_expmap_finetune2_old moglow_expmap transflower_expmap transflower_expmap_old transformer_expmap
+#for exp in transflower_expmap transflower_expmap_old transformer_expmap moglow_expmap transflower_expmap_finetune2_old transflower_expmap_finetune2
+#for exp in transflower_expmap_old transformer_expmap moglow_expmap transflower_expmap_finetune2_old transflower_expmap_finetune2
+#for exp in transformer_expmap moglow_expmap transflower_expmap_finetune2_old
+#for exp in transflower_expmap transformer_expmap
+#for exp in transflower_expmap_finetune2_old moglow_expmap
+#for exp in moglow_expmap
+#for exp in transflower_expmap_finetune2 transflower_expmap_old
+for exp in transflower_expmap_newdata
+#for exp in mowgli_expmap_stage2_newdata2
+
+#for exp in transformer_expmap
+#for exp in mowgli_expmap_stage2_newdata
+#for exp in transflower_expmap
+#for exp in transflower_expmap_finetune2 transformer_expmap1
+#for exp in transformer_expmap1
 #for exp in transflower_expmap_newdata
 #for exp in transformer_expmap1
 #for exp in transflower_expmap2
-#for exp in mowgli_expmap_future10_fix
+#for exp in mowgli_expmap_future10_fix transflower_residual_expmap
 do
 	while read line; do
 		  echo "$line"
 		#sbatch slurm_script_generate.slurm $exp $line
-		sbatch slurm_script_generate.slurm $exp $line --generate_bvh
-	done <$1
+		#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test_original_seeds
+		sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test1
+		#for i in 1 2 3 4 5; do
+		#	mkdir inference/generated_${i}/
+		#	mkdir inference/generated_${i}/${exp}
+		#	mkdir inference/generated_${i}/${exp}/predicted_mods
+		#	mkdir inference/generated_${i}/${exp}/videos
+		#	sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test${i} --output_folder=inference/generated_${i}
+		#done
+	done <$base_filenames_file
+
+	#for i in 1 2 3 4 5; do
+	#	mkdir inference/generated_${i}/
+	#	mkdir inference/generated_${i}/${exp}
+	#	mkdir inference/generated_${i}/${exp}/predicted_mods
+	#	mkdir inference/generated_${i}/${exp}/videos
+	#	#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test${i} --output_folder=inference/generated_${i}
+	#	sbatch slurm_script_generate_array.slurm $exp $i
+	#done
+
 	#sbatch slurm_script_generate.slurm $exp aistpp_gMH_sFM_cAll_d22_mMH3_ch04 --generate_bvh --data_dir=${SCRATCH}/data/dance_combined2
 	#sbatch slurm_script_generate.slurm $exp fan
 	#sbatch slurm_script_generate.slurm $exp polish_cow

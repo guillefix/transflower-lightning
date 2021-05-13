@@ -248,7 +248,8 @@ class ConditionalDiscreteVAE(nn.Module):
             prior_dropout = 0,
             prior_use_pos_emb = True,
             prior_use_x_transformers = False,
-            opt = None
+            opt = None,
+            cond_vae = False
     ):
         super().__init__()
         assert num_layers >= 1, 'number of layers must be greater than or equal to 1'
@@ -261,16 +262,23 @@ class ConditionalDiscreteVAE(nn.Module):
         self.straight_through = straight_through
         self.codebook = nn.Embedding(num_tokens, codebook_dim)
         self.cond_dim = cond_dim
+        self.cond_vae = cond_vae
 
         hdim = hidden_dim
 
         enc_chans = [hidden_dim] * num_layers
         dec_chans = list(reversed(enc_chans))
 
-        enc_chans = [channels + cond_dim, *enc_chans]
+        if cond_vae:
+            enc_chans = [channels + cond_dim, *enc_chans]
+        else:
+            enc_chans = [channels, *enc_chans]
 
         if not has_resblocks:
-            dec_init_chan = codebook_dim + cond_dim
+            if cond_vae:
+                dec_init_chan = codebook_dim + cond_dim
+            else:
+                dec_init_chan = codebook_dim
         else:
             dec_init_chan = dec_chans[0]
         dec_chans = [dec_init_chan, *dec_chans]
@@ -323,7 +331,10 @@ class ConditionalDiscreteVAE(nn.Module):
             enc_layers.append(ResBlock(enc_chans[-1]))
 
         if num_resnet_blocks > 0:
-            dec_layers.insert(0, nn.Conv2d(codebook_dim + cond_dim, dec_chans[1], 1))
+            if cond_vae:
+                dec_layers.insert(0, nn.Conv2d(codebook_dim + cond_dim, dec_chans[1], 1))
+            else:
+                dec_layers.insert(0, nn.Conv2d(codebook_dim, dec_chans[1], 1))
 
         enc_layers.append(nn.Conv2d(enc_chans[-1], num_tokens, 1))
         dec_layers.append(nn.Conv2d(dec_chans[-1], channels, 1))
@@ -374,7 +385,7 @@ class ConditionalDiscreteVAE(nn.Module):
 
     @torch.no_grad()
     @eval_decorator
-    def get_codebook_indices(self, inputs, cond):
+    def get_codebook_indices(self, inputs, cond=None):
         logits = self(inputs, cond, return_logits = True)
         codebook_indices = logits.argmax(dim = 1).flatten(1)
         return codebook_indices
@@ -405,13 +416,16 @@ class ConditionalDiscreteVAE(nn.Module):
             detach_cond = False
        ):
         # import pdb;pdb.set_trace()
-        if cond is None: raise NotImplementedError("Haven't implemented non-conditional DVAEs")
+        #if cond is None: raise NotImplementedError("Haven't implemented non-conditional DVAEs")
         if len(inputs.shape) == 3:
             inputs = inputs.reshape(inputs.shape[0], inputs.shape[1],*self.input_shape)
         if len(cond.shape) == 3:
             cond = cond.reshape(cond.shape[0], cond.shape[1],*self.codebook_layer_shape)
         with torch.no_grad():
-            labels = self.get_codebook_indices(inputs, cond)
+            if self.cond_vae:
+                labels = self.get_codebook_indices(inputs, cond)
+            else:
+                labels = self.get_codebook_indices(inputs)
         if detach_cond:
             cond = cond.detach()
         logits = self.prior_transformer(cond.squeeze(-1).permute(2,0,1), labels.permute(1,0)).permute(1,2,0)
@@ -424,7 +438,7 @@ class ConditionalDiscreteVAE(nn.Module):
         return loss, accuracy
 
     def generate(self, cond, temp=1.0, filter_thres = 0.5):
-        if cond is None: raise NotImplementedError("Haven't implemented non-conditional DVAEs")
+        #if cond is None: raise NotImplementedError("Haven't implemented non-conditional DVAEs")
         if len(cond.shape) == 3:
             cond = cond.reshape(cond.shape[0], cond.shape[1],*self.codebook_layer_shape)
         dummy = torch.zeros(1,1).long().to(cond.device)
@@ -436,9 +450,13 @@ class ConditionalDiscreteVAE(nn.Module):
             probs = F.softmax(filtered_logits / temp, dim = -1)
             sampled = torch.multinomial(probs, 1)
             tokens.append(sampled)
+        print(tokens)
         embs = self.codebook(torch.cat(tokens, 0))
         # import pdb;pdb.set_trace()
-        sampled_cond = torch.cat([embs.permute(2,0,1).unsqueeze(0),cond], dim=1)
+        if self.cond_vae:
+            sampled_cond = torch.cat([embs.permute(2,0,1).unsqueeze(0),cond], dim=1)
+        else:
+            sampled_cond = embs.permute(2,0,1).unsqueeze(0)
         out = self.decoder(sampled_cond)
         return out
 
@@ -457,9 +475,9 @@ class ConditionalDiscreteVAE(nn.Module):
         assert inp.shape[-1] == input_shape[1] and inp.shape[-2] == input_shape[0], f'input must have the correct image size {input_shape[0]}x{input_shape[1]}. Instead got {inp.shape[0]}x{inp.shape[1]}'
 
         inp = self.norm(inp)
-        if len(cond.shape) == 3:
-            cond = cond.reshape(cond.shape[0], cond.shape[1],*self.codebook_layer_shape)
         if cond is not None:
+            if len(cond.shape) == 3:
+                cond = cond.reshape(cond.shape[0], cond.shape[1],*self.codebook_layer_shape)
             cond_upsampled = self.cond_upsampler(cond)
             inp_cond = torch.cat([inp,cond_upsampled], dim=1)
             inp_cond = self.norm(inp_cond)
@@ -467,6 +485,12 @@ class ConditionalDiscreteVAE(nn.Module):
             inp_cond = self.norm(inp)
 
         logits = self.encoder(inp_cond)
+        # codebook_indices = logits.argmax(dim = 1).flatten(1)
+        # print(codebook_indices.shape)
+        # print(codebook_indices)
+        # print(list(self.encoder.parameters())[1].data)
+        # for p in self.prior_transformer.parameters():
+        #     print(p.norm())
 
         if return_logits:
             return logits # return logits for getting hard image indices for DALL-E training

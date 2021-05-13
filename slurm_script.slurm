@@ -13,7 +13,7 @@
 ##SBATCH --partition=gpu_p2
 #SBATCH -A imi@gpu
 #SBATCH -C v100-32g
-##SBATCH --exclusive
+#SBATCH --exclusive
 
 export MASTER_PORT=1234
 slurm_nodes=$(scontrol show hostnames $SLURM_JOB_NODELIST)

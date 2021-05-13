@@ -15,6 +15,8 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
 print("HIII")
 from pytorch_lightning.plugins import DDPPlugin
+from pytorch_lightning.plugins.training_type.deepspeed import DeepSpeedPlugin
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 
 from training.utils import get_latest_checkpoint
@@ -31,6 +33,21 @@ if __name__ == '__main__':
     elif opt.plugins is None:
         print("DDPPlugin")
         plugins = DDPPlugin(find_unused_parameters=opt.find_unused_parameters, num_nodes=opt.num_nodes)
+    elif opt.plugins == "deepspeed":
+        deepspeed_config = {
+                "zero_optimization": {
+                    "stage": 2,
+                    "cpu_offload":False,
+                },    
+                #'train_batch_size': opt.batch_size,
+                'gradient_clipping': opt.gradient_clip_val,
+                'fp16': {
+                    'enabled': opt.precision == 16,
+                    'loss_scale': 0,
+                    'initial_scale_power': 15,
+                },
+            }
+        plugins = DeepSpeedPlugin(config=deepspeed_config)
     else:
         #ddpplugin = DDPPlugin(find_unused_parameters=opt.find_unused_parameters, num_nodes=opt.num_nodes)
         #plugins = [ddpplugin, opt.plugins]
@@ -52,7 +69,12 @@ if __name__ == '__main__':
 
     default_save_path = opt.checkpoints_dir+"/"+opt.experiment_name
 
-    logger = TensorBoardLogger(opt.checkpoints_dir, name=opt.experiment_name)
+    logger = TensorBoardLogger(opt.checkpoints_dir, name=opt.experiment_name, default_hp_metric=False)
+    checkpoint_callback = ModelCheckpoint(
+            #monitor = 'loss',
+            #save_top_k = 5
+            )
+    callbacks = [checkpoint_callback]
     args = Trainer.parse_argparser(opt)
 
     if opt.continue_train:
@@ -63,18 +85,19 @@ if __name__ == '__main__':
         if opt.load_weights_only:
             state_dict = torch.load(latest_file)
             state_dict = state_dict['state_dict']
+            load_strict = True
+            if opt.only_load_in_state_dict != "":
+                state_dict = {k:v for k,v in state_dict.items() if (opt.only_load_in_state_dict in k)}
+                load_strict = False
             if opt.ignore_in_state_dict != "":
-                #state_dict = {k:v for k,v in state_dict.items() if not ("prior_transformer" in k)}
                 state_dict = {k:v for k,v in state_dict.items() if not (opt.ignore_in_state_dict in k)}
-                #import pdb;pdb.set_trace()
-                model.load_state_dict(state_dict, strict=False)
-            else:
-                model.load_state_dict(state_dict)
-            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=plugins)
+                load_strict = False
+            model.load_state_dict(state_dict, strict=load_strict)
+            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=plugins, callbacks=callbacks)
         else:
-            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file, plugins=plugins)
+            trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, resume_from_checkpoint=latest_file, plugins=plugins, callbacks=callbacks)
     else:
-        trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=plugins)
+        trainer = Trainer.from_argparse_args(args, logger=logger, default_root_dir=default_save_path, plugins=plugins, callbacks=callbacks)
 
     #Tuning
     if opt.do_tuning:

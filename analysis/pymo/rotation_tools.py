@@ -34,7 +34,10 @@ def unroll_1(rots):
     d_angs = np.diff(angs, axis=0)
     d_angs2 = alt_angs[1:]-angs[:-1]
     
+    # swps = np.where(np.abs(d_angs2)<np.abs(d_angs))[0] & np.where(np.abs(d_angs2)<0.2)[0]
     swps = np.where(np.abs(d_angs2)<np.abs(d_angs))[0]
+    # print("unroll swaps", len(swps))
+    # print(np.abs(d_angs2)[swps])
 
     #reshape into intervals where we should unroll the rotations
     isodd = swps.shape[0] % 2 == 1
