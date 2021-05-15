@@ -21,9 +21,13 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 from training.utils import get_latest_checkpoint
 
+
 if __name__ == '__main__':
     pl.seed_everything(69420)
     opt = TrainOptions().parse()
+    #Path(opt.checkpoints_dir+"/"+opt.experiment_name).mkdir(parents=True,exist_ok=True)
+    if not os.path.exists(opt.checkpoints_dir+"/"+opt.experiment_name):
+        os.makedirs(opt.checkpoints_dir+"/"+opt.experiment_name)
     print("loaded options")
     print(opt.experiment_name)
     model = create_model(opt)
@@ -71,14 +75,16 @@ if __name__ == '__main__':
 
     logger = TensorBoardLogger(opt.checkpoints_dir, name=opt.experiment_name, default_hp_metric=False)
     checkpoint_callback = ModelCheckpoint(
-            #monitor = 'loss',
-            #save_top_k = 5
+            #####
+            monitor = 'loss',
+            save_top_k = 5
             )
     callbacks = [checkpoint_callback]
     args = Trainer.parse_argparser(opt)
 
     if opt.continue_train:
         print("CONTINUE TRAIN")
+        #TODO: add option to override saved hparams when doing continue_train with an hparams file, or even make that default
         logs_path = default_save_path
         latest_file = get_latest_checkpoint(logs_path)
         print(latest_file)

@@ -249,7 +249,7 @@ class InvertibleConv1x1(nn.Module):
             self.eye = torch.Tensor(eye)
         self.w_shape = w_shape
         self.LU = LU_decomposed
-        self.first_pass = False
+        self.first_pass = True
         self.saved_weight = None
         self.saved_dlogdet = None
 
@@ -285,16 +285,20 @@ class InvertibleConv1x1(nn.Module):
         log-det = log|abs(|W|)| * timesteps
         """
         # weight, dlogdet = self.get_weight(input, reverse)
-        if not reverse or self.first_pass:
+        if not reverse:
             weight, dlogdet = self.get_weight(input, reverse)
-            if reverse:
+        else:
+            if self.first_pass:
+                weight, dlogdet = self.get_weight(input, reverse)
                 self.saved_weight = weight
                 if logdet is not None:
                     self.saved_dlogdet = dlogdet
-        else:
-            weight = self.saved_weight
-            if logdet is not None:
-                dlogdet = self.saved_dlogdet
+                self.first_pass = False
+            else:
+                weight = self.saved_weight
+                if logdet is not None:
+                    dlogdet = self.saved_dlogdet
+
         nan_throw(weight, "weight")
         nan_throw(dlogdet, "dlogdet")
         

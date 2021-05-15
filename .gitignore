@@ -64,3 +64,4 @@ inference/predicted_mods.tar.gz
 inference/predicted_mods/*
 data/predicted_mods/*
 data/dance_full_renamed/*
+data/predicted_mods.tar.gz
