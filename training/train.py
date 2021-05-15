@@ -21,6 +21,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 from training.utils import get_latest_checkpoint
 
+
 if __name__ == '__main__':
     pl.seed_everything(69420)
     opt = TrainOptions().parse()
@@ -83,6 +84,7 @@ if __name__ == '__main__':
 
     if opt.continue_train:
         print("CONTINUE TRAIN")
+        #TODO: add option to override saved hparams when doing continue_train with an hparams file, or even make that default
         logs_path = default_save_path
         latest_file = get_latest_checkpoint(logs_path)
         print(latest_file)

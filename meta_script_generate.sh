@@ -52,11 +52,13 @@ base_filenames_file=base_filenames_test_test.txt
 #for exp in moglow_expmap
 #for exp in transflower_expmap_finetune2 transflower_expmap_old
 #for exp in transflower_expmap_newdata
+#for exp in transflower_expmap_large_newdata mowgli_expmap_stage2_newdata3
 #for exp in transflower_expmap_large_newdata
+for exp in transflower_expmap_large_cr_newdata
 #for exp in mowgli_expmap_stage2_newdata3
 #for exp in transflower_expmap
 
-for exp in transformer_expmap
+#for exp in transformer_expmap
 #for exp in mowgli_expmap_stage2_newdata
 #for exp in transflower_expmap
 #for exp in transflower_expmap_finetune2 transformer_expmap1
@@ -70,7 +72,8 @@ do
 		  echo "$line"
 		#sbatch slurm_script_generate.slurm $exp $line
 		#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test_original_seeds
-		sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test1
+		#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test1
+		sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined2_test
 		#for i in 1 2 3 4 5; do
 		#	mkdir inference/generated_${i}/
 		#	mkdir inference/generated_${i}/${exp}
