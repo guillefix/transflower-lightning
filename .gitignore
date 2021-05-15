@@ -57,3 +57,10 @@ inference/generated_4/*
 inference/generated_5/*
 inference/generated_.zip
 data/dance_full_renamed.zip
+data/predicted_mods_2moments.tar.gz
+data/predicted_mods_2moments_ext.tar.gz
+data/predicted_mods_scalers.tar.gz
+inference/predicted_mods.tar.gz
+inference/predicted_mods/*
+data/predicted_mods/*
+data/dance_full_renamed/*
