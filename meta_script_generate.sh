@@ -53,8 +53,8 @@ base_filenames_file=base_filenames_test_test.txt
 #for exp in transflower_expmap_finetune2 transflower_expmap_old
 #for exp in transflower_expmap_newdata
 #for exp in transflower_expmap_large_newdata mowgli_expmap_stage2_newdata3
-#for exp in transflower_expmap_large_newdata
-for exp in transflower_expmap_large_cr_newdata
+for exp in transflower_expmap_large_newdata
+#for exp in transflower_expmap_large_cr_newdata
 #for exp in mowgli_expmap_stage2_newdata3
 #for exp in transflower_expmap
 
@@ -72,24 +72,30 @@ do
 		  echo "$line"
 		#sbatch slurm_script_generate.slurm $exp $line
 		#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test_original_seeds
-		#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test1
-		sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined2_test
+		sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test2
+		#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test1 --seeds expmap_scaled_20,the_basement
+		#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test1 --seeds_file expmap_scaled_20,the_basement
+		#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined2_test
+
 		#for i in 1 2 3 4 5; do
 		#	mkdir inference/generated_${i}/
 		#	mkdir inference/generated_${i}/${exp}
 		#	mkdir inference/generated_${i}/${exp}/predicted_mods
 		#	mkdir inference/generated_${i}/${exp}/videos
-		#	sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test${i} --output_folder=inference/generated_${i}
+		#	#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test${i} --output_folder=inference/generated_${i}
+		#	sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test${i} --output_folder=inference/generated_${i} --seeds_file $SCRATCH/data/seeds_${i}
 		#done
 	done <$base_filenames_file
 
 	#for i in 1 2 3 4 5; do
+	#for i in 5; do
 	#	mkdir inference/generated_${i}/
 	#	mkdir inference/generated_${i}/${exp}
 	#	mkdir inference/generated_${i}/${exp}/predicted_mods
 	#	mkdir inference/generated_${i}/${exp}/videos
 	#	#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined_test${i} --output_folder=inference/generated_${i}
-	#	sbatch slurm_script_generate_array.slurm $exp $i
+	#	#sbatch slurm_script_generate_array.slurm $exp $i
+	#	sbatch slurm_script_generate_array_rs.slurm $exp $i
 	#done
 
 	#sbatch slurm_script_generate.slurm $exp aistpp_gMH_sFM_cAll_d22_mMH3_ch04 --generate_bvh --data_dir=${SCRATCH}/data/dance_combined2
