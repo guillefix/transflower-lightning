@@ -107,7 +107,7 @@ if __name__ == '__main__':
         else:
             feature = np.load(data_dir+"/"+seq_id+"."+mod+".npy")
         if args.max_length != -1:
-            feature = feature[:args.max_lengt]
+            feature = feature[:args.max_length]
         features["in_"+mod] = np.expand_dims(feature,0).transpose((1,0,2))
 
     # Generate prediction
