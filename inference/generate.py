@@ -97,7 +97,10 @@ if __name__ == '__main__':
     if torch.cuda.is_available():
         model.cuda()
     #import pdb;pdb.set_trace()
+    #import time
+    #start_time = time.time()
     predicted_mods = model.generate(features)
+    #print("--- %s seconds ---" % (time.time() - start_time))
     if len(predicted_mods) == 0:
         print("Sequence too short!")
     else:
@@ -122,7 +125,7 @@ if __name__ == '__main__':
 
                 if mod == "joint_angles_scaled":
                     generate_video_from_mats(predicted_features_file,output_folder,audio_file,trim_audio,fps,plot_mats)
-                elif mod == "expmap_scaled" or mod == "expmap_scaled_20":
+                elif mod == "expmap_scaled" or mod == "expmap_scaled_20" or mod == "expmap_cr_scaled_20":
                     pipeline_file = f'{data_dir}/motion_{mod}_data_pipe.sav'
                     generate_video_from_expmaps(predicted_features_file,pipeline_file,output_folder,audio_file,trim_audio,args.generate_bvh)
                 elif mod == "position_scaled":

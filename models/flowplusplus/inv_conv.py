@@ -30,7 +30,7 @@ class InvertibleConv1x1(nn.Module):
             self.eye = torch.Tensor(eye)
         self.w_shape = w_shape
         self.LU = LU_decomposed
-        self.first_pass = False
+        self.first_pass = True
         self.saved_weight = None
         self.saved_dsldj = None
 
@@ -65,16 +65,19 @@ class InvertibleConv1x1(nn.Module):
         log-det = log|abs(|W|)| * pixels
         """
         x = torch.cat(x, dim=1)
-        if not reverse or self.first_pass:
+        if not reverse:
             weight, dsldj = self.get_weight(x, reverse)
-            if reverse:
+        else:
+            if self.first_pass:
+                weight, dsldj = self.get_weight(x, reverse)
                 self.saved_weight = weight
                 if sldj is not None:
                     self.saved_dsldj = dsldj
-        else:
-            weight = self.saved_weight
-            if sldj is not None:
-                dsldj = self.saved_dsldj
+                self.first_pass = False
+            else:
+                weight = self.saved_weight
+                if sldj is not None:
+                    dsldj = self.saved_dsldj
 
         if not reverse:
             x = F.conv2d(x, weight)
