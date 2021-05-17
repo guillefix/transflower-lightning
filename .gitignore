@@ -63,3 +63,8 @@ data/predicted_mods/
 data/predicted_mods_2moments_ext.tar.gz
 data/predicted_mods_2moments.tar.gz
 data/predicted_mods_scalers.tar.gz
+data/music_features.zip
+data/music_features/*
+data/feats_non_mirrored/*
+data/features_old/*
+data/fid_data/*
