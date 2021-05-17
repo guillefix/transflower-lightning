@@ -1,6 +1,7 @@
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 #%%
 #### looking at the data
 # from pymo.rotation_tools import unroll_1, unroll_2
@@ -119,46 +120,64 @@ import numpy as np
 # #plotting masks hmm
 # #mega hacky lel
 #
-# import numpy as np
-# import matplotlib.pyplot as plt
-# mask = np.load("analysis/weight_mats/"+"1405eafc-f27c-45bf-814e-1d9a467aa12c.np.npy")
-# mask[0][120:140]
-# mask[0][:140]
-# import torch
-# # maskt = torch.from_numpy(mask)
-#
+import numpy as np
+import matplotlib.pyplot as plt
+mask = np.load("analysis/weight_mats/"+"892818c5-f166-45a0-a228-648127ed87e3.np.npy")
+mask[0][120:140]
+mask[0][:140]
+import torch
+# maskt = torch.from_numpy(mask)
+
 # ps = torch.nn.functional.softmax(maskt,dim=-1)
-# sm = lambda x: torch.nn.functional.softmax(torch.from_numpy(x),dim=-1)
-# ps[0]
-# mask[1].max()
-# mask[1].max()
-# mask.shape
-# mask[0].shape
-# import scipy.linalg
-# mask[0].shape
-# scipy.linalg.norm(mask[0],axis=1)
-# mask[5]
+sm = lambda x: torch.nn.functional.softmax(torch.from_numpy(x),dim=-1)
+ps[0]
+mask[1].max()
+mask[1].max()
+mask.shape
+mask[0].shape
+import scipy.linalg
+mask[0].shape
+scipy.linalg.norm(mask[0],axis=1)
+mask[5]
 # plt.matshow(mask[0][:20])
+plt.matshow(mask[0])
+plt.matshow(sm(mask[0]))
+plt.matshow(sm(mask[0]))
+plt.matshow(sm(mask[0])[60:120,:120])
+plt.matshow(sm(mask[0])[-60:,:120])
+plt.matshow(sm(mask[9])[60:120,:120])
+# plt.matshow(sum([sm(mask[i])[60:120,:120] for i in range(10)]))
+plt.matshow(sm(mask[0])[-60:,:120])
+plt.matshow(acc[:,142:142+120]**2)
+plt.matshow(sm(mask[0][:,40:50]))
+plt.matshow(sm(mask[0][:,30:80]))
+plt.matshow(sm(mask[0][:3]))
 # plt.matshow(sm(mask[0][:20]))
-# mask[9]
-# plt.matshow(mask[3])
-# plt.matshow(sm(mask[2]))
-#
-#
-# plt.matshow(sm(mask[9][:120]))
-# plt.matshow(sm(mask[4][120:]))
-# plt.matshow(sm(mask[2][:100]))
-# plt.matshow(sm(mask[2][100:]))
-# plt.matshow(np.log(sm(mask[9])))
-# plt.matshow(sm(mask[1][150:170]))
-# plt.matshow(sm(mask[5]))
-# plt.matshow(mask)
-# plt.matshow(mask[:500])
-# plt.matshow(np.matmul(mask[:500],mask[:500].T))
-# mask
-# mask.std(axis=1)
-# plt.matshow(mask[9][0:1])
-# mask
+mask[9]
+plt.matshow(mask[3])
+plt.matshow(sm(mask[2]))
+
+# mdata = np.load("data/dance_combined/aistpp_gMH_sFM_cAll_d22_mMH3_ch04.bvh_expmap_cr.npy")
+mdata = np.load("data/dance_combined/groovenet_2.bvh_expmap_cr.npy")
+acc = np.abs(np.diff(mdata[:,:-6],2,axis=0)).T
+mdata.shape
+acc.shape
+plt.matshow(acc[:,:120])
+
+plt.matshow(sm(mask[9][:120]))
+plt.matshow(sm(mask[4][120:]))
+plt.matshow(sm(mask[2][:100]))
+plt.matshow(sm(mask[2][100:]))
+plt.matshow(np.log(sm(mask[9])))
+plt.matshow(sm(mask[1][150:170]))
+plt.matshow(sm(mask[5]))
+plt.matshow(mask)
+plt.matshow(mask[:500])
+plt.matshow(np.matmul(mask[:500],mask[:500].T))
+mask
+mask.std(axis=1)
+plt.matshow(mask[9][0:1])
+mask
 #
 #
 # ###########################

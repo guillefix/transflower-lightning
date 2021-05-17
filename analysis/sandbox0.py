@@ -161,3 +161,20 @@ import numpy as np
 a = np.load("inference/generated_1/transflower_expmap_finetune2/predicted_mods/aistpp_gBR_sBM_cAll_d04_mBR0_ch10.expmap_scaled_20.generated.npy")
 
 a[:2,0,-9:]
+
+########################
+#%%
+
+# import pickle
+import joblib as jl
+data_pipe = jl.load(open("data/dance_combined/motion_expmap_cr_scaled_20_data_pipe.sav", "rb"))
+
+data = np.load("data/dance_combined/justdance_0_mirrored.bvh_expmap_cr.npy")
+data = np.load("data/dance_combined/justdance_0.bvh_expmap_cr.npy")
+
+bvh_data=data_pipe.inverse_transform([data])
+
+writer = BVHWriter()
+with open('analysis/tmp/test.bvh','w') as f:
+    writer.write(bvh_data[0], f)
+    
