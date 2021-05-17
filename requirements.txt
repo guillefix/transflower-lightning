@@ -6,7 +6,7 @@ pytorch-lightning
 pandas
 matplotlib
 mpi4py
-sklearn
+sklearn==0.24.1
 joblib
 smplx
 transforms3d
@@ -18,3 +18,4 @@ einops
 entmax
 madgrad
 lightning-bolts
+loguru

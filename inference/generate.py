@@ -36,6 +36,7 @@ if __name__ == '__main__':
     parser.add_argument('--audio_format', type=str, default="wav")
     parser.add_argument('--experiment_name', type=str)
     parser.add_argument('--seq_id', type=str)
+    parser.add_argument('--max_length', type=int, default=-1)
     parser.add_argument('--no-use_scalers', dest='use_scalers', action='store_false')
     parser.add_argument('--generate_video', action='store_true')
     parser.add_argument('--generate_bvh', action='store_true')
@@ -91,6 +92,8 @@ if __name__ == '__main__':
     features = {}
     for mod in input_mods:
         feature = np.load(data_dir+"/"+seq_id+"."+mod+".npy")
+        if args.max_length != -1:
+            feature = feature[:args.max_lengt]
         features["in_"+mod] = np.expand_dims(feature,0).transpose((1,0,2))
 
     # Generate prediction

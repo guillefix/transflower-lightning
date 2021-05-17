@@ -83,7 +83,8 @@ for i in range(5):
     gt_moments_file = root_dir_gt+"/"+str(i+1)+"/bvh_expmap_cr_"+stat+".pkl"
     gt_m,gt_C = pickle.load(open(gt_moments_file,"rb"))
     for j in range(5):
-        moments_file = root_dir_generated+"/"+"generated_"+str(j+1)+"/expmap_scaled_20.generated_"+stat+".pkl"
+        # moments_file = root_dir_generated+"/"+"generated_"+str(j+1)+"/expmap_scaled_20.generated_"+stat+".pkl"
+        moments_file = "inference/randomized_seeds/generated_"+str(j+1)+"/transflower_expmap/predicted_mods/expmap_scaled_20.generated_"+stat+".pkl"
 
         m,C = pickle.load(open(moments_file,"rb"))
         if stat=="2moments":
