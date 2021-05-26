@@ -10,6 +10,8 @@ from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 def get_optimizers(net, opt):
     if opt.optimizer == "adam":
         optimizer = torch.optim.Adam(net.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay)
+    elif opt.optimizer == "adamw":
+        optimizer = torch.optim.AdamW(net.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay, eps=1e-05, betas=(0.9, 0.95))
     elif opt.optimizer == "sgd":
         optimizer = torch.optim.SGD(net.parameters(), lr=opt.learning_rate, momentum=opt.momentum, weight_decay=opt.weight_decay)
     elif opt.optimizer == "adagrad":
@@ -35,6 +37,8 @@ def get_scheduler(optimizer, opt):
             lr_l = 1.0 - max(0, epoch + opt.epoch_count - nepochs) / float(opt.nepoch_decay + 1)
             return lr_l
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
+    elif opt.lr_policy == 'exponential':
+        scheduler = lr_scheduler.ExponentialLR(optimizer = optimizer, gamma = opt.lr_decay_factor)
     elif opt.lr_policy == 'step':
         scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=opt.lr_decay_factor)
     elif opt.lr_policy == 'multistep':

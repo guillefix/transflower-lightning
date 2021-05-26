@@ -24,17 +24,22 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
     #TODO: append the initial conditioning bit to the output too
     model.eval()
     output_seq = []
-    # sequence_length = inputs_[0].shape[0]
+    #sequence_length = inputs_[0].shape[0]
     sequence_length = inputs_[1].shape[0]
     print(sequence_length)
     #import pdb;pdb.set_trace()
     with torch.no_grad():
         # for t in range(min(512, sequence_length-max(input_lengths)-1)):
+        import time
+        start_time = time.time()
         for t in range(sequence_length-max(input_lengths)+1):
+        #for t in range(512):
             print(t)
             inputs = [x.clone().to(model.device) for x in input_tmp]
             # import pdb;pdb.set_trace()
             outputs = model.forward(inputs)
+            #outputs[0][:,0,-4] = 0.0
+            #outputs[0][:,0,-6] = 0.0
             if t == 0:
                 for i, mod in enumerate(output_mods):
                     output = outputs[i]
@@ -63,5 +68,6 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
                     else:
                         input_tmp[i] = torch.cat([input_tmp[i][1:],inputs_[i][input_time_offsets[i]+input_lengths[i]+t:input_time_offsets[i]+input_lengths[i]+t+1]],0)
 
+    print("--- %s seconds ---" % (time.time() - start_time))
     return output_seq
 

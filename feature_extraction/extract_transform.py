@@ -52,7 +52,22 @@ for i in tasks:
 import pickle
 transforms = transforms.split(",")
 for transform in transforms:
-    if transform == "scaler":
+    if transform == "2moments":
+        if len(features.shape) == 3:
+            features = features[:,0,:]
+        C = np.dot(features.T,features)/features.shape[0]
+        m = np.mean(features,0)
+        pickle.dump((m,C), open(data_path.joinpath(feature_name+'_2moments.pkl'), 'wb'))
+    elif transform == "2moments_ext":
+        if len(features.shape) == 3:
+            features = features[:,0,:]
+        if features.shape[0] % 3 != 0:
+            features = features[:-(features.shape[0]%3)]
+        features = np.reshape(features,(-1,3*features.shape[1]))
+        C = np.dot(features.T,features)/features.shape[0]
+        m = np.mean(features,0)
+        pickle.dump((m,C), open(data_path.joinpath(feature_name+'_2moments_ext.pkl'), 'wb'))
+    elif transform == "scaler":
         scaler = preprocessing.StandardScaler().fit(features)
         pickle.dump(scaler, open(data_path.joinpath(feature_name+'_scaler.pkl'), 'wb'))
     elif transform == "pca_transform":

@@ -2,11 +2,10 @@ numpy
 scipy
 librosa
 pytorch-lightning
-#torch
 pandas
 matplotlib
+scikit-learn==0.24.1
 mpi4py
-sklearn
 joblib
 smplx
 transforms3d
@@ -16,4 +15,5 @@ ftfy
 axial_positional_embedding
 einops
 entmax
-madgrad
+lightning-bolts
+loguru

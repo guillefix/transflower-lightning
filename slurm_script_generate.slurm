@@ -3,7 +3,7 @@
 #SBATCH --time=1:00:00
 ##SBATCH --qos=qos_gpu-t4
 #SBATCH --qos=qos_gpu-dev
-#SBATCH --ntasks=1 --cpus-per-task=8 --gres=gpu:1
+#SBATCH --ntasks=1 --cpus-per-task=4 --gres=gpu:1
 #SBATCH -A imi@gpu
 ##SBATCH -C v100-32g
 
@@ -11,7 +11,8 @@
 
 module load pytorch-gpu/py3/1.8.0
 
-exp=$1
+#exp=$1
+#seq_id=$2
 #exp=transglower_moglow_pos
 #exp=transglower_residual_moglow_pos
 #exp=transflower_residual_moglow_pos
@@ -20,5 +21,5 @@ exp=$1
 #exp=moglow_moglow_pos
 
 #./script_train_residualflower.sh
-./script_generate.sh $exp
+./script_generate.sh $@
 

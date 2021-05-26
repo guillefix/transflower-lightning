@@ -32,10 +32,13 @@ if __name__ == '__main__':
     print("Hi")
     parser = argparse.ArgumentParser(description='Generate with model')
     parser.add_argument('--data_dir', type=str)
+    parser.add_argument('--seeds', type=str, help='in the format: mod,seq_id;mod,seq_id')
+    parser.add_argument('--seeds_file', type=str, help='file from which to choose a random seed')
     parser.add_argument('--output_folder', type=str)
     parser.add_argument('--audio_format', type=str, default="wav")
     parser.add_argument('--experiment_name', type=str)
     parser.add_argument('--seq_id', type=str)
+    parser.add_argument('--max_length', type=int, default=-1)
     parser.add_argument('--no-use_scalers', dest='use_scalers', action='store_false')
     parser.add_argument('--generate_video', action='store_true')
     parser.add_argument('--generate_bvh', action='store_true')
@@ -46,10 +49,19 @@ if __name__ == '__main__':
     fps = args.fps
     output_folder = args.output_folder
     seq_id = args.seq_id
+    if args.seeds is not None:
+        seeds = {mod:seq for mod,seq in [tuple(x.split(",")) for x in args.seeds.split(";")]}
+    else:
+        seeds = {}
 
     if seq_id is None:
-        temp_base_filenames = [x[:-1] for x in open(data_dir + "/base_filenames_val.txt", "r").readlines()]
+        temp_base_filenames = [x[:-1] for x in open(data_dir + "/base_filenames_test.txt", "r").readlines()]
         seq_id = np.random.choice(temp_base_filenames)
+    if args.seeds_file is not None:
+        print("choosing random seed from "+args.seeds_file)
+        temp_base_filenames = [x[:-1] for x in open(args.seeds_file, "r").readlines()]
+        seq_id = np.random.choice(temp_base_filenames)
+
 
     print(seq_id)
 
@@ -90,14 +102,22 @@ if __name__ == '__main__':
     # Load input features (sequences must have been processed previously into features)
     features = {}
     for mod in input_mods:
-        feature = np.load(data_dir+"/"+seq_id+"."+mod+".npy")
+        if mod in seeds:
+            feature = np.load(data_dir+"/"+seeds[mod]+"."+mod+".npy")
+        else:
+            feature = np.load(data_dir+"/"+seq_id+"."+mod+".npy")
+        if args.max_length != -1:
+            feature = feature[:args.max_length]
         features["in_"+mod] = np.expand_dims(feature,0).transpose((1,0,2))
 
     # Generate prediction
     if torch.cuda.is_available():
         model.cuda()
     #import pdb;pdb.set_trace()
+    #import time
+    #start_time = time.time()
     predicted_mods = model.generate(features)
+    #print("--- %s seconds ---" % (time.time() - start_time))
     if len(predicted_mods) == 0:
         print("Sequence too short!")
     else:
@@ -122,7 +142,7 @@ if __name__ == '__main__':
 
                 if mod == "joint_angles_scaled":
                     generate_video_from_mats(predicted_features_file,output_folder,audio_file,trim_audio,fps,plot_mats)
-                elif mod == "expmap_scaled" or mod == "expmap_scaled_20":
+                elif mod == "expmap_scaled" or mod == "expmap_scaled_20" or mod == "expmap_cr_scaled_20":
                     pipeline_file = f'{data_dir}/motion_{mod}_data_pipe.sav'
                     generate_video_from_expmaps(predicted_features_file,pipeline_file,output_folder,audio_file,trim_audio,args.generate_bvh)
                 elif mod == "position_scaled":

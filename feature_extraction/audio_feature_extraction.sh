@@ -29,3 +29,12 @@ mpirun -n $n $py ./feature_extraction/apply_transforms.py $@ --feature_name ${fo
 ./feature_extraction/script_to_list_filenames $1 $format
 mpirun -n $n $py ./feature_extraction/combine_feats.py $@ $1/base_filenames.txt --feature_names ${format}_audio_feats,ddcpca --new_feature_name feats_ddcpca
 mpirun -n $n $py ./feature_extraction/apply_transforms.py $@ --feature_name feats_ddcpca --transform_name scaler --new_feature_name audio_feats_scaled_${fps}
+
+###NOMPI
+#$py ./feature_extraction/process_audio.py $@ --audio_format $format --feature_names multi_mel --mel_feature_size 80 --fps 100 # fps=100 coz thats what ddc expects
+#$py ./feature_extraction/generate_ddc_features.py $@ --audio_format $format --experiment_name block_placement_ddc2 --checkpoint 130000 --checkpoints_dir feature_extraction --fps $fps
+#$py ./feature_extraction/process_audio.py $@ --audio_format $format --feature_names mel,envelope,madmombeats --mel_feature_size 80 --fps $fps --combined_feature_name audio_feats
+#$py ./feature_extraction/apply_transforms.py $@ --feature_name ${format}_multi_mel_80.npy_ddc_hidden --transform_name pca_transform --pca_dims 2 --new_feature_name ddcpca
+#./feature_extraction/script_to_list_filenames $1 $format
+#$py ./feature_extraction/combine_feats.py $@ $1/base_filenames.txt --feature_names ${format}_audio_feats,ddcpca --new_feature_name feats_ddcpca
+#$py ./feature_extraction/apply_transforms.py $@ --feature_name feats_ddcpca --transform_name scaler --new_feature_name audio_feats_scaled_${fps}

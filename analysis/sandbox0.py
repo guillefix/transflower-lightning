@@ -3,7 +3,11 @@ from analysis.pymo.data import Joint, MocapData
 from analysis.pymo.preprocessing import *
 from analysis.pymo.viz_tools import *
 from analysis.pymo.writers import *
+import analysis.pymo
+import imp;imp.reload(analysis.pymo)
+import imp;imp.reload(analysis.pymo.preprocessing)
 from sklearn.pipeline import Pipeline
+from analysis.pymo.rotation_tools import euler2expmap
 
 import matplotlib.pyplot as plt
 
@@ -13,16 +17,21 @@ p = BVHParser()
 # f="data/dance_full/aistpp_bvh/bvh/gWA_sFM_cAll_d26_mWA4_ch12.bvh"
 # f="data/dance_full/shadermotion_data2_retarget/bvh/VRChat_Dance_2.bvh"
 # f="data/dance_full/shadermotion_data2_retarget/bvh/VRChat_Dance_8.bvh"
-f="data/dance_full/kth_streetdance_data/bvh/Streetdance_001.bvh"
-f="data/dance_full/shadermotion_justdance/bvh/justdance_0.bvh"
-f="data/dance_full/vibe_dance/bvh/Take1.bvh"
+# f="data/dance_full/kth_streetdance_data/bvh/Streetdance_001.bvh"
+# f="data/dance_full/shadermotion_justdance/bvh/justdance_0.bvh"
+# f="data/dance_full/vibe_dance/bvh/Take1.bvh"
 # f="data/dance_full/shadermotion_data2_retarget/bvh/VRChat_Dance_0.bvh"
-f="data/dance_full/tmp/bvh/VRChat_Dance_0.bvh"
-f="data/dance_full/testing/VRChat_Dance_0.bvh"
+f1="data/dance_full/kth_streetdance_data/bvh/Streetdance_001.bvh"
+f2="data/dance_full/shadermotion_justdance/bvh/justdance_0.bvh"
+f2="data/dance_full/shadermotion_justdance/bvh/justdance_1.bvh"
+# f="data/dance_full/tmp/bvh/VRChat_Dance_0.bvh"
+# f="data/dance_full/testing/VRChat_Dance_0.bvh"
 # f="data/dance_full/tmp/bvh/VRChat_Dance_0.bvh"
 # f="data/dance_full/testing/VRChat_Dance_0.bvh"
 
-data = p.parse(f)
+data = p.parse(f1)
+data2 = p.parse(f2)
+#%%
 
 # print_skel(data)
 
@@ -31,7 +40,25 @@ data = p.parse(f)
 # data = p.parse(f)
 #
 # print_skel(data)
-data.values
+data.values["LeftFoot_Zrotation"][2]
+data2.values["LeftFoot_Zrotation"][2]
+data2.values["LeftFoot_Zrotation"] = data.values["LeftFoot_Zrotation"].values[:13250]
+data2.values["LeftFoot_Xrotation"] = data.values["LeftFoot_Xrotation"].values[:13250]
+data2.values["LeftFoot_Yrotation"] = data.values["LeftFoot_Yrotation"].values[:13250]
+euler2expmap((data.values["LeftFoot_Zrotation"][1], data.values["LeftFoot_Xrotation"][1], data.values["LeftFoot_Yrotation"][1]), 'ZXY', True)
+e1=euler2expmap((data2.values["LeftFoot_Zrotation"][0], data2.values["LeftFoot_Xrotation"][0], data2.values["LeftFoot_Yrotation"][0]), 'ZXY', True)
+e2=euler2expmap((data2.values["LeftFoot_Zrotation"][1], data2.values["LeftFoot_Xrotation"][1], data2.values["LeftFoot_Yrotation"][1]), 'ZXY', True)
+e3=euler2expmap((data2.values["LeftFoot_Zrotation"][2], data2.values["LeftFoot_Xrotation"][2], data2.values["LeftFoot_Yrotation"][2]), 'ZXY', True)
+
+np.linalg.norm(e1) - np.linalg.norm(e2)
+np.linalg.norm(e2) - np.linalg.norm(e3)
+(2*np.pi - np.linalg.norm(e2)) - (np.linalg.norm(e3))
+
+data.values["LeftFoot_Zrotation"].mean()
+data2.values["LeftFoot_Zrotation"].mean()
+list(data2.values.std())
+list(data2.values.mean())
+list(data.values.mean())
 
 data.values
 
@@ -40,7 +67,7 @@ data.skeleton
 #%%
 
 # fps=60
-p = BVHParser()
+# p = BVHParser()
 data_pipe = Pipeline([
     # ('dwnsampl', DownSampler(tgt_fps=fps,  keep_all=False)),
     ('mir', Mirror(axis='X', append=True)),
@@ -49,14 +76,37 @@ data_pipe = Pipeline([
     # ('jtsel', JointSelector(['Spine1', 'Spine', 'Neck', 'Head', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase'], include_root=True)),
     # ('exp', MocapParameterizer('position')),
     ('exp', MocapParameterizer('expmap')),
-    # ('cnst', ConstantsRemover()),
-    ('np', Numpyfier())
+    ('cnst', ConstantsRemover(only_cols=["Hips_Xposition", "Hips_Zposition"])),
+    # ('np', Numpyfier())
 ])
 
 
 out_data = data_pipe.fit_transform([data])
+out_data2 = data_pipe.fit_transform([data2])
+out_data[0].values.columns.size
+out_data2[0].values.columns.size
 
-# out_data[0].values
+out_data[0].values.columns[17]
+out_data[0].values
+out_data2[0].values
+out_data2[0].values["LeftFoot_beta"].std()
+out_data2[0].values["LeftFoot_beta"].max()
+out_data2[0].values["LeftFoot_beta"].mean()
+out_data[0].values["LeftFoot_beta"].std()
+out_data[0].values["LeftFoot_beta"].max()
+out_data[0].values["LeftFoot_beta"].mean()
+(out_data[0].values["LeftFoot_alpha"]**2 + out_data[0].values["LeftFoot_beta"]**2 + out_data[0].values["LeftFoot_gamma"]**2).mean()
+(out_data2[0].values["LeftFoot_alpha"]**2 + out_data2[0].values["LeftFoot_beta"]**2 + out_data2[0].values["LeftFoot_gamma"]**2).mean()
+out_data[0].values["LeftFoot_gamma"][1]
+out_data2[0].values["LeftFoot_gamma"][3]
+
+(out_data[0].values["RightFoot_alpha"]**2 + out_data[0].values["RightFoot_beta"]**2 + out_data[0].values["RightFoot_gamma"]**2).mean()
+(out_data2[0].values["RightFoot_alpha"][10:]**2 + out_data2[0].values["RightFoot_beta"][10:]**2 + out_data2[0].values["RightFoot_gamma"][10:]**2).mean()
+(out_data2[0].values["RightFoot_alpha"][10:]**2 + out_data2[0].values["RightFoot_beta"][10:]**2 + out_data2[0].values["RightFoot_gamma"][10:]**2).diff().max()
+
+np.diff(out_data2[0].values["LeftFoot_beta"]).max()
+np.diff(out_data[0].values["LeftFoot_beta"]).max()
+
 out_data[0].shape
 inv_data = data_pipe.inverse_transform(out_data)
 inv_data[0] == data
@@ -105,3 +155,26 @@ data.values.loc[last_index:].iloc[1:]
 
 
 ##################
+
+import numpy as np
+
+a = np.load("inference/generated_1/transflower_expmap_finetune2/predicted_mods/aistpp_gBR_sBM_cAll_d04_mBR0_ch10.expmap_scaled_20.generated.npy")
+
+a[:2,0,-9:]
+
+########################
+#%%
+
+# import pickle
+import joblib as jl
+data_pipe = jl.load(open("data/dance_combined/motion_expmap_cr_scaled_20_data_pipe.sav", "rb"))
+
+data = np.load("data/dance_combined/justdance_0_mirrored.bvh_expmap_cr.npy")
+data = np.load("data/dance_combined/justdance_0.bvh_expmap_cr.npy")
+
+bvh_data=data_pipe.inverse_transform([data])
+
+writer = BVHWriter()
+with open('analysis/tmp/test.bvh','w') as f:
+    writer.write(bvh_data[0], f)
+    

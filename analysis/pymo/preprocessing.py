@@ -292,6 +292,7 @@ class MocapParameterizer(BaseEstimator, TransformerMixin):
                 euler = [[f[1][r1_col], f[1][r2_col], f[1][r3_col]] for f in r.iterrows()]
                 #exps = [Rotation(f, 'euler', from_deg=True, order=rot_order).to_expmap() for f in euler] # Convert the eulers to exp maps
                 exps = unroll(np.array([euler2expmap(f, rot_order, True) for f in euler])) # Convert the exp maps to eulers
+                # exps = np.array([euler2expmap(f, rot_order, True) for f in euler]) # Convert the exp maps to eulers
                 #exps = euler2expmap2(euler, rot_order, True) # Convert the eulers to exp maps
 
                 # Create the corresponding columns in the new DataFrame
@@ -1107,15 +1108,20 @@ class ConstantsRemover(BaseEstimator, TransformerMixin):
     For now it just looks at the first track
     '''
 
-    def __init__(self, eps = 1e-6):
+    def __init__(self, eps = 1e-6, only_cols=None):
         self.eps = eps
+        self.only_cols = only_cols
 
 
     def fit(self, X, y=None):
         stds = X[0].values.std()
         cols = X[0].values.columns.values
-        self.const_dims_ = [c for c in cols if (stds[c] < self.eps).any()]
-        self.const_values_ = {c:X[0].values[c].values[0] for c in cols if (stds[c] < self.eps).any()}
+        if self.only_cols is not None:
+            self.const_dims_ = [c for c in cols if ((stds[c] < self.eps).any()) and c in self.only_cols]
+        else:
+            self.const_dims_ = [c for c in cols if (stds[c] < self.eps).any()]
+        # self.const_values_ = {c:X[0].values[c].values[0] for c in cols if (stds[c] < self.eps).any()}
+        self.const_values_ = {c:X[0].values[c].values[0] for c in cols if self.const_dims_}
         return self
 
     def transform(self, X, y=None):
