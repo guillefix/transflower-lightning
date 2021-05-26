@@ -7,6 +7,7 @@ from .util.generation import autoregressive_generation_multimodal
 class TransformerModel(BaseModel):
     def __init__(self, opt):
         super().__init__(opt)
+        opt=self.opt
         input_mods = self.input_mods
         output_mods = self.output_mods
         dins = self.dins
@@ -17,13 +18,13 @@ class TransformerModel(BaseModel):
         self.output_mod_nets = []
         self.module_names = []
         for i, mod in enumerate(input_mods):
-            net = BasicTransformerModel(opt.dhid, dins[i], opt.nhead, opt.dhid, 2, opt.dropout, self.device, use_pos_emb=True, input_length=input_lengths[i])
+            net = BasicTransformerModel(opt.dhid, dins[i], opt.nhead, opt.dhid, 2, opt.dropout, self.device, use_pos_emb=True, input_length=input_lengths[i], use_x_transformers=opt.use_x_transformers, opt=opt)
             name = "_input_"+mod
             setattr(self,"net"+name, net)
             self.input_mod_nets.append(net)
             self.module_names.append(name)
         for i, mod in enumerate(output_mods):
-            net = BasicTransformerModel(douts[i], opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths))
+            net = BasicTransformerModel(douts[i], opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths), use_x_transformers=opt.use_x_transformers, opt=opt)
             # net = BasicTransformerModel(douts[i], opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=True, input_length=sum(input_lengths))
             name = "_output_"+mod
             setattr(self,"net"+name, net)
@@ -47,6 +48,8 @@ class TransformerModel(BaseModel):
         parser.add_argument('--nhead', type=int, default=8)
         parser.add_argument('--dropout', type=float, default=0.1)
         parser.add_argument('--use_pos_emb_output', action='store_true', help="whether to use positional embeddings for output modality transformers")
+        parser.add_argument('--use_rotary_pos_emb', action='store_true', help="whether to use rotary position embeddings")
+        parser.add_argument('--use_x_transformers', action='store_true', help="whether to use rotary position embeddings")
         # parser.add_argument('--generate_attention_masks', action='store_true', help="whether to generate the masks (but right now they are full masks, so it's not necessary")
         return parser
 
@@ -77,7 +80,7 @@ class TransformerModel(BaseModel):
             output = self.output_mod_nets[i].forward(latent)[:self.output_lengths[i]]
             outputs.append(output)
 
-        import pdb;pdb.set_trace()
+        #import pdb;pdb.set_trace()
         return outputs
 
     def training_step(self, batch, batch_idx):
@@ -95,6 +98,8 @@ class TransformerModel(BaseModel):
             loss_mse += self.criterion(output, self.targets[i])
             #loss_mse += self.criterion(output, self.targets[i]).detach()
         #print(loss_mse)
+        #if self.opt.precision == 16:
+        #    loss_mse *= 100 # loss scaling
         self.log('mse_loss', loss_mse)
         return loss_mse
         #return torch.tensor(0.0, dtype=torch.float32, requires_grad=True)

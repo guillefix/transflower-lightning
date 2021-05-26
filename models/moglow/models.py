@@ -172,7 +172,7 @@ class FlowNet(nn.Module):
                          flow_permutation=flow_permutation,
                          flow_coupling=flow_coupling,
                          network_model=network_model,
-                         num_layers=2,
+                         num_layers=num_layers,
                          LU_decomposed=LU_decomposed))
             self.output_shapes.append(
                 [-1, x_channels, 1])

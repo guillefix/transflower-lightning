@@ -6,5 +6,3 @@ np.save("analysis/weight_mats/"+str(uuid.uuid4())+".np",attn_output_weights.cpu(
 before the line attn_output_weights = softmax(attn_output_weights, dim=-1)
 
 and import numpy as np, and import uuid
-
-

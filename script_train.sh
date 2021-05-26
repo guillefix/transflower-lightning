@@ -13,70 +13,61 @@ py=python3
 
 root_dir=$SCRATCH/data
 #root_dir=data
+exp=$1
 
 ####aistpp_60hz
 #data_dir=${root_dir}/scaled_features
-#hparams_file=aistpp_60hz/transflower_aistpp_expmap
-#hparams_file=aistpp_60hz/transglower_aistpp_expmap
+#hparams_file=aistpp_60hz/${exp}
 
 ####aistpp_20hz
 #data_dir=${root_dir}/aistpp_20hz
-#exp=$1
-#exp=transglower_aistpp_expmap
-#exp=transglower_residual_aistpp_expmap
-#exp=transflower_residual_aistpp_expmap
-#exp=transflower_aistpp_expmap
-#exp=residualflower2_transflower_aistpp_expmap
-#exp=moglow_aistpp_expmap
 #hparams_file=aistpp_20hz/${exp}
-
-## Fix: needs vmapped version of transformer:
-#hparams_file=aistpp_20hz/residualflower2_moglow_aistpp_expmap
 
 ####moglow_pos
 #data_dir=${root_dir}/moglow_pos
-#exp=$1
-#exp=transglower_moglow_pos
-#exp=transglower_residual_moglow_pos
-#exp=transflower_residual_moglow_pos
-#exp=transflower_moglow_pos
-#exp=residualflower2_transflower_moglow_pos
-#exp=moglow_moglow_pos
-#exp=moglow_trans_moglow_pos
 #hparams_file=moglow_pos/${exp}
-#exp=testing
-#exp=${exp}_pos_emb
 
 ####dance_combined
-data_dir=${root_dir}/dance_combined
-exp=$1
-#exp=transglower_aistpp_expmap
-#exp=transglower_residual_aistpp_expmap
-#exp=transflower_residual_aistpp_expmap
-#exp=transflower_aistpp_expmap
-#exp=residualflower2_transflower_aistpp_expmap
-#exp=moglow_aistpp_expmap
+#data_dir=${root_dir}/dance_combined
+data_dir=${root_dir}/dance_combined2
 hparams_file=dance_combined/${exp}
 
-#exp=${exp}_future3_actnorm
-#exp=${exp}_future3
-#exp=${exp}_future3_rot
-#exp=${exp}_use_pos_emb_output
-#exp=${exp}_1e4
-#exp=${exp}_studentT_gclp1
-
 echo $exp
+#echo $RANK
+#echo $LOCAL_RANK
+echo $SLURM_PROCID
+export LOCAL_RANK=$SLURM_LOCALID
 
-$py training/train.py --data_dir=${data_dir} --max_epochs=2000\
-    --do_validation \
+$py training/train.py --data_dir=${data_dir} \
+    --max_epochs=1000\
     --hparams_file=training/hparams/${hparams_file}.yaml \
-    --val_batch_size=8 \
     --experiment_name=$exp\
     --workers=$(nproc) \
-    --gpus=4 \
+    --gpus=-1 \
     --accelerator=ddp \
-    #--batch_size=64 \
-    #--continue_train \
+    ${@:2} #NOTE: can override experiment_name, and any of the options above
+    #--batch_size=32 \
+    #--plugins=deepspeed \
+    #--precision=16 \
+
+    #--gradient_clip_val=0.5 \
+    #--sync_batchnorm \
+    #--lr_policy=LinearWarmupCosineAnnealing \
+    #--auto_lr_find \
+    #--do_tuning \
+    #--learning_rate=7e-5 \
+    #--batch_size=84 \
+    #--num_nodes=4 \
+    #--output_lengths=3 \
+    #--dropout=0.1 \
+    #--vae_dhid=128 \
+    #--optimizer=madgrad \
+    #--learning_rate=1e-3 \
+    #--use_x_transformers \
+    #--use_rotary_pos_emb \
+    #--batch_size=84 \
+    #--lr_policy=reduceOnPlateau \
+
     #--learning_rate=1e-4 \
     #--use_pos_emb_output \
     #--flow_dist=studentT \

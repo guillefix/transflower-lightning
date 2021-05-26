@@ -3,11 +3,15 @@ import torch
 from .nero import Nero
 # import torch_optimizer as optim
 import ast
+from madgrad import MADGRAD
+from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 
 
 def get_optimizers(net, opt):
     if opt.optimizer == "adam":
         optimizer = torch.optim.Adam(net.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay)
+    elif opt.optimizer == "adamw":
+        optimizer = torch.optim.AdamW(net.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay, eps=1e-05, betas=(0.9, 0.95))
     elif opt.optimizer == "sgd":
         optimizer = torch.optim.SGD(net.parameters(), lr=opt.learning_rate, momentum=opt.momentum, weight_decay=opt.weight_decay)
     elif opt.optimizer == "adagrad":
@@ -18,6 +22,8 @@ def get_optimizers(net, opt):
         optimizer = torch.optim.Rmsprop(net.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay)
     elif opt.optimizer == "nero":
         optimizer = Nero(net.parameters(), lr=opt.learning_rate)
+    elif opt.optimizer == "madgrad":
+        optimizer = MADGRAD(net.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay, momentum=opt.momentum)
     # elif opt.optimizer == "ranger":
     #     optimizer = optim.Ranger(net.parameters(), lr=opt.learning_rate, alpha=0.5, k=6, N_sma_threshhold=5, betas=(.95, 0.999), eps=1e-5, weight_decay=0 )
     else:
@@ -27,9 +33,12 @@ def get_optimizers(net, opt):
 def get_scheduler(optimizer, opt):
     if opt.lr_policy == 'lambda':
         def lambda_rule(epoch):
-            lr_l = 1.0 - max(0, epoch + opt.epoch_count - opt.max_epochs) / float(opt.nepoch_decay + 1)
+            nepochs = opt.max_epochs - opt.nepoch_decay #number of epochs before beginning to decay
+            lr_l = 1.0 - max(0, epoch + opt.epoch_count - nepochs) / float(opt.nepoch_decay + 1)
             return lr_l
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
+    elif opt.lr_policy == 'exponential':
+        scheduler = lr_scheduler.ExponentialLR(optimizer = optimizer, gamma = opt.lr_decay_factor)
     elif opt.lr_policy == 'step':
         scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=opt.lr_decay_factor)
     elif opt.lr_policy == 'multistep':
@@ -41,6 +50,10 @@ def get_scheduler(optimizer, opt):
     elif opt.lr_policy == 'cyclic':
         scheduler = CyclicLR(optimizer, base_lr=opt.learning_rate / 10, max_lr=opt.learning_rate,
                              step_size=opt.nepoch_decay, mode='triangular2')
+    elif opt.lr_policy == 'reduceOnPlateau':
+        scheduler = ReduceLROnPlateau(optimizer, 'min', factor=0.2)
+    elif opt.lr_policy == 'LinearWarmupCosineAnnealing':
+        scheduler = LinearWarmupCosineAnnealingLR(optimizer, warmup_epochs=opt.warmup_epochs, max_epochs=opt.max_epochs)
     else:
         return NotImplementedError('learning rate policy [%s] is not implemented', opt.lr_policy)
     return scheduler

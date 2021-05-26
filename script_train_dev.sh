@@ -13,6 +13,7 @@ py=python3
 
 #root_dir=$SCRATCH/data
 root_dir=data
+#root_dir=$SCRATCH/data
 
 ####aistpp_60hz
 #data_dir=${root_dir}/scaled_features
@@ -20,17 +21,17 @@ root_dir=data
 #hparams_file=aistpp_60hz/transglower_aistpp_expmap
 
 ####aistpp_20hz
-data_dir=${root_dir}/aistpp_20hz
+#data_dir=${root_dir}/aistpp_20hz
 #exp=$1
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
 #exp=transflower_residual_aistpp_expmap
 #exp=mowgli_aistpp_expmap
 #exp=transflower_aistpp_expmap
-exp=transflower_residual_aistpp_expmap
+#exp=transflower_residual_aistpp_expmap
 #exp=residualflower2_transflower_aistpp_expmap
 #exp=moglow_aistpp_expmap
-hparams_file=aistpp_20hz/${exp}
+#hparams_file=aistpp_20hz/${exp}
 #exp=mowgli_aistpp_expmap_future3
 
 ## Fix: needs vmapped version of transformer:
@@ -50,24 +51,47 @@ hparams_file=aistpp_20hz/${exp}
 #exp=testing
 #exp=${exp}_pos_emb
 
+####dance_combined
+data_dir=${root_dir}/dance_combined
+#data_dir=${root_dir}/dance_combined2
+#exp=$1
+#exp=transformer_expmap
+#exp=mowgli_expmap_stage2
+exp=mowgli_expmap
+#exp=transglower_aistpp_expmap
+#exp=transglower_residual_aistpp_expmap
+#exp=transflower_residual_aistpp_expmap
+#exp=transflower_aistpp_expmap
+#exp=residualflower2_transflower_aistpp_expmap
+#exp=moglow_aistpp_expmap
+hparams_file=dance_combined/${exp}b
+
 #exp=${exp}_future3_actnorm
 #exp=${exp}_future3
 exp=testing
+#exp=mowgli_expmap_stage2_newdata2
+#exp=testing2
 
 echo $exp
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
-    --do_validation \
     --hparams_file=training/hparams/${hparams_file}.yaml \
-    --val_batch_size=2 \
     --batch_size=8 \
     --experiment_name=$exp\
-    --workers=$(nproc) \
-    --gpus=1 \
     --accelerator=ddp \
-    --output_lengths="3" \
-    --scales="[[16,0]]" \
-    --flow_dist=studentT \
+    --workers=0 \
+    --gpus=1 \
+    --continue_train \
+    #--no_load_hparams \
+    #--load_weights_only \
+    #--only_load_in_state_dict=vae \
+    #--fix_lengths \
+    #--continue_train \
+    #--workers=$(nproc) \
+    #--gpus=1 \
+    #--scales="[[16,0]]" \
+    #--flow_dist=studentT \
+    #--output_lengths="3" \
 #    --stage2 \
 #    --continue_train \
 #    --load_weights_only \

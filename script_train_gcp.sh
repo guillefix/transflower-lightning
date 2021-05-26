@@ -1,10 +1,10 @@
 #!/bin/bash
 
-export TPU_IP_ADDRESS=10.93.151.138;
+#export TPU_IP_ADDRESS=10.104.22.146;
 #export TPU_IP_ADDRESS=10.95.66.34;
 #export TPU_IP_ADDRESS=10.65.226.162;
-#export TPU_IP_ADDRESS=10.122.100.162;
-#export TPU_IP_ADDRESS=10.93.151.138;
+#export TPU_IP_ADDRESS=10.122.222.10;
+export TPU_IP_ADDRESS=10.93.151.138;
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
 export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
 #export XRT_WORKERS="localservice:0;grpc://localhost:40934"
@@ -38,11 +38,13 @@ root_dir=data
 #hparams_file=aistpp_20hz/residualflower2_moglow_aistpp_expmap
 
 ####dance_combined
-data_dir=${root_dir}/dance_combined
+#data_dir=${root_dir}/dance_combined
+data_dir=${root_dir}/dance_combined2
 #exp=$1
-#exp=transflower_expmap
+#exp=transflower_expmap_large
 #exp=transflower_residual_expmap
-exp=transformer_expmap
+exp=transflower_expmap_cr
+#exp=transformer_expmap
 #exp=moglow_expmap
 hparams_file=dance_combined/${exp}
 
@@ -51,31 +53,32 @@ hparams_file=dance_combined/${exp}
 #exp=${exp}_future3
 #exp=${exp}_no_pos_emb_output
 #exp=${exp}_studentt
-exp=${exp}1
+#exp=${exp}_large
 
 echo $exp
 
-$py training/train.py --data_dir=${data_dir} --max_epochs=1000\
-    --fix_lengths \
-    --do_validation \
+$py training/train.py --data_dir=${data_dir} --max_epochs=300\
+    --batch_size=42 \
     --hparams_file=training/hparams/${hparams_file}.yaml \
-    --val_batch_size=32 \
-    --batch_size=128 \
     --experiment_name=$exp\
     --workers=$(nproc) \
     --tpu_cores=8 \
-    --continue_train \
+    --sync_batchnorm \
+    #--continue_train \
+    #--optimizer=madgrad \
+    #--learning_rate=1e-3 \
+    #--batch_size=128 \
+    #--use_x_transformers \
+    #--use_rotary_pos_emb \
+    #--accelerator=ddp \
     #--flow_dist=studentT \
     #--no-use_pos_emb_output \
     #--load_weights_only \
-    #--use_x_transformers \
     #--stage2 \
     #--prior_use_x_transformers \
     #--output_lengths="3" \
     #--max_prior_loss_weight=0.01 \
-    #--accelerator=ddp \
     #--scales="[[16,0]]" \
-#    --use_rotary_pos_emb \
     #--residual_scales="[[16,0]]"
 #    --glow_norm_layer="actnorm" \
     #--use_pos_emb_output \

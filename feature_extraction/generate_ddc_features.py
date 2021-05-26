@@ -103,27 +103,28 @@ tasks = distribute_tasks(candidate_feature_files,rank,size)
 for i in tasks:
     path = candidate_feature_files[i]
     features_file = str(path)+"_"+"ddc_hidden"+".npy"
-    print(path)
+    if replace_existing or not os.path.isfile(features_file):
+        print(path)
 
-    sr = opt.sampling_rate
-    hop = int(opt.step_size*sr)
-    features = np.load(path)
+        sr = opt.sampling_rate
+        hop = int(opt.step_size*sr)
+        features = np.load(path)
 
-    #generate level
-    # first_samples basically works as a padding, for the first few outputs, which don't have any "past part" of the song to look at.
-    first_samples = torch.full((1,opt.output_channels,receptive_field//2),START_STATE,dtype=torch.float)
-    print(features.shape)
-    features, peak_probs = model.generate_features(features)
-    peak_probs = peak_probs[0,:,-1].cpu().detach().numpy()
-    features = features.cpu().detach().numpy()
-    features = features[0]
-    features = ResampleLinear1D(features,int(np.floor(features.shape[0]*0.01*fps)))
-    # features = downsample_signal(features[0], 0.01666666666667/0.01)
-    print(features.shape)
-    np.save(features_file,features)
-    window = signal.hamming(ceil(HUMAN_DELTA/opt.step_size))
-    smoothed_peaks = np.convolve(peak_probs,window,mode='same')
+        #generate level
+        # first_samples basically works as a padding, for the first few outputs, which don't have any "past part" of the song to look at.
+        first_samples = torch.full((1,opt.output_channels,receptive_field//2),START_STATE,dtype=torch.float)
+        print(features.shape)
+        features, peak_probs = model.generate_features(features)
+        peak_probs = peak_probs[0,:,-1].cpu().detach().numpy()
+        features = features.cpu().detach().numpy()
+        features = features[0]
+        features = ResampleLinear1D(features,int(np.floor(features.shape[0]*0.01*fps)))
+        # features = downsample_signal(features[0], 0.01666666666667/0.01)
+        print(features.shape)
+        np.save(features_file,features)
+        window = signal.hamming(ceil(HUMAN_DELTA/opt.step_size))
+        smoothed_peaks = np.convolve(peak_probs,window,mode='same')
 
-    thresholded_peaks = smoothed_peaks*(smoothed_peaks>args.peak_threshold)
-    peaks = signal.find_peaks(thresholded_peaks)[0]
-    print("number of peaks", len(peaks))
+        thresholded_peaks = smoothed_peaks*(smoothed_peaks>args.peak_threshold)
+        peaks = signal.find_peaks(thresholded_peaks)[0]
+        print("number of peaks", len(peaks))
