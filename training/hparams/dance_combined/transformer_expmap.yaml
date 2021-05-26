@@ -2,7 +2,7 @@ model: transformer
 learning_rate: 1e-4
 #lr_policy: multistep
 #lr_decay_milestones: [50,100]
-lr_policy: 
+lr_policy: LinearWarmupCosineAnnealing
 dins: "69,85"
 douts: "69"
 input_modalities: "expmap_scaled_20,audio_feats_scaled_20"
@@ -13,7 +13,7 @@ output_time_offsets: "120"
 nlayers: 12
 optimizer: adam
 nhead: 10
-dhid: 1000
+dhid: 1200
 dropout: 0
 #use_pos_emb_output: True
 batch_size: 128
