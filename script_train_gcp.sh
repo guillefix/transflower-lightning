@@ -3,8 +3,8 @@
 #export TPU_IP_ADDRESS=10.104.22.146;
 #export TPU_IP_ADDRESS=10.95.66.34;
 #export TPU_IP_ADDRESS=10.65.226.162;
-#export TPU_IP_ADDRESS=10.122.222.10;
-export TPU_IP_ADDRESS=10.93.151.138;
+export TPU_IP_ADDRESS=10.21.219.242;
+#export TPU_IP_ADDRESS=10.93.151.138;
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
 export TPU_NAME="grpc://$TPU_IP_ADDRESS:8470"
 #export XRT_WORKERS="localservice:0;grpc://localhost:40934"
@@ -63,8 +63,8 @@ $py training/train.py --data_dir=${data_dir} --max_epochs=300\
     --experiment_name=$exp\
     --workers=$(nproc) \
     --tpu_cores=8 \
-    --sync_batchnorm \
-    #--continue_train \
+    --continue_train \
+    #--sync_batchnorm \
     #--optimizer=madgrad \
     #--learning_rate=1e-3 \
     #--batch_size=128 \
