@@ -7,13 +7,13 @@ dins: "69,85"
 douts: "69"
 input_modalities: "expmap_scaled_20,audio_feats_scaled_20"
 output_modalities: "expmap_scaled_20"
-input_lengths: "120,140"
+input_lengths: "120,160"
 output_lengths: "3"
 output_time_offsets: "120"
 nlayers: 12
 optimizer: adam
 nhead: 10
-dhid: 800
+dhid: 1200
 dropout: 0
 #use_pos_emb_output: True
 batch_size: 32

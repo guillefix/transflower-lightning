@@ -1,0 +1,30 @@
+model: transflower
+dins: 67,85
+douts: 67
+input_modalities: "expmap_cr_scaled_20,audio_feats_scaled_20"
+output_modalities: expmap_cr_scaled_20
+input_lengths: 120,140
+output_lengths: 3
+output_time_offsets: 120
+nlayers: 12
+nhead: 10
+scales: "[[16,0]]"
+num_glow_coupling_blocks: 2
+glow_use_attn: True
+use_transformer_nn: True
+use_pos_emb_coupling: True
+#use_pos_emb_output: True
+dhid: 800
+cond_concat_dims: True
+glow_norm_layer: batchnorm
+glow_bn_momentum: 0.1
+dropout: 0
+#lr_policy: cosine
+lr_policy: multistep
+lr_decay_milestones: [100,200]
+learning_rate: 7e-5
+gradient_clip_val: 0.5
+batch_size: 84
+
+
+
