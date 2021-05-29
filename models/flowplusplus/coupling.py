@@ -44,8 +44,10 @@ class Coupling(nn.Module):
         if self.concat_dims:
             x_id_cond = torch.cat((x_id, cond), dim=1)
         else:
-            x_id = self.input_encoder(x_id)
-            x_id_cond = torch.cat((x_id, cond), dim=2)
+            # import pdb;pdb.set_trace()
+            x_id_enc = self.input_encoder(x_id.permute(0,2,3,1)).permute(0,3,1,2)
+            #import pdb;pdb.set_trace()
+            x_id_cond = torch.cat((x_id_enc, cond), dim=2)
         #import pdb;pdb.set_trace()
         a, b, pi, mu, s = self.nn(x_id_cond, aux)
         # import pdb;pdb.set_trace()

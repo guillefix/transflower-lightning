@@ -52,19 +52,20 @@ root_dir=data
 #exp=${exp}_pos_emb
 
 ####dance_combined
-data_dir=${root_dir}/dance_combined
-#data_dir=${root_dir}/dance_combined2
+#data_dir=${root_dir}/dance_combined
+data_dir=${root_dir}/dance_combined2
 #exp=$1
 #exp=transformer_expmap
 #exp=mowgli_expmap_stage2
-exp=mowgli_expmap
+#exp=mowgli_expmap
+exp=transflower_expmap_cr4
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
 #exp=transflower_residual_aistpp_expmap
 #exp=transflower_aistpp_expmap
 #exp=residualflower2_transflower_aistpp_expmap
 #exp=moglow_aistpp_expmap
-hparams_file=dance_combined/${exp}b
+hparams_file=dance_combined/${exp}
 
 #exp=${exp}_future3_actnorm
 #exp=${exp}_future3
@@ -75,13 +76,14 @@ exp=testing
 echo $exp
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
+    --fix_lengths \
     --hparams_file=training/hparams/${hparams_file}.yaml \
     --batch_size=8 \
     --experiment_name=$exp\
     --accelerator=ddp \
     --workers=0 \
     --gpus=1 \
-    --continue_train \
+    #--continue_train \
     #--no_load_hparams \
     #--load_weights_only \
     #--only_load_in_state_dict=vae \
