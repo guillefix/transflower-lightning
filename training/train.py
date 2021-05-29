@@ -20,14 +20,20 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 
 from training.utils import get_latest_checkpoint
+from mpi4py import MPI
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+print(rank)
 
 
 if __name__ == '__main__':
     pl.seed_everything(69420)
     opt = TrainOptions().parse()
     #Path(opt.checkpoints_dir+"/"+opt.experiment_name).mkdir(parents=True,exist_ok=True)
-    if not os.path.exists(opt.checkpoints_dir+"/"+opt.experiment_name):
-        os.makedirs(opt.checkpoints_dir+"/"+opt.experiment_name)
+    if rank == 0:
+        if not os.path.exists(opt.checkpoints_dir+"/"+opt.experiment_name):
+            os.makedirs(opt.checkpoints_dir+"/"+opt.experiment_name)
     print("loaded options")
     print(opt.experiment_name)
     model = create_model(opt)
