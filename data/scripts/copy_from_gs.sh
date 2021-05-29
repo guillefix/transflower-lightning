@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#data_dir=.
-data_dir=$SCRATCH/data
-#gsutil=gsutil
-gsutil=$SCRATCH/google-cloud-sdk/bin/gsutil
+data_dir=.
+#data_dir=$SCRATCH/data
+gsutil=gsutil
+#gsutil=$SCRATCH/google-cloud-sdk/bin/gsutil
 
 #gsutil -m cp -r gs://metagen/data/moglow_pos $data_dir/
 #gsutil -m cp -r gs://metagen/data/aistpp_20hz $data_dir/
@@ -17,11 +17,15 @@ gsutil=$SCRATCH/google-cloud-sdk/bin/gsutil
 #$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp -r gs://metagen/data/dance_combined/kthmisc_10.audio_feats_scaled_20.npy $data_dir/dance_combined
 #$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp -r gs://metagen/data/dance_combined2 $data_dir/
 #$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp gs://metagen/data/dance_combined2/*expmap_scaled_20* $data_dir/dance_combined2
-$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp gs://metagen/data/dance_combined2/*audio_feats_scaled_20* $data_dir/dance_combined2
-$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp gs://metagen/data/dance_combined2/*expmap_scaled_20* $data_dir/dance_combined2
-$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp gs://metagen/data/dance_combined2/base_filenames* $data_dir/dance_combined2
-$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp gs://metagen/data/dance_combined2/*.pkl $data_dir/dance_combined2
-$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp gs://metagen/data/dance_combined2/*.sav $data_dir/dance_combined2
+
+#$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp gs://metagen/data/dance_combined2/*audio_feats_scaled_20* $data_dir/dance_combined2
+#$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp gs://metagen/data/dance_combined2/*expmap_scaled_20* $data_dir/dance_combined2
+#$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp gs://metagen/data/dance_combined2/base_filenames* $data_dir/dance_combined2
+#$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp gs://metagen/data/dance_combined2/*.pkl $data_dir/dance_combined2
+#$gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp gs://metagen/data/dance_combined2/*.sav $data_dir/dance_combined2
+
+mkdir dance_combined2
+gsutil -m cp -r gs://metagen/data/dance_combined2/*expmap_cr_scaled_20.npy gs://metagen/data/dance_combined2/*audio_feats_scaled_20.npy gs://metagen/data/dance_combined2/*pkl gs://metagen/data/dance_combined2/*sav gs://metagen/data/dance_combined2/base_filenames* ./dance_combined2
 
 #gsutil -m cp gs://metagen/data/features_20/*mel_ddcpca_scaled_20* features/
 #gsutil -m cp gs://metagen/data/features_20/*scaler* features/
