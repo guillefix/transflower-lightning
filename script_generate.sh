@@ -34,8 +34,8 @@ data_dir=$SCRATCH/data/dance_combined_test
 
 # if we don't pass seq_id it will choose a random one from the test set
 $py inference/generate.py --data_dir=$data_dir --output_folder=inference/generated --experiment_name=$exp \
-    --generate_video \
     --seq_id $seq_id \
     ${@:3}
+    #--generate_video \
 
 

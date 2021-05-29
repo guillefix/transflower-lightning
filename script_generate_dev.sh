@@ -9,14 +9,16 @@ py=python3
 #exp=transglower_residual_aistpp_expmap
 #exp=moglow_aistpp_expmap
 #exp=testing
-exp=mowgli_expmap_stage2_newdata
+exp=transflower_expmap_old
+#exp=mowgli_expmap_stage2_newdata
 #exp=$1
 #exp=mowgli_aistpp_expmap_future3
 #exp=aistpp_residual
 #seq_id=gKR_sFM_cAll_d28_mKR5_ch06
 #seq_id=gLH_sFM_cAll_d16_mLH3_ch04
 #seq_id=gPO_sFM_cAll_d12_mPO4_ch19
-seq_id=aistpp_gMH_sFM_cAll_d22_mMH3_ch04
+#seq_id=aistpp_gMH_sFM_cAll_d22_mMH3_ch04
+seq_id=groovenet_2
 echo $exp $seq_id
 
 mkdir inference/generated/
@@ -33,5 +35,6 @@ data_dir=data/dance_combined
 $py inference/generate.py --data_dir=$data_dir --output_folder=inference/generated --experiment_name=$exp \
     --generate_video \
     --seq_id $seq_id \
+    --max_length 300
 
 

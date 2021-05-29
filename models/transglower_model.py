@@ -116,6 +116,8 @@ class TransglowerModel(BaseModel):
         parser.add_argument('--glow_K', type=int, default=16)
         parser.add_argument('--actnorm_scale', type=float, default=1.0)
         parser.add_argument('--flow_permutation', type=str, default="invconv")
+        parser.add_argument('--flow_dist', type=str, default="normal")
+        parser.add_argument('--flow_dist_param', type=int, default=50)
         parser.add_argument('--flow_coupling', type=str, default="affine")
         parser.add_argument('--num_layers', type=int, default=2)
         parser.add_argument('--network_model', type=str, default="LSTM")

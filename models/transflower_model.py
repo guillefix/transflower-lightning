@@ -34,19 +34,19 @@ class TransflowerModel(BaseModel):
             self.input_mod_nets.append(net)
             self.module_names.append(name)
         for i, mod in enumerate(output_mods):
-            if self.opt.cond_concat_dims:
-                net = BasicTransformerModel(opt.dhid, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths), use_x_transformers=opt.use_x_transformers, opt=opt)
-            else:
-                net = BasicTransformerModel(douts[i]//2, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths), use_x_transformers=opt.use_x_transformers, opt=opt)
+            # if self.opt.cond_concat_dims:
+            net = BasicTransformerModel(opt.dhid, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths), use_x_transformers=opt.use_x_transformers, opt=opt)
+            # else:
+            #     net = BasicTransformerModel(douts[i]//2, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths), use_x_transformers=opt.use_x_transformers, opt=opt)
             name = "_output_"+mod
             setattr(self, "net"+name, net)
             self.output_mod_nets.append(net)
             self.module_names.append(name)
             if opt.residual:
-                if self.opt.cond_concat_dims:
-                    net = nn.Linear(opt.dhid,douts[i])
-                else:
-                    net = nn.Linear(opt.dhid,opt.douts[i])
+                # if self.opt.cond_concat_dims:
+                net = nn.Linear(opt.dhid,douts[i])
+                # else:
+                #     net = nn.Linear(douts[i]//2,douts[i])
                 name="_output_mean_encoder"
                 setattr(self, "net"+name, net)
                 self.output_mod_mean_nets.append(net)
