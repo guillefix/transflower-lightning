@@ -23,7 +23,10 @@ class Coupling(nn.Module):
         super(Coupling, self).__init__()
 
         if use_transformer_nn:
-            self.nn = TransformerNN(in_channels, out_channels, mid_channels, num_blocks, num_heads, num_components, drop_prob=drop_prob, use_pos_emb=use_pos_emb, input_length=seq_length, concat_dims=concat_dims, output_length=output_length)
+            if concat_dims:
+                self.nn = TransformerNN(in_channels, out_channels, mid_channels, num_blocks, num_heads, num_components, drop_prob=drop_prob, use_pos_emb=use_pos_emb, input_length=seq_length, concat_dims=concat_dims, output_length=output_length)
+            else:
+                self.nn = TransformerNN(cond_dim, out_channels, mid_channels, num_blocks, num_heads, num_components, drop_prob=drop_prob, use_pos_emb=use_pos_emb, input_length=seq_length, concat_dims=concat_dims, output_length=output_length)
         else:
             self.nn = NN(in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob, use_attn, aux_channels)
 
