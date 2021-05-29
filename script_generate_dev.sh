@@ -8,7 +8,8 @@ py=python3
 
 #exp=transglower_residual_aistpp_expmap
 #exp=moglow_aistpp_expmap
-exp=testing
+#exp=testing
+exp=transflower_expmap_old
 #exp=mowgli_expmap_stage2_newdata
 #exp=$1
 #exp=mowgli_aistpp_expmap_future3
@@ -34,5 +35,6 @@ data_dir=data/dance_combined
 $py inference/generate.py --data_dir=$data_dir --output_folder=inference/generated --experiment_name=$exp \
     --generate_video \
     --seq_id $seq_id \
+    --max_length 300
 
 

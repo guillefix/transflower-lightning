@@ -33,7 +33,11 @@ def generate_video_from_expmaps(features_file, pipeline_file, output_folder, aud
     pos_data = bvh2pos.fit_transform(bvh_data)
     video_file = f'{output_folder}/{seq_id}.mp4'
     #render_mp4(pos_data[0], video_file, axis_scale=100, elev=45, azim=45)
+
     render_mp4(pos_data[0], video_file, axis_scale=300, elev=45, azim=45)
     if audio_file is not None:
         join_video_and_audio(video_file, audio_file, trim_audio)
+    # draw_stickfigure3d(pos_data[0], 10)
+    # sketch_move(pos_data[0], data=None, ax=None, figsize=(16,8)):
+
 

@@ -165,6 +165,7 @@ class _FlowStep(nn.Module):
                 seq_length = in_height + cond_seq_len
             channels += [InvertibleConv1x1(in_channels)]
             channels += [Coupling(in_channels=c_in_channels,
+                                  cond_dim=cond_dim,
                                   out_channels=out_channels,
                                   mid_channels=mid_channels,
                                   num_blocks=num_blocks,

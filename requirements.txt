@@ -17,3 +17,4 @@ einops
 entmax
 lightning-bolts
 loguru
+madgrad
