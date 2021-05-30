@@ -28,14 +28,23 @@ class TransflowerModel(BaseModel):
         self.output_mod_glows = []
         self.module_names = []
         for i, mod in enumerate(input_mods):
-            net = BasicTransformerModel(opt.dhid, dins[i], opt.nhead, opt.dhid, 2, opt.dropout, self.device, use_pos_emb=True, input_length=input_lengths[i], use_x_transformers=opt.use_x_transformers, opt=opt)
+            net = BasicTransformerModel(opt.dhid, dins[i], opt.nhead, opt.dhid, 2, opt.dropout, self.device,
+                                        use_pos_emb=True,
+                                        input_length=input_lengths[i],
+                                        use_x_transformers=opt.use_x_transformers,
+                                        opt=opt,
+                                        discrete_inputs=self.input_types[i] == 'd')
             name = "_input_"+mod
             setattr(self,"net"+name, net)
             self.input_mod_nets.append(net)
             self.module_names.append(name)
         for i, mod in enumerate(output_mods):
             # if self.opt.cond_concat_dims:
-            net = BasicTransformerModel(opt.dhid, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths), use_x_transformers=opt.use_x_transformers, opt=opt)
+            net = BasicTransformerModel(opt.dhid, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device,
+                                        use_pos_emb=opt.use_pos_emb_output,
+                                        input_length=sum(input_lengths),
+                                        use_x_transformers=opt.use_x_transformers,
+                                        opt=opt)
             # else:
             #     net = BasicTransformerModel(douts[i]//2, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device, use_pos_emb=opt.use_pos_emb_output, input_length=sum(input_lengths), use_x_transformers=opt.use_x_transformers, opt=opt)
             name = "_output_"+mod

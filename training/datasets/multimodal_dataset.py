@@ -43,6 +43,14 @@ class MultimodalDataset(BaseDataset):
         self.output_time_offsets = output_time_offsets = [int(x) for x in str(self.opt.output_time_offsets).split(",")]
         self.input_time_offsets = input_time_offsets = [int(x) for x in str(self.opt.input_time_offsets).split(",")]
 
+        if self.opt.input_types is None:
+            input_types = ["c" for inp in input_mods]
+        else:
+            input_types = self.opt.input_types.split(",")
+
+        assert len(input_types) == len(input_mods)
+        self.input_types = input_types
+
         if len(output_time_offsets) < len(output_mods):
             if len(output_time_offsets) == 1:
                 self.output_time_offsets = output_time_offsets = output_time_offsets*len(output_mods)
@@ -204,11 +212,12 @@ class MultimodalDataset(BaseDataset):
     @staticmethod
     def modify_commandline_options(parser, is_train):
         parser.add_argument('--sampling_rate', default=44100, type=float)
-        parser.add_argument('--dins', default=None)
+        parser.add_argument('--dins', default=None, help="input dimension for continuous inputs. Embedding dimension for discrete inputs")
         parser.add_argument('--douts', default=None)
         parser.add_argument('--input_modalities', default='mp3_mel_100')
         parser.add_argument('--output_modalities', default='mp3_mel_100')
         parser.add_argument('--input_lengths', help='input sequence length')
+        parser.add_argument('--input_types', default=None, help='Comma-separated list of input types: d for discrete, c for continuous. E.g. d,c,c. Assumes continuous if not specified')
         parser.add_argument('--output_lengths', help='output sequence length')
         parser.add_argument('--output_time_offsets', default="1", help='time shift between the last read input, and the output predicted. The default value of 1 corresponds to predicting the next output')
         parser.add_argument('--input_time_offsets', default="0", help='time shift between the beginning of each modality and the first modality')
@@ -256,10 +265,10 @@ class MultimodalDataset(BaseDataset):
         else: index = item
 
         ## CONSTRUCT TENSOR OF INPUT FEATURES ##
-        input_windows = [torch.tensor(xx[index+input_time_offsets[j]:index+input_time_offsets[j]+input_lengths[j], :]).float() for j,xx in enumerate(x)]
+        input_windows = [torch.tensor(xx[index+input_time_offsets[j]:index+input_time_offsets[j]+input_lengths[j]]).float() for j,xx in enumerate(x)]
 
         ## CONSTRUCT TENSOR OF OUTPUT FEATURES ##
-        output_windows = [torch.tensor(yy[index+output_time_offsets[j]:index+output_time_offsets[j]+output_lengths[j], :]).float() for j,yy in enumerate(y)]
+        output_windows = [torch.tensor(yy[index+output_time_offsets[j]:index+output_time_offsets[j]+output_lengths[j]]).float() for j,yy in enumerate(y)]
 
         # print(input_windows[i])
         return_dict = {}

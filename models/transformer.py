@@ -82,17 +82,20 @@ class LearnedPositionalEncoding(nn.Module): # emm this isn't learned lol
 
 class BasicTransformerModel(nn.Module):
 
-    def __init__(self, dout, dinp, nhead, dhid, nlayers, dropout=0.5,device=None,use_pos_emb=False,input_length=0,use_x_transformers=False,opt=None):
+    def __init__(self, dout, dinp, nhead, dhid, nlayers, dropout=0.5, ntoken=None, device=None,use_pos_emb=False,input_length=0,use_x_transformers=False, opt=None, discrete_inputs=False):
         super(BasicTransformerModel, self).__init__()
         self.device = device
         self.model_type = 'Transformer'
         self.use_x_transformers = use_x_transformers
+        self.discrete_inputs = discrete_inputs
         if not use_x_transformers:
+            if discrete_inputs:
+                assert ntoken is not None #ntoken needs to be set if we are to use an embedding layer (discrete inputs)
+                self.encoder = nn.Embedding(ntoken, dinp)
             self.encoder1 = nn.Linear(dinp, dhid)
             #self.pos_encoder = PositionalEncoding(dhid, dropout, device=self.device)
             encoder_layers = TransformerEncoderLayer(dhid, nhead, dhid, dropout)
             self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
-            # self.encoder = nn.Embedding(ntoken, dinp)
             self.dinp = dinp
             self.dhid = dhid
             self.decoder = nn.Linear(dhid, dout)
@@ -106,6 +109,9 @@ class BasicTransformerModel(nn.Module):
             self.init_weights()
             #self.pos_encoder.init_weights()
         else:
+            if discrete_inputs:
+                assert ntoken is not None #ntoken needs to be set if we are to use an embedding layer (discrete inputs)
+                self.encoder = nn.Embedding(ntoken, dinp)
             self.model = ContinuousTransformerWrapper(
                 dim_in = dinp,
                 dim_out = dout,
@@ -133,9 +139,11 @@ class BasicTransformerModel(nn.Module):
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, src, src_mask=None):
+        if self.discrete_inputs:
+            src = self.encoder(src)
         if not self.use_x_transformers:
-            # import pdb;pdb.set_trace()
             src = self.encoder1(src)
+            # import pdb;pdb.set_trace()
             #src *= math.sqrt(self.dhid)
             #src = self.pos_encoder(src)
             #src /= math.sqrt(self.dhid)
