@@ -34,6 +34,8 @@
 #for exp in mowgli_expmap_bigcode
 #for exp in transflower_expmap_large_cr2
 #for exp in transflower_expmap_large_cr
+
+#for exp in transflower_expmap_cr_norm
 for exp in transflower_expmap_cr4
 #for exp in mowgli_expmap
 #for exp in mowgli_expmap_nocond
@@ -59,7 +61,7 @@ do
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata2 --num_nodes 1 --continue_train --hparams_file=training/hparams/dance_combined/moglow_expmap2.yaml
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train
-	sbatch slurm_script4.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1
+	sbatch slurm_script4.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train
 
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train --max_epochs=100
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata_nomirror --num_nodes 1 --base_filenames_file base_filenames_train_nomirror.txt
