@@ -77,6 +77,7 @@ class TransflowerModel(BaseModel):
                                      num_heads=opt.num_heads_flow,
                                      use_transformer_nn=opt.use_transformer_nn,
                                      use_pos_emb=opt.use_pos_emb_coupling,
+                                     use_rel_pos_emb=opt.use_rel_pos_emb_coupling,
                                      norm_layer = opt.glow_norm_layer,
                                      bn_momentum = opt.glow_bn_momentum,
                                      cond_concat_dims=opt.cond_concat_dims,
@@ -122,6 +123,7 @@ class TransflowerModel(BaseModel):
         parser.add_argument('--use_pos_emb_inputs', action='store_true', help="whether to use positional embeddings for output modality transformers")
         parser.add_argument('--use_pos_emb_output', action='store_true', help="whether to use positional embeddings for output modality transformers")
         parser.add_argument('--use_pos_emb_coupling', action='store_true', help="whether to use positional embeddings for the coupling layer transformers")
+        parser.add_argument('--use_rel_pos_emb_coupling', action='store_true', help="whether to use T5 relative positional embeddings for the coupling layer transformers")
         parser.add_argument('--cond_concat_dims', action='store_true', help="if set we concatenate along the channel dimension with with the x for the coupling layer; otherwise we concatenate along the sequence dimesion")
         parser.add_argument('--residual', action='store_true', help="whether to use the flow to predict the residual around a determnisitic mean")
         parser.add_argument('--use_rotary_pos_emb', action='store_true', help="whether to use rotary position embeddings")

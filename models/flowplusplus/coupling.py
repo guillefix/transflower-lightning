@@ -19,14 +19,14 @@ class Coupling(nn.Module):
         aux_channels (int): Number of channels in optional auxiliary input.
     """
     def __init__(self, in_channels, cond_dim, out_channels, mid_channels, num_blocks, num_components, drop_prob, seq_length, output_length,
-                 use_attn=True, use_logmix=True, use_transformer_nn=False, use_pos_emb=False, num_heads=10, aux_channels=None, concat_dims=True):
+                 use_attn=True, use_logmix=True, use_transformer_nn=False, use_pos_emb=False, use_rel_pos_emb=False, num_heads=10, aux_channels=None, concat_dims=True):
         super(Coupling, self).__init__()
 
         if use_transformer_nn:
             if concat_dims:
-                self.nn = TransformerNN(in_channels, out_channels, mid_channels, num_blocks, num_heads, num_components, drop_prob=drop_prob, use_pos_emb=use_pos_emb, input_length=seq_length, concat_dims=concat_dims, output_length=output_length)
+                self.nn = TransformerNN(in_channels, out_channels, mid_channels, num_blocks, num_heads, num_components, drop_prob=drop_prob, use_pos_emb=use_pos_emb, use_rel_pos_emb=use_rel_pos_emb, input_length=seq_length, concat_dims=concat_dims, output_length=output_length)
             else:
-                self.nn = TransformerNN(cond_dim, out_channels, mid_channels, num_blocks, num_heads, num_components, drop_prob=drop_prob, use_pos_emb=use_pos_emb, input_length=seq_length, concat_dims=concat_dims, output_length=output_length)
+                self.nn = TransformerNN(cond_dim, out_channels, mid_channels, num_blocks, num_heads, num_components, drop_prob=drop_prob, use_pos_emb=use_pos_emb, use_rel_pos_emb=use_rel_pos_emb, input_length=seq_length, concat_dims=concat_dims, output_length=output_length)
         else:
             self.nn = NN(in_channels, out_channels, mid_channels, num_blocks, num_components, drop_prob, use_attn, aux_channels)
 
