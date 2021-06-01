@@ -28,8 +28,10 @@ class TransflowerModel(BaseModel):
         self.output_mod_glows = []
         self.module_names = []
         for i, mod in enumerate(input_mods):
-            net = BasicTransformerModel(opt.dhid, dins[i], opt.nhead, opt.dhid, 2, opt.dropout, self.device,
-                                        use_pos_emb=True,
+            net = BasicTransformerModel(opt.dhid, dins[i], opt.nhead, opt.dhid, 2, opt.dropout,
+                                        ntokens=self.input_num_tokens[i],
+                                        use_pos_emb=opt.use_pos_emb_inputs,
+                                        use_rel_pos_emb=opt.use_rel_pos_emb_inputs,
                                         input_length=input_lengths[i],
                                         use_x_transformers=opt.use_x_transformers,
                                         opt=opt,
@@ -40,8 +42,10 @@ class TransflowerModel(BaseModel):
             self.module_names.append(name)
         for i, mod in enumerate(output_mods):
             # if self.opt.cond_concat_dims:
-            net = BasicTransformerModel(opt.dhid, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout, self.device,
+            net = BasicTransformerModel(opt.dhid, opt.dhid, opt.nhead, opt.dhid, opt.nlayers, opt.dropout,
+                                        ntokens=self.output_num_tokens[i], # tho not being used yet
                                         use_pos_emb=opt.use_pos_emb_output,
+                                        use_rel_pos_emb=opt.use_rel_pos_emb_output,
                                         input_length=sum(input_lengths),
                                         use_x_transformers=opt.use_x_transformers,
                                         opt=opt)
@@ -113,6 +117,9 @@ class TransflowerModel(BaseModel):
         parser.add_argument('--num_mixture_components', type=int, default=0)
         parser.add_argument('--glow_use_attn', action='store_true', help="whether to use the internal attention for the FlowPlusPLus model")
         parser.add_argument('--use_transformer_nn', action='store_true', help="whether to use the internal attention for the FlowPlusPLus model")
+        parser.add_argument('--use_rel_pos_emb_inputs', action='store_true', help="whether to use T5 relative positional embeddings for input modality transformers")
+        parser.add_argument('--use_rel_pos_emb_output', action='store_true', help="whether to use T5 relative positional embeddings for output modality transformers")
+        parser.add_argument('--use_pos_emb_inputs', action='store_true', help="whether to use positional embeddings for output modality transformers")
         parser.add_argument('--use_pos_emb_output', action='store_true', help="whether to use positional embeddings for output modality transformers")
         parser.add_argument('--use_pos_emb_coupling', action='store_true', help="whether to use positional embeddings for the coupling layer transformers")
         parser.add_argument('--cond_concat_dims', action='store_true', help="if set we concatenate along the channel dimension with with the x for the coupling layer; otherwise we concatenate along the sequence dimesion")

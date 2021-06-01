@@ -83,7 +83,8 @@ if __name__ == '__main__':
     checkpoint_callback = ModelCheckpoint(
             #####
             monitor = 'loss',
-            save_top_k = 5
+            save_top_k = 5,
+            every_n_train_steps = 10000,
             )
     callbacks = [checkpoint_callback]
     args = Trainer.parse_argparser(opt)

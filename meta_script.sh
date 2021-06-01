@@ -36,7 +36,16 @@
 #for exp in transflower_expmap_large_cr
 
 #for exp in transflower_expmap_cr_norm
-for exp in transflower_expmap_cr4
+#for exp in transflower_expmap_cr4
+#for exp in transflower_expmap_cr4_label
+#for exp in transflower_expmap_cr4_label_large
+#for exp in transflower_expmap_cr4_label_large2
+for exp in transflower_expmap_cr4_label_large3
+#for exp in transflower_expmap_cr4_label2
+#for exp in transflower_expmap_cr_label
+#for exp in transflower_expmap_cr_label2
+#for exp in transflower_expmap_cr_label3
+#for exp in transflower_expmap_cr_label4
 #for exp in mowgli_expmap
 #for exp in mowgli_expmap_nocond
 #for exp in mowgli_expmap transflower_residual_expmap
@@ -61,7 +70,8 @@ do
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata2 --num_nodes 1 --continue_train --hparams_file=training/hparams/dance_combined/moglow_expmap2.yaml
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train
-	sbatch slurm_script4.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train
+	#sbatch slurm_script4.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train
+	sbatch slurm_script4.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1
 
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train --max_epochs=100
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata_nomirror --num_nodes 1 --base_filenames_file base_filenames_train_nomirror.txt
@@ -75,10 +85,10 @@ do
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata $@ --num_nodes 1 --continue_train
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata $@ --num_nodes 4
 	#sbatch slurm_script.slurm $exp --experiment_name ${exp}_newdata2 --max_prior_loss_weight=0 --num_nodes 8
+
 	#sbatch slurm_script_dev.slurm $exp --experiment_name testing $@
-	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata_mix --num_mixture_components=3 --learning_rate=3e-5 $@
-	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_finetune2 --base_filenames_file base_filenames_train_finetune.txt --continue_train
-	#sbatch slurm_script2.slurm $exp --continue_train --data_dir=${SCRATCH}/data/dance_combined
+	#sbatch slurm_script_dev.slurm $exp --experiment_name testing --base_filenames_file base_filenames_train_smol.txt
+
 	#sbatch slurm_script2.slurm $exp --experiment_name=${exp}_smoldata --data_dir=${SCRATCH}/data/dance_combined --base_filenames_file base_filenames_train_finetune.txt
 done
 

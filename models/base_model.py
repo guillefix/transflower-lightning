@@ -45,11 +45,22 @@ class BaseModel(LightningModule):
                 raise Exception("number of input_time_offsets doesnt match number of input_mods")
 
         if self.opt.input_types is None:
-            input_types = ["c" for inp in input_mods]
+            input_types = ["c" for inp in self.input_mods]
         else:
             input_types = self.opt.input_types.split(",")
 
         self.input_types = input_types
+
+        if self.opt.input_num_tokens is None:
+            self.input_num_tokens = [0 for inp in self.input_mods]
+        else:
+            self.input_num_tokens  = [int(x) for x in self.opt.input_num_tokens.split(",")]
+
+        if self.opt.output_num_tokens is None:
+            self.output_num_tokens = [0 for inp in self.output_mods]
+        else:
+            self.output_num_tokens  = [int(x) for x in self.opt.output_num_tokens.split(",")]
+
 
     def name(self):
         return 'BaseModel'

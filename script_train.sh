@@ -29,7 +29,8 @@ exp=$1
 
 ####dance_combined
 #data_dir=${root_dir}/dance_combined
-data_dir=${root_dir}/dance_combined2
+#data_dir=${root_dir}/dance_combined2
+data_dir=${root_dir}/dance_combined3
 hparams_file=dance_combined/${exp}
 
 echo $exp

@@ -14,7 +14,7 @@
 ##SBATCH --partition=gpu_p2
 #SBATCH -A imi@gpu
 #SBATCH -C v100-32g
-##SBATCH --exclusive
+#SBATCH --exclusive
 
 export MASTER_PORT=1234
 slurm_nodes=$(scontrol show hostnames $SLURM_JOB_NODELIST)
@@ -25,5 +25,6 @@ echo $MASTER_ADDRESS
 module load pytorch-gpu/py3/1.8.0
 
 #exp=$1
-srun ./script_train.sh $@
+#srun ./script_train.sh $@
+srun ./script_train_dev.sh $@
 #srun ./script_train_dev.sh $exp
