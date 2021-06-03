@@ -40,9 +40,21 @@
 #for exp in transflower_expmap_cr4_label
 #for exp in transflower_expmap_cr4_label_large
 #for exp in transflower_expmap_cr4_label_large2
-for exp in transflower_expmap_cr4_label_large3
+#for exp in transflower_expmap_cr4_label_large3
 #for exp in transflower_expmap_cr4_label2
 #for exp in transflower_expmap_cr_label
+#for exp in transflower_expmap_cr4_label4
+#for exp in transflower_expmap_cr4_label5
+#for exp in transflower_expmap_cr4_label5b
+#for exp in transflower_expmap_cr4_label6
+for exp in transflower_expmap_cr4_label7
+#for exp in transflower_expmap_cr4_label8
+#for exp in transflower_expmap_cr4_label9
+#for exp in transflower_expmap_cr4_label_bs
+#for exp in transflower_expmap_cr4_label_bs2
+#for exp in transflower_expmap_cr4_label_bs3
+#for exp in transflower_expmap_cr4_label_bs4
+#for exp in transflower_expmap_cr4_label_bs5
 #for exp in transflower_expmap_cr_label2
 #for exp in transflower_expmap_cr_label3
 #for exp in transflower_expmap_cr_label4
@@ -69,9 +81,10 @@ do
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_posemb --num_nodes 1 --data_dir=${SCRATCH}/data/dance_combined --continue_train
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata2 --num_nodes 1 --continue_train --hparams_file=training/hparams/dance_combined/moglow_expmap2.yaml
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1
+	#sbatch slurm_script2b.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train
-	#sbatch slurm_script4.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train
-	sbatch slurm_script4.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1
+	sbatch slurm_script4.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train
+	#sbatch slurm_script4.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1
 
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train --max_epochs=100
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata_nomirror --num_nodes 1 --base_filenames_file base_filenames_train_nomirror.txt
