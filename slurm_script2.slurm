@@ -10,11 +10,12 @@
 ##SBATCH --ntasks=1 --cpus-per-task=24 --gres=gpu:1
 ##SBATCH --nodes=4 --ntasks-per-node=4 --cpus-per-task=6 --gres=gpu:4
 ##SBATCH --nodes=2 --ntasks-per-node=4 --cpus-per-task=6 --gres=gpu:4
-#SBATCH --nodes=1 --ntasks-per-node=4 --cpus-per-task=6 --gres=gpu:4
+##SBATCH --nodes=1 --ntasks-per-node=4 --cpus-per-task=6 --gres=gpu:4
+#SBATCH --nodes=1 --ntasks-per-node=2 --cpus-per-task=6 --gres=gpu:2
 ##SBATCH --partition=gpu_p2
 #SBATCH -A imi@gpu
 #SBATCH -C v100-32g
-##SBATCH --exclusive
+#SBATCH --exclusive
 
 export MASTER_PORT=1234
 slurm_nodes=$(scontrol show hostnames $SLURM_JOB_NODELIST)

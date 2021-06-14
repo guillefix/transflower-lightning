@@ -11,9 +11,8 @@ module load pytorch-gpu/py3/1.8.0
 
 py=python3
 
-#root_dir=$SCRATCH/data
-root_dir=data
-#root_dir=$SCRATCH/data
+root_dir=$SCRATCH/data
+#root_dir=data
 
 ####aistpp_60hz
 #data_dir=${root_dir}/scaled_features
@@ -53,12 +52,13 @@ root_dir=data
 
 ####dance_combined
 #data_dir=${root_dir}/dance_combined
-data_dir=${root_dir}/dance_combined2
-#exp=$1
+#data_dir=${root_dir}/dance_combined2
+data_dir=${root_dir}/dance_combined3
+exp=$1
 #exp=transformer_expmap
 #exp=mowgli_expmap_stage2
 #exp=mowgli_expmap
-exp=transflower_expmap_cr4
+#exp=transflower_expmap_cr4
 #exp=transglower_aistpp_expmap
 #exp=transglower_residual_aistpp_expmap
 #exp=transflower_residual_aistpp_expmap
@@ -76,13 +76,13 @@ exp=testing
 echo $exp
 
 $py training/train.py --data_dir=${data_dir} --max_epochs=2000\
-    --fix_lengths \
     --hparams_file=training/hparams/${hparams_file}.yaml \
-    --batch_size=8 \
     --experiment_name=$exp\
     --accelerator=ddp \
     --workers=0 \
     --gpus=1 \
+    ${@:2} #NOTE: can override experiment_name, and any of the options above
+    #--batch_size=8 \
     #--continue_train \
     #--no_load_hparams \
     #--load_weights_only \

@@ -6,7 +6,10 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
     inputs_ = []
     for i,mod in enumerate(model.input_mods):
         input_ = features["in_"+mod]
-        input_ = torch.from_numpy(input_).float().to(model.device)
+        if model.input_types[i] == "c":
+            input_ = torch.from_numpy(input_).float().to(model.device)
+        else:
+            input_ = torch.from_numpy(input_).long().to(model.device)
         inputs_.append(input_)
     output_time_offsets = model.output_time_offsets
     input_time_offsets = model.input_time_offsets
@@ -25,7 +28,8 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
     model.eval()
     output_seq = []
     #sequence_length = inputs_[0].shape[0]
-    sequence_length = inputs_[1].shape[0]
+    #TODO: make this less ad-hoc
+    sequence_length = inputs_[-1].shape[0]
     print(sequence_length)
     #import pdb;pdb.set_trace()
     with torch.no_grad():
@@ -57,16 +61,20 @@ def autoregressive_generation_multimodal(features, model, autoreg_mods=[], teach
                 for i, mod in enumerate(input_mods):
                     if mod in autoreg_mods:
                         j = output_mods.index(mod)
-                        output = outputs[i]
+                        output = outputs[j]
                         if teacher_forcing:
                             input_tmp[i] = torch.cat([input_tmp[i][1:],inputs_[i][t+input_time_offsets[i]+input_lengths[i]:t+input_time_offsets[i]+input_lengths[i]+1]],0)
                         else:
                             # import pdb;pdb.set_trace()
                             input_tmp[i] = torch.cat([input_tmp[i][1:],output[:1].detach().clone()],0)
                         # print(torch.mean((inputs_[i][t+input_time_offsets[i]+input_lengths[i]+1:t+input_time_offsets[i]+input_lengths[i]+1+1]-outputs[j][:1].detach().clone())**2))
-                        print(torch.mean((inputs_[i][t+output_time_offsets[i]:t+output_time_offsets[i]+1]-outputs[j][:1].detach().clone())**2))
+                        print(torch.mean((inputs_[i][t+output_time_offsets[j]:t+output_time_offsets[j]+1]-outputs[j][:1].detach().clone())**2))
                     else:
-                        input_tmp[i] = torch.cat([input_tmp[i][1:],inputs_[i][input_time_offsets[i]+input_lengths[i]+t:input_time_offsets[i]+input_lengths[i]+t+1]],0)
+                        if model.input_fix_length_types[i] == "single":
+                            #input_tmp[i] = torch.cat([input_tmp[i][1:],inputs_[i][input_time_offsets[i]+input_lengths[i]+t:input_time_offsets[i]+input_lengths[i]+t+1]],0)
+                            pass
+                        else:
+                            input_tmp[i] = torch.cat([input_tmp[i][1:],inputs_[i][input_time_offsets[i]+input_lengths[i]+t:input_time_offsets[i]+input_lengths[i]+t+1]],0)
 
     print("--- %s seconds ---" % (time.time() - start_time))
     return output_seq
