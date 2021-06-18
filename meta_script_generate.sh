@@ -86,7 +86,8 @@ do
 		#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined2_test --seeds expmap_cr_scaled_20,kthmisc_12
 		#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined2_test --seeds expmap_cr_scaled_20,kthmisc_12 --generate_video
 		#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined3_test --seeds expmap_cr_scaled_20,aistpp_gHO_sBM_cAll_d19_mHO3_ch10;dance_style,aistpp_gHO_sBM_cAll_d19_mHO3_ch10
-		sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined3 --seeds "expmap_cr_scaled_20,aistpp_gHO_sBM_cAll_d19_mHO3_ch10;dance_style,aistpp_gHO_sBM_cAll_d19_mHO3_ch10" --generate_video
+		#sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined3 --seeds "expmap_cr_scaled_20,aistpp_gHO_sBM_cAll_d19_mHO3_ch10;dance_style,aistpp_gHO_sBM_cAll_d19_mHO3_ch10" --generate_video --max_length 1024
+		sbatch slurm_script_generate.slurm $exp $line --generate_bvh --data_dir $SCRATCH/data/dance_combined3 --seeds "expmap_cr_scaled_20,kthmisc_gCA_sFM_cAll_d01_mCA_ch1;dance_style,kthmisc_gCA_sFM_cAll_d01_mCA_ch1" --generate_video --max_length 1024 --audio_format wav
 
 		#for i in 1 2 3 4 5; do
 		#	mkdir inference/generated_${i}/
