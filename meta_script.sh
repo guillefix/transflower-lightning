@@ -51,10 +51,10 @@
 #for exp in transflower_expmap_cr4_label8
 #for exp in transflower_expmap_cr4_label9
 #for exp in transflower_expmap_cr4_label_bs
-for exp in transflower_expmap_cr4_label_bs2
+#for exp in transflower_expmap_cr4_label_bs2
 #for exp in transflower_expmap_cr4_label_bs3
 #for exp in transflower_expmap_cr4_label_bs4
-#for exp in transflower_expmap_cr4_label_bs5
+for exp in transflower_expmap_cr4_label_bs5
 #for exp in transflower_expmap_cr_label2
 #for exp in transflower_expmap_cr_label3
 #for exp in transflower_expmap_cr_label4
@@ -83,8 +83,8 @@ do
 	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1
 	#sbatch slurm_script2b.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1
 	#sbatch slurm_script2b.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train --data_dir=${SCRATCH}/data/dance_combined2
-	#sbatch slurm_script2b.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train 
-	sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train
+	sbatch slurm_script2b.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train 
+	#sbatch slurm_script2.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train
 	#sbatch slurm_script4.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1 --continue_train
 	#sbatch slurm_script4.slurm $exp --experiment_name ${exp}_newdata --num_nodes 1
 

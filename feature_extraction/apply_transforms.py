@@ -47,6 +47,7 @@ tasks = distribute_tasks(candidate_files,rank,size)
 
 for i in tasks:
     path = candidate_files[i]
+    print(path)
     feature_file = path.__str__()
     if new_feature_name is None:
         if keep_feature_name:
