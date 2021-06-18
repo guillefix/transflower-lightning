@@ -11,8 +11,8 @@ module load pytorch-gpu/py3/1.8.0
 
 py=python3
 
-root_dir=$SCRATCH/data
-#root_dir=data
+#root_dir=$SCRATCH/data
+root_dir=data
 
 ####aistpp_60hz
 #data_dir=${root_dir}/scaled_features
@@ -52,8 +52,8 @@ root_dir=$SCRATCH/data
 
 ####dance_combined
 #data_dir=${root_dir}/dance_combined
-#data_dir=${root_dir}/dance_combined2
-data_dir=${root_dir}/dance_combined3
+data_dir=${root_dir}/dance_combined2
+#data_dir=${root_dir}/dance_combined3
 exp=$1
 #exp=transformer_expmap
 #exp=mowgli_expmap_stage2
