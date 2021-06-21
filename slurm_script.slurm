@@ -25,4 +25,5 @@ module load pytorch-gpu/py3/1.8.0
 
 #exp=$1
 srun ./script_train.sh $@
+#./script_train.sh $@
 

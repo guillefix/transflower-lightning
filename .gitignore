@@ -19,6 +19,7 @@ data/*
 inference/*
 !inference/generate.py
 test_data/*
+test_data2/*
 outs/*
 *.out
 models/testing_model.py

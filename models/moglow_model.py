@@ -15,6 +15,7 @@ class MoglowModel(BaseModel):
         # import pdb;pdb.set_trace()
         cond_dim = dins[0]*input_seq_lens[0]+dins[1]*input_seq_lens[1]
         output_dim = douts[0]
+        self.network_model = self.opt.network_model
         glow = Glow(output_dim, cond_dim, self.opt)
         setattr(self, "net"+"_glow", glow)
 
@@ -27,7 +28,7 @@ class MoglowModel(BaseModel):
         super().parse_base_arguments()
         self.input_seq_lens = [int(x) for x in str(self.opt.input_seq_lens).split(",")]
         self.output_seq_lens = [int(x) for x in str(self.opt.output_seq_lens).split(",")]
-        if self.opt.phase == "inference":
+        if self.opt.phase == "inference" and self.opt.network_model == "LSTM":
             self.input_lengths = [int(x) for x in self.opt.input_seq_lens.split(",")]
             self.output_lengths = [int(x) for x in self.opt.output_seq_lens.split(",")]
         else:
@@ -79,22 +80,27 @@ class MoglowModel(BaseModel):
         return [outputs.permute(0,2,1)]
 
     def generate(self,features, teacher_forcing=False):
-        self.net_glow.init_lstm_hidden()
+        if self.network_model=="LSTM":
+            self.net_glow.init_lstm_hidden()
         output_seq = autoregressive_generation_multimodal(features, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
         return output_seq
 
     def on_test_start(self):
-        self.net_glow.init_lstm_hidden()
+        if self.network_model=="LSTM":
+            self.net_glow.init_lstm_hidden()
 
     def on_train_start(self):
-        self.net_glow.init_lstm_hidden()
+        if self.network_model=="LSTM":
+            self.net_glow.init_lstm_hidden()
 
     def on_test_batch_start(self, batch, batch_idx, dataloader_idx):
-        self.net_glow.init_lstm_hidden()
+        if self.network_model=="LSTM":
+            self.net_glow.init_lstm_hidden()
 
     def on_train_batch_start(self, batch, batch_idx, dataloader_idx):
-        # self.zero_grad()
-        self.net_glow.init_lstm_hidden()
+        if self.network_model=="LSTM":
+            # self.zero_grad()
+            self.net_glow.init_lstm_hidden()
 
     def concat_sequence(self, seqlen, data):
         #NOTE: this could be done as preprocessing on the dataset to make it a bit more efficient, but we are only going to

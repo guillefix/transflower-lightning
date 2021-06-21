@@ -101,14 +101,17 @@ if __name__ == '__main__':
 
     # Load input features (sequences must have been processed previously into features)
     features = {}
-    for mod in input_mods:
+    for i,mod in enumerate(input_mods):
         if mod in seeds:
             feature = np.load(data_dir+"/"+seeds[mod]+"."+mod+".npy")
         else:
             feature = np.load(data_dir+"/"+seq_id+"."+mod+".npy")
         if args.max_length != -1:
             feature = feature[:args.max_length]
-        features["in_"+mod] = np.expand_dims(feature,0).transpose((1,0,2))
+        if model.input_fix_length_types[i] == "single":
+            features["in_"+mod] = np.expand_dims(np.expand_dims(feature,1),1)
+        else:
+            features["in_"+mod] = np.expand_dims(feature,1)
 
     # Generate prediction
     if torch.cuda.is_available():

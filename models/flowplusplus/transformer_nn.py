@@ -30,12 +30,12 @@ class TransformerNN(nn.Module):
         use_attn (bool): Use attention in each block.
         aux_channels (int): Number of channels in optional auxiliary input.
     """
-    def __init__(self, in_channels, out_channels, num_channels, num_layers, num_heads, num_components, drop_prob, use_pos_emb, input_length, concat_dims, output_length):
+    def __init__(self, in_channels, out_channels, num_channels, num_layers, num_heads, num_components, drop_prob, use_pos_emb, use_rel_pos_emb, input_length, concat_dims, output_length):
         #import pdb;pdb.set_trace()
         super(TransformerNN, self).__init__()
         self.k = num_components  # k = number of mixture components
         # import pdb;pdb.set_trace()
-        self.transformer = BasicTransformerModel(out_channels * (2 + 3 * self.k), in_channels, num_heads, num_channels, num_layers, drop_prob, use_pos_emb=use_pos_emb, input_length=input_length)
+        self.transformer = BasicTransformerModel(out_channels * (2 + 3 * self.k), in_channels, num_heads, num_channels, num_layers, drop_prob, use_pos_emb=use_pos_emb, use_rel_pos_emb=use_rel_pos_emb, input_length=input_length)
         self.rescale = weight_norm(Rescale(out_channels))
         self.out_channels = out_channels
         self.concat_dims = concat_dims

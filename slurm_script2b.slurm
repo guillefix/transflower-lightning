@@ -10,8 +10,8 @@
 ##SBATCH --ntasks=1 --cpus-per-task=24 --gres=gpu:1
 ##SBATCH --nodes=4 --ntasks-per-node=4 --cpus-per-task=6 --gres=gpu:4
 ##SBATCH --nodes=2 --ntasks-per-node=4 --cpus-per-task=6 --gres=gpu:4
-#SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=12 --gres=gpu:1
-##SBATCH --nodes=1 --ntasks-per-node=8 --cpus-per-task=4 --gres=gpu:8
+#SBATCH --nodes=1 --ntasks-per-node=4 --cpus-per-task=6 --gres=gpu:4
+##SBATCH --nodes=1 --ntasks-per-node=2 --cpus-per-task=6 --gres=gpu:2
 ##SBATCH --partition=gpu_p2
 #SBATCH -A imi@gpu
 #SBATCH -C v100-32g

@@ -42,6 +42,7 @@ class FlowPlusPlus(nn.Module):
                  use_logmix=True,
                  use_transformer_nn=False,
                  use_pos_emb=False,
+                 use_rel_pos_emb=False,
                  num_heads=10,
                  drop_prob=0.2,
                  norm_layer=None,
@@ -63,6 +64,7 @@ class FlowPlusPlus(nn.Module):
                                use_logmix=use_logmix,
                                use_transformer_nn=use_transformer_nn,
                                use_pos_emb=use_pos_emb,
+                               use_rel_pos_emb=use_rel_pos_emb,
                                num_heads=num_heads,
                                drop_prob=drop_prob,
                                norm_layer=norm_layer,
@@ -143,7 +145,7 @@ class _FlowStep(nn.Module):
         use_attn (bool): Use attention in the coupling layers.
         drop_prob (float): Dropout probability.
     """
-    def __init__(self, scales, in_shape, cond_dim, mid_channels, num_blocks, num_components, use_attn, use_logmix, use_transformer_nn, use_pos_emb, num_heads, drop_prob, norm_layer, bn_momentum, cond_concat_dims, cond_seq_len):
+    def __init__(self, scales, in_shape, cond_dim, mid_channels, num_blocks, num_components, use_attn, use_logmix, use_transformer_nn, use_pos_emb, use_rel_pos_emb, num_heads, drop_prob, norm_layer, bn_momentum, cond_concat_dims, cond_seq_len):
         super(_FlowStep, self).__init__()
         in_channels, in_height, in_width = in_shape
         num_channelwise, num_checkerboard = scales[0]
@@ -174,6 +176,7 @@ class _FlowStep(nn.Module):
                                   use_logmix=use_logmix,
                                   use_transformer_nn=use_transformer_nn,
                                   use_pos_emb=use_pos_emb,
+                                  use_rel_pos_emb=use_rel_pos_emb,
                                   num_heads=num_heads,
                                   seq_length=seq_length,
                                   output_length=in_height,
@@ -203,6 +206,7 @@ class _FlowStep(nn.Module):
                                   use_logmix=use_logmix,
                                   use_transformer_nn=use_transformer_nn,
                                   use_pos_emb=use_pos_emb,
+                                  use_rel_pos_emb=use_rel_pos_emb,
                                   num_heads=num_heads,
                                   seq_length=seq_length,
                                   output_length=in_height,
@@ -226,6 +230,7 @@ class _FlowStep(nn.Module):
                                   use_logmix=use_logmix,
                                   use_transformer_nn=use_transformer_nn,
                                   use_pos_emb=use_pos_emb,
+                                  use_rel_pos_emb=use_rel_pos_emb,
                                   num_heads=num_heads,
                                   norm_layer = norm_layer,
                                   bn_momentum = bn_momentum,

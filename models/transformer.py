@@ -62,27 +62,20 @@ class PositionalEncoding(nn.Module):
 
 
 class LearnedPositionalEncoding(nn.Module): # emm this isn't learned lol
-    def __init__(self, d_model, dropout=0.1, max_len=5000, device=None):
-        super(PositionalEncoding, self).__init__()
+    def __init__(self, d_model, input_length, dropout=0.1, device=None):
+        super(LearnedPositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(p=dropout)
-
-        pe = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term1 = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
-        div_term2 = torch.exp(torch.arange(0, (d_model//2)*2, 2).float() * (-math.log(10000.0) / d_model))
-        pe[:, 0::2] = torch.sin(position * div_term1)
-        pe[:, 1::2] = torch.cos(position * div_term2)
-        pe = pe.unsqueeze(0).transpose(0, 1)
+        pe = nn.Parameter((torch.zeros(input_length, 1, d_model)))
         self.register_buffer('pe', pe)
 
     def forward(self, x):
         # print(x.shape)
-        x = x + self.pe[:x.size(0), :]
+        x = x + self.pe
         return self.dropout(x)
 
-class BasicTransformerModel(nn.Module):
 
-    def __init__(self, dout, dinp, nhead, dhid, nlayers, dropout=0.5, ntoken=None, device=None,use_pos_emb=False,input_length=0,use_x_transformers=False, opt=None, discrete_inputs=False):
+class BasicTransformerModel(nn.Module):
+    def __init__(self, dout, dinp, nhead, dhid, nlayers, dropout=0.5, ntokens=0, device=None, use_pos_emb=False, use_rel_pos_emb=False, input_length=0,use_x_transformers=False, opt=None, discrete_inputs=False):
         super(BasicTransformerModel, self).__init__()
         self.device = device
         self.model_type = 'Transformer'
@@ -90,18 +83,21 @@ class BasicTransformerModel(nn.Module):
         self.discrete_inputs = discrete_inputs
         if not use_x_transformers:
             if discrete_inputs:
-                assert ntoken is not None #ntoken needs to be set if we are to use an embedding layer (discrete inputs)
-                self.encoder = nn.Embedding(ntoken, dinp)
+                assert ntokens != 0 #ntoken needs to be set if we are to use an embedding layer (discrete inputs)
+                self.encoder = nn.Embedding(ntokens, dinp)
             self.encoder1 = nn.Linear(dinp, dhid)
-            #self.pos_encoder = PositionalEncoding(dhid, dropout, device=self.device)
+            if use_pos_emb:
+                self.pos_encoder = LearnedPositionalEncoding(dhid, input_length, dropout)
             encoder_layers = TransformerEncoderLayer(dhid, nhead, dhid, dropout)
             self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
             self.dinp = dinp
             self.dhid = dhid
             self.decoder = nn.Linear(dhid, dout)
             self.use_pos_emb = use_pos_emb
-            if use_pos_emb:
-                assert input_length > 0
+            self.use_rel_pos_emb = use_rel_pos_emb
+            self.input_length = input_length
+            if use_rel_pos_emb and input_length > 1:
+                #assert input_length > 0
                 self.pos_emb = nn.Parameter((torch.zeros(input_length, input_length)))
                 # self.pos_emb = nn.Parameter((torch.eye(input_length, input_length)))
                 # self.pos_emb = nn.Parameter((torch.randn(input_length, input_length))/np.sqrt(dinp))
@@ -139,17 +135,19 @@ class BasicTransformerModel(nn.Module):
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, src, src_mask=None):
+        #print(src.shape)
         if self.discrete_inputs:
-            src = self.encoder(src)
+            src = self.encoder(src.squeeze(0))
         if not self.use_x_transformers:
             src = self.encoder1(src)
             # import pdb;pdb.set_trace()
             #src *= math.sqrt(self.dhid)
-            #src = self.pos_encoder(src)
+            if self.use_pos_emb:
+                src = self.pos_encoder(src)
             #src /= math.sqrt(self.dhid)
             # print(src)
             # print(torch.mm(src[:,0,:],src[:,0,:].T))
-            if self.use_pos_emb:
+            if self.use_rel_pos_emb and self.input_length > 1:
                 #print(self.pos_emb)
                 #src_mask += self.pos_emb
                 if src_mask is not None:
@@ -164,7 +162,12 @@ class BasicTransformerModel(nn.Module):
                     output = self.transformer_encoder(src)
                 #output = self.transformer_encoder(src)
             output = self.decoder(output)
-            return output
+            #print(output.shape)
+            if self.discrete_inputs:
+                #return output.unsqueeze(0)
+                return output.permute(1,0,2)
+            else:
+                return output
         else:
             assert src_mask == None
             src = src.permute(1,0,2)
@@ -172,6 +175,18 @@ class BasicTransformerModel(nn.Module):
             output = self.model(src, mask = mask)
             # output = self.model(src.permute(1,0,2))
             return output.permute(1,0,2)
+
+class BasicTransformerModelCausal(nn.Module):
+    def __init__(self, dout, dinp, nhead, dhid, nlayers, dropout=0.5, ntokens=0, device=None, use_pos_emb=False, use_rel_pos_emb=False, input_length=0,use_x_transformers=False, opt=None, discrete_inputs=False):
+        self.model = BasicTransformerModel(self, dout, dinp, nhead, dhid, nlayers, dropout=0.5, ntokens=0, device=None, use_pos_emb=False, use_rel_pos_emb=False, input_length=0,use_x_transformers=False, opt=None, discrete_inputs=False)
+        self.mask = self.model.generate_square_subsequent_mask(input_length)
+    def init_weights(self):
+        self.model.init_weights()
+    def generate_square_subsequent_mask(self, sz, prefix_length = 1):
+        self.model.generate_square_subsequent_mask(sz,prefix_length)
+    def forward(self, src, src_mask=None):
+        return self.model(src,src_mask=self.mask)
+
 
 class EncDecTransformerModel(nn.Module):
 
