@@ -1,7 +1,7 @@
 model: moglow
 lr_policy: "multistep"
 lr_decay_milestones: "[100,200]"
-learning_rate: 1e-4
+learning_rate: 1e-3
 #dins: "69,85"
 dins: "67,85"
 #douts: "69"
@@ -9,14 +9,14 @@ douts: "67"
 #input_modalities: "expmap_scaled_20,audio_feats_scaled_20"
 input_modalities: "expmap_cr_scaled_20,audio_feats_scaled_20"
 output_modalities: "expmap_cr_scaled_20"
-input_lengths: "119,129"
+input_lengths: "119,139"
 input_seq_lens: "60,80"
 output_lengths: "60"
 output_time_offsets: "60"
 flow_dist: studentT
 glow_K: 24
-dhid: 256
-dropout: 0
+dhid: 128
+dropout: 0.1
 gradient_clip_val: 0.5
-batch_size: 64
+batch_size: 100
 #batch_size: 8
