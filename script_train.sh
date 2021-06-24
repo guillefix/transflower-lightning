@@ -11,8 +11,8 @@ module load pytorch-gpu/py3/1.8.0
 
 py=python3
 
-root_dir=$SCRATCH/data
-#root_dir=data
+#root_dir=$SCRATCH/data
+root_dir=data
 exp=$1
 
 ####aistpp_60hz

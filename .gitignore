@@ -30,3 +30,4 @@ ones_to_check2.txt
 to_check*
 MNIST/
 models/x_transformers
+data/scripts/*

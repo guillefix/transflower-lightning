@@ -1,9 +1,8 @@
-# mt-lightning
-multimodal transformer
+This repo holds the code to perform experiments with the multimodal autoregressive probabilistic model [Transflower](link).
 
-This repo holds the code to perform experiments with multimodal transformers, with a focus on stochastic continuous modalities (e.g. movement, or speech), as outputs.
+# Overview of the repo
 
-It is structured on folders which hold the code or assets for different parts of the workflow. I am using a general framework which was inspired by the CycleGAN project, and then modified to work with [Pytorch Lightning](https://www.pytorchlightning.ai/). I think framework-wise, it works quite well, though it could still be improved (e.g. the options system could be improved with namespacing)
+It is structured into folders which hold the code or assets for different parts of the workflow. I am using a general framework which was inspired by the CycleGAN project, and then modified to work with [Pytorch Lightning](https://www.pytorchlightning.ai/).
 
 * `Training` holds the training code. The entry point file is `train.py`
   * `Datasets` holds the pytorch datasets and also convenience utilities to create the datasets and dataloaders. A dataset is defined as a class inheriting from BaseDataset, with a class name which should be "DatasetNameDataset" where "DatasetName" (but lowercased) will be the name used to refer to the dataset in the options.
@@ -16,9 +15,58 @@ It is structured on folders which hold the code or assets for different parts of
 * `data` holds the actual data, and a couple of scripts to download data
 * `analysis` holds code to analyze and explore the data, as well as visualizing results. Beware of files named "sandbox", as they are used by me using [Hydrogen](https://nteract.io/atom), so the outside observer would look like a jumbled mess of code (which it is). It is literally a sandbox of code, to play around.
 
+# How to run training and inference
+
 The scripts in the root folder are for running the common high level tasks. `script_generate.sh` generates samples for the model of a particular experiment. `script_train.sh` trains a model on some data, as specified by a particular hyperparameters file, though any of the hparams can be overriden as argparse arguments. You can add `--help` to to get some explanation of what the different options/hparams do. Note that the options parser (in `training/options/base_options.py`) gathers the set of available options by aggregating the base options with the options defined in the particular model and dataset you have specified in the `model` and `dataset_name` options.
 
-Next we explain in some more detail the dataset and models available
+You can run `./script_train.sh transflower_expmap` to train using the hparams file in `training/hparams/dance_combined/transflower_expmap.yaml`, which is the configuration we used in the paper. This assumes the data is inside `data/dance_combined3` but can be changed with the `--data_dir` argument.
+
+You can run `./script_generate.sh transflower_expmap the_basement --generate_bvh --data_dir data/dance_combined3 --generate_video` to generate using the model trained in the experiment `transflower_expmap`, on the sequence with sequence id `the_basement`. This sequence_id is just the basename of the original sound file.
+
+## Training on your own data
+
+First install requirements with `pip install -r requirements.txt`
+
+Then, I assume you have a folder, say inside `data/myData` which contains bvh files and wav files which are paired and time-syncced. In particular, they should have the same basename, for example, `sequence1.bvh` and `sequence1.wav` would be paired. With that, you can run `./feature_extraction/audio_feature_extraction.sh data/myData` and `./feature_extraction/motion_feature_extraction.sh data/myData` to extract the audio and motion features. You can pass the argument `--replace_existing` if you want to recompute features with the same names. This will create files with names like `sequence1.audio_feats_scaled_20.npy` and `sequence1.expmap_cr_scaled_20.npy`. The `expmap_cr_scaled_20` and `expmap_cr_scaled_20` parts are the "feature names" which should match the ones that are given in the `input_modalities` arguments when training (see the different hparams files). There are different audio and motion feature options available which can be seen in the different scripts called by `audio_feature_extraction.sh` and `motion_feature_extraction.sh`.
+
+One this is done, you can now call `./script_train.sh transflower_expmap --data_dir=data/myData` to train, as mentioned above. The checkpoints and results will be found in `training/experiments/transflower_expmap`. You can use `tensorboard --logdir training/experiments` to track progress using tensorboard.
+
+*More options*: You can specify a different experiment name which will look for a different hparams file inside `training/hparams/dance_combined`. You can also directly pass arguments to `./script_train.sh`. You can see some of them by typing `python training/train.py -h`, but this is not a complete list, as some arguments are specific to datasets and models. You can see the model and dataset specific arguments by looking at their class definitions. The dataset definition is in `training/datasets/multimodal_dataset.py` and the model is in `models/transflower_model.py`. 
+
+## Generating a dance
+
+To give a more concrete example, and following the exact workflow in the provided [Google colab]() which I recommend using to try the model, assume we have a filename called `myCoolSong.wav`. After installing dependencies, we can create a folder to store it, and also one for the seeds and pretrained models, and download them. This assumes you have [gsutil installed](https://cloud.google.com/storage/docs/gsutil_install).
+
+```
+pip install -r requirements.txt
+apt-get install ffmpeg
+mkdir songs
+mkdir training/experiments
+gsutil -m cp -r gs://metagen/models/transflower_expmap_old training/experiments/
+gsutil -m cp -r gs://metagen/models/transflower_expmap_finetune2_old training/experiments/
+gsutil -m cp -r gs://metagen/scalers/* songs/
+gsutil -m cp -r gs://metagen/seeds/* songs/
+```
+
+We then extract the music features as follows
+
+```
+chmod +x ./feature_extraction/audio_feature_extraction_test.sh
+chmod +x ./feature_extraction/script_to_list_filenames
+./feature_extraction/audio_feature_extraction_test.sh songs/
+```
+
+Finally, we can generate as follows
+
+```
+./script_generate.sh transflower_expmap_old myCoolSong --generate_bvh --generate_video --data_dir=songs
+```
+
+and the result will be inside `inference/generated/transflower_expmap_old/videos`.
+
+-----------------
+
+Next we explain in some more detail the structure and options of the general dataset format we use, as well as models available and their main options
 
 # Multimodal dataset
 
@@ -92,14 +140,14 @@ The main disadvantages are:
 
 Overall, at least in image world (less clear about other modalities), they produce better quality results than VAEs, but worse than GANs. However, they may be more stable and thus easier to train than GANs. I think GANs are worth giving a try, though. Other models that I think are worth giving a try are: VQ-VAEs and energy-based models, which have different strengths and weaknesses, but have both shown very good performance at modeling complex distributions (again mostly in images). VQ-VAEs are also state of the art at music modelling, and close to SOTA at image modelling, so they are worth looking at I think. I am giving NFs a try mostly because they are SOTA for motion modelling currently, and they have nice theoretical properties (thanks to exact inference)
 
-## AIST++ data
+# Data
 
-You can get a copy of the (already preprocessed) AIST++ data by running the file `./copy_from_gs.sh` in `data/`. It needs `gsutils` installed. With that you can begin running experiments using the provided scripts (you may need to add the flag `--fix_lengths` first time you run it as some modalities for the same sequence dont have quite the same length (coz my preprocessing isnt perfect:P), and may differ by one or two samples in length.
+<!-- You can get a copy of the (already preprocessed) AIST++ data by running the file `./copy_from_gs.sh` in `data/`. It needs `gsutils` installed. With that you can begin running experiments using the provided scripts (you may need to add the flag `--fix_lengths` first time you run it as some modalities for the same sequence dont have quite the same length (coz my preprocessing isnt perfect:P), and may differ by one or two samples in length.
 
 This data is extracted from a dataset of dance videos. More data comming soon.
 
-You can also ask me for a copy of the MoGlow dataset if you want. I'm currently playing with the model, but soon will begin playing again with the data, and organize it more. 
+You can also ask me for a copy of the MoGlow dataset if you want. I'm currently playing with the model, but soon will begin playing again with the data, and organize it more.  -->
 
-## Community
+# Community
 
-You can join [the community discord](https://discord.gg/HQ8Crcw), where we discuss progress in this project, which is part of the umbrella project to explore and develop the intersection between VR and AI. See http://metagen.ai
+I'll be continuing some extensions to this work, with the aim to develop open source tools and datasets. You can join [this community discord](https://discord.gg/HQ8Crcw), where we discuss progress in this project, which is part of an umbrella project to explore and develop the intersection between VR and AI:). See http://metagen.ai
