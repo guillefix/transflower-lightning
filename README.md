@@ -148,6 +148,18 @@ This data is extracted from a dataset of dance videos. More data comming soon.
 
 You can also ask me for a copy of the MoGlow dataset if you want. I'm currently playing with the model, but soon will begin playing again with the data, and organize it more.  -->
 
+We are compiling the dataset, which comprises several sources, and will release it soon. 
+
+Some parts of the dataset are already publicly available. The AIST++ dataset is available [here](https://google.github.io/aistplusplus_dataset/factsfigures.html), and most of the VR dances are available from several playing lists including [this one](https://www.youtube.com/playlist?list=PLfUjxoRin1rx2QEsMHGPrcJk8kghQ7CBP), [this one](https://www.youtube.com/playlist?list=PLfUjxoRin1rwh6iHNIL5A1n7TmJ9s1Oz-), [this one](https://www.youtube.com/playlist?list=PLmwqDOin_Zt4WCMWqoK6SdHlg0C_WeCP6) and [this channel](https://www.youtube.com/channel/UCpf29wLMtgWZHljBD2rZZQQ). These dances can all be visualized in 3D in the VRChat world Papa Dance by lox9973. The VR dance videos can be converted to bvh (and retargetted to any humanoid skeleton) using [this Unity tool](https://github.com/guillefix/shadermotion-bvh-utils), and the features processed as explained [in the code](https://github.com/guillefix/transflower-lightning). However, we will release the full set of features soon, so that it will be easier to replicate and build on this dataset:)
+
+# Cite
+
+If you use models or code from this repo, cite us using
+
+```
+
+```
+
 # Community
 
 I'll be continuing some extensions to this work, with the aim to develop open source tools and datasets. You can join [this community discord](https://discord.gg/HQ8Crcw), where we discuss progress in this project, which is part of an umbrella project to explore and develop the intersection between VR and AI:). See http://metagen.ai

@@ -79,10 +79,10 @@ class MoglowModel(BaseModel):
         # import pdb;pdb.set_trace()
         return [outputs.permute(0,2,1)]
 
-    def generate(self,features, teacher_forcing=False):
+    def generate(self,features, teacher_forcing=False, ground_truth=False):
         if self.network_model=="LSTM":
             self.net_glow.init_lstm_hidden()
-        output_seq = autoregressive_generation_multimodal(features, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing)
+        output_seq = autoregressive_generation_multimodal(features, self, autoreg_mods=self.output_mods, teacher_forcing=teacher_forcing, ground_truth=ground_truth)
         return output_seq
 
     def on_test_start(self):
