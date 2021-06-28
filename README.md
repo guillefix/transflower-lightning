@@ -1,4 +1,4 @@
-This repo holds the code to perform experiments with the multimodal autoregressive probabilistic model [Transflower](link).
+This repo holds the code to perform experiments with the multimodal autoregressive probabilistic model [Transflower](http://metagen.ai/transflower).
 
 # Overview of the repo
 
