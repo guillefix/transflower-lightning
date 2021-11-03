@@ -1,5 +1,7 @@
 This repo holds the code to perform experiments with the multimodal autoregressive probabilistic model [Transflower](http://metagen.ai/transflower).
 
+This repo is archived and continued development is found in [this repo](https://github.com/MetaGenAI/multimodal-transflower).
+
 # Overview of the repo
 
 It is structured into folders which hold the code or assets for different parts of the workflow. I am using a general framework which was inspired by the CycleGAN project, and then modified to work with [Pytorch Lightning](https://www.pytorchlightning.ai/).
