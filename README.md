@@ -152,7 +152,9 @@ You can also ask me for a copy of the MoGlow dataset if you want. I'm currently 
 
 We are compiling the dataset, which comprises several sources, and will release it soon. 
 
-Some parts of the dataset are already publicly available. The AIST++ dataset is available [here](https://google.github.io/aistplusplus_dataset/factsfigures.html), and most of the VR dances are available from several playing lists including [this one](https://www.youtube.com/playlist?list=PLfUjxoRin1rx2QEsMHGPrcJk8kghQ7CBP), [this one](https://www.youtube.com/playlist?list=PLfUjxoRin1rwh6iHNIL5A1n7TmJ9s1Oz-), [this one](https://www.youtube.com/playlist?list=PLmwqDOin_Zt4WCMWqoK6SdHlg0C_WeCP6) and [this channel](https://www.youtube.com/channel/UCpf29wLMtgWZHljBD2rZZQQ). These dances can all be visualized in 3D in the VRChat world Papa Dance by lox9973. The VR dance videos can be converted to bvh (and retargetted to any humanoid skeleton) using [this Unity tool](https://github.com/guillefix/shadermotion-bvh-utils), and the features processed as explained [in the code](https://github.com/guillefix/transflower-lightning). However, we will release the full set of features soon, so that it will be easier to replicate and build on this dataset:)
+
+
+<!-- Some parts of the dataset are already publicly available. The AIST++ dataset is available [here](https://google.github.io/aistplusplus_dataset/factsfigures.html), and most of the VR dances are available from several playing lists including .... These dances can all be visualized in 3D in the VRChat world Papa Dance by lox9973. The VR dance videos can be converted to bvh (and retargetted to any humanoid skeleton) using [this Unity tool](https://github.com/guillefix/shadermotion-bvh-utils), and the features processed as explained [in the code](https://github.com/guillefix/transflower-lightning). However, we will release the full set of features soon, so that it will be easier to replicate and build on this dataset:) -->
 
 # Cite
 
